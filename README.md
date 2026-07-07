@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/NuGet-coming%20soon-2563EB?style=for-the-badge&logo=nuget&labelColor=0D1117" alt="NuGet"/>
-  <img src="https://img.shields.io/badge/.NET-9%20%7C%2010-512BD4?style=for-the-badge&logo=dotnet&labelColor=0D1117" alt=".NET"/>
+  <img src="https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet&labelColor=0D1117" alt=".NET"/>
   <img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge&labelColor=0D1117" alt="License"/>
   <img src="https://img.shields.io/badge/Build-passing-22C55E?style=for-the-badge&logo=github-actions&labelColor=0D1117" alt="Build"/>
   <img src="https://img.shields.io/badge/Tests-passing-22C55E?style=for-the-badge&logo=github-actions&labelColor=0D1117" alt="Tests"/>
@@ -19,10 +19,6 @@
 
 ---
 
-<table>
-<tr>
-<td width="57%" valign="top">
-
 ## 🎯 About the Project
 
 **ThrottleWatch** is a complete observability solution for ASP.NET Core Rate Limiting.
@@ -31,46 +27,30 @@ It complements the native Rate Limiting framework by bringing real-time visibili
 
 Zero manual instrumentation. Zero boilerplate. Just plug in and observe.
 
-<br/>
+<p align="center">
+  <img src="docs/images/dashboard.svg" alt="ThrottleWatch Dashboard" width="90%"/>
+</p>
+
+---
 
 ## ⚡ Key Features
 
-<table>
-<tr>
-  <td>✅ Zero-configuration setup</td>
-  <td>✅ Webhook, Slack, Discord &amp; Email alerts</td>
-</tr>
-<tr>
-  <td>✅ Real-time dashboard</td>
-  <td>✅ Intelligent insights &amp; recommendations</td>
-</tr>
-<tr>
-  <td>✅ Native ASP.NET Core integration</td>
-  <td>✅ Persistence with EF Core + PostgreSQL</td>
-</tr>
-<tr>
-  <td>✅ Live metrics via SignalR</td>
-  <td>✅ Multi-tenant support (v1.3)</td>
-</tr>
-<tr>
-  <td>✅ Top IPs, API Keys &amp; Endpoints</td>
-  <td>✅ OpenTelemetry export (v1.4)</td>
-</tr>
-<tr>
-  <td>✅ Full historical analytics</td>
-  <td>✅ Unit &amp; Integration test coverage</td>
-</tr>
-</table>
+| | |
+|---|---|
+| ✅ Zero-configuration setup | ✅ Webhook, Slack, Discord & Email alerts |
+| ✅ Real-time dashboard | ✅ Intelligent insights & recommendations |
+| ✅ Native ASP.NET Core integration | ✅ Persistence with EF Core + PostgreSQL |
+| ✅ Live metrics via SignalR | ✅ Multi-tenant support (v1.3) |
+| ✅ Top IPs, API Keys & Endpoints | ✅ OpenTelemetry export (v1.4) |
+| ✅ Full historical analytics | ✅ Unit & Integration test coverage |
 
-<br/>
+---
 
 ## 📦 Installation
 
 ```bash
 dotnet add package ThrottleWatch
 ```
-
-<br/>
 
 ## 🚀 Quick Start
 
@@ -83,25 +63,6 @@ app.UseThrottleWatch();
 ```
 
 That's it. ThrottleWatch will automatically start monitoring every request. Visit `/throttlewatch` to open the dashboard.
-
-</td>
-<td width="43%" align="center" valign="top">
-
-<br/><br/>
-
-<img src="docs/images/dashboard.svg" alt="ThrottleWatch Dashboard" width="100%"/>
-
-<br/><br/>
-
-> 📸 *Real-time rate limiting dashboard with live metrics, blocked requests, top endpoints and intelligent alerts.*
-
-<br/>
-
-<img src="docs/images/architecture.svg" alt="ThrottleWatch Architecture" width="90%"/>
-
-</td>
-</tr>
-</table>
 
 ---
 
@@ -295,7 +256,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines, code
 
 ## 🧪 Development & Testing
 
-**Prerequisites:** .NET 9 SDK, Docker (for PostgreSQL)
+**Prerequisites:** .NET 10 SDK, Docker (for PostgreSQL)
 
 ```bash
 # Clone the repository
