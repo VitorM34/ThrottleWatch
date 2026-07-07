@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <radialGradient id="outer-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#3B82F6" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fill" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#0C1A30"/>
+      <stop offset="100%" stop-color="#120B27"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#60A5FA" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#A78BFA" stop-opacity="0.03"/>
+    </linearGradient>
+    <linearGradient id="border" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#C4B5FD"/>
+    </linearGradient>
+    <linearGradient id="b1" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#BAE6FD"/><stop offset="100%" stop-color="#60A5FA"/>
+    </linearGradient>
+    <linearGradient id="b2" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#C7D2FE"/><stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+    <linearGradient id="b3" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#DDD6FE"/><stop offset="100%" stop-color="#A78BFA"/>
+    </linearGradient>
+    <linearGradient id="b4" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#C4B5FD"/><stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <filter id="fg" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="fb" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="fl" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <ellipse cx="100" cy="105" rx="70" ry="74" fill="url(#outer-glow)"/>
+
+  <path d="M100 18 L163 45 L163 113 Q163 158 100 182 Q37 158 37 113 L37 45 Z" fill="url(#fill)"/>
+  <path d="M100 18 L163 45 L163 113 Q163 158 100 182 Q37 158 37 113 L37 45 Z" fill="url(#inner)"/>
+  <path d="M100 18 L163 45 L163 113 Q163 158 100 182 Q37 158 37 113 L37 45 Z"
+        stroke="url(#border)" stroke-width="2.8" stroke-linejoin="round" filter="url(#fg)"/>
+  <path d="M100 31 L152 54 L152 113 Q152 149 100 168 Q48 149 48 113 L48 54 Z"
+        stroke="url(#border)" stroke-width="0.5" opacity="0.28"/>
+
+  <line x1="15" y1="78"  x2="66" y2="78"  stroke="#93C5FD" stroke-width="2"   stroke-linecap="round" filter="url(#fl)"/>
+  <polygon points="70,78 64,74.5 64,81.5"  fill="#93C5FD" filter="url(#fl)"/>
+  <line x1="11" y1="94"  x2="66" y2="94"  stroke="#A5B4FC" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/>
+  <polygon points="70,94 64,90.5 64,97.5"  fill="#A5B4FC" opacity="0.85"/>
+  <line x1="15" y1="110" x2="66" y2="110" stroke="#C4B5FD" stroke-width="1.1" stroke-linecap="round" opacity="0.6"/>
+  <polygon points="70,110 64,106.5 64,113.5" fill="#C4B5FD" opacity="0.6"/>
+
+  <rect x="77"  y="120" width="12" height="32" rx="2.5" fill="url(#b1)" filter="url(#fb)"/>
+  <rect x="94"  y="103" width="12" height="49" rx="2.5" fill="url(#b2)"/>
+  <rect x="111" y="88"  width="12" height="64" rx="2.5" fill="url(#b3)" filter="url(#fb)"/>
+  <rect x="128" y="110" width="12" height="42" rx="2.5" fill="url(#b4)"/>
+
+  <line x1="75" y1="110" x2="142" y2="110"
+        stroke="#FCD34D" stroke-width="1.4" stroke-dasharray="3.8,2.6" opacity="0.9" filter="url(#fl)"/>
+  <circle cx="117" cy="109.5" r="3.2" fill="#FCD34D" opacity="0.9" filter="url(#fl)"/>
+</svg>

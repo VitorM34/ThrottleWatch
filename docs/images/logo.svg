@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <!-- Shield outer glow -->
+    <radialGradient id="shield-outer-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#3B82F6" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Shield solid fill -->
+    <linearGradient id="shield-fill" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#0F1E3A"/>
+      <stop offset="100%" stop-color="#150D30"/>
+    </linearGradient>
+    <!-- Shield border -->
+    <linearGradient id="shield-border" x1="37" y1="18" x2="163" y2="182" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <!-- Inner shield subtle highlight -->
+    <linearGradient id="shield-inner" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#3B82F6" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0.02"/>
+    </linearGradient>
+    <!-- Bar gradients (objectBoundingBox so they work regardless of position) -->
+    <linearGradient id="bar-1" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#93C5FD"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="bar-2" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#A5B4FC"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="bar-3" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#C4B5FD"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="bar-4" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <!-- Soft glow for bars and lines -->
+    <filter id="glow-soft" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-xs" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer ambient glow (behind shield) -->
+  <ellipse cx="100" cy="105" rx="68" ry="72" fill="url(#shield-outer-glow)"/>
+
+  <!-- Shield solid body -->
+  <path d="M100 18 L163 45 L163 113 Q163 158 100 182 Q37 158 37 113 L37 45 Z"
+        fill="url(#shield-fill)"/>
+
+  <!-- Shield inner highlight layer -->
+  <path d="M100 18 L163 45 L163 113 Q163 158 100 182 Q37 158 37 113 L37 45 Z"
+        fill="url(#shield-inner)"/>
+
+  <!-- Shield border (gradient stroke) -->
+  <path d="M100 18 L163 45 L163 113 Q163 158 100 182 Q37 158 37 113 L37 45 Z"
+        stroke="url(#shield-border)" stroke-width="2.8" stroke-linejoin="round"
+        filter="url(#glow-soft)"/>
+
+  <!-- Inner shield accent line -->
+  <path d="M100 31 L152 54 L152 113 Q152 149 100 168 Q48 149 48 113 L48 54 Z"
+        stroke="url(#shield-border)" stroke-width="0.5" opacity="0.25"/>
+
+  <!-- HTTP request arrow lines (entering from left) -->
+  <line x1="15" y1="78"  x2="66" y2="78"  stroke="#60A5FA" stroke-width="2"   stroke-linecap="round" filter="url(#glow-xs)"/>
+  <polygon points="70,78 64,74.5 64,81.5"  fill="#60A5FA"  filter="url(#glow-xs)"/>
+
+  <line x1="11" y1="94"  x2="66" y2="94"  stroke="#818CF8" stroke-width="1.6" stroke-linecap="round" opacity="0.88"/>
+  <polygon points="70,94 64,90.5 64,97.5"  fill="#818CF8"  opacity="0.88"/>
+
+  <line x1="15" y1="110" x2="66" y2="110" stroke="#A78BFA" stroke-width="1.1" stroke-linecap="round" opacity="0.6"/>
+  <polygon points="70,110 64,106.5 64,113.5" fill="#A78BFA" opacity="0.6"/>
+
+  <!-- Metric bars (all aligned to baseline y=152) -->
+  <rect x="77"  y="120" width="12" height="32" rx="2.5" fill="url(#bar-1)" filter="url(#glow-xs)"/>
+  <rect x="94"  y="103" width="12" height="49" rx="2.5" fill="url(#bar-2)"/>
+  <rect x="111" y="88"  width="12" height="64" rx="2.5" fill="url(#bar-3)" filter="url(#glow-xs)"/>
+  <rect x="128" y="110" width="12" height="42" rx="2.5" fill="url(#bar-4)"/>
+
+  <!-- Rate-limit threshold line (dashed amber) -->
+  <line x1="75" y1="110" x2="142" y2="110"
+        stroke="#F59E0B" stroke-width="1.4" stroke-dasharray="3.8,2.6" opacity="0.88"/>
+  <!-- Warning dot where bar-3 exceeds the limit -->
+  <circle cx="117" cy="109.5" r="3.2" fill="#F59E0B" opacity="0.9" filter="url(#glow-xs)"/>
+</svg>

@@ -1,0 +1,232 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 260" width="1200" height="260">
+  <defs>
+    <!-- Background -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="260" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#060C18"/>
+      <stop offset="50%"  stop-color="#0D1117"/>
+      <stop offset="100%" stop-color="#08091A"/>
+    </linearGradient>
+
+    <!-- Glow orbs -->
+    <radialGradient id="glow-blue" cx="16%" cy="50%" r="28%">
+      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-purple" cx="88%" cy="50%" r="28%">
+      <stop offset="0%" stop-color="#7C3AED" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Logo gradients (objectBoundingBox so they survive the transform) -->
+    <radialGradient id="L-outer-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#3B82F6" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="L-shield-fill" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#0F1E3A"/>
+      <stop offset="100%" stop-color="#150D30"/>
+    </linearGradient>
+    <linearGradient id="L-shield-inner" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#3B82F6" stop-opacity="0.09"/>
+      <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="L-shield-border" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="L-bar-1" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#93C5FD"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="L-bar-2" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#A5B4FC"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="L-bar-3" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#C4B5FD"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="L-bar-4" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+
+    <!-- Title gradient -->
+    <linearGradient id="title-grad" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#93C5FD"/>
+      <stop offset="35%"  stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#C4B5FD"/>
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="f-shield-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="f-bar-glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="f-line-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="f-title" x="-2%" y="-25%" width="104%" height="150%">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Dot grid pattern -->
+    <pattern id="dots" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="14" cy="14" r="0.7" fill="#1E2D42"/>
+    </pattern>
+  </defs>
+
+  <!--  Background  -->
+  <rect width="1200" height="260" fill="url(#bg)"/>
+  <rect width="1200" height="260" fill="url(#dots)" opacity="0.5"/>
+
+  <!-- Ambient colour glows -->
+  <rect width="1200" height="260" fill="url(#glow-blue)"/>
+  <rect width="1200" height="260" fill="url(#glow-purple)"/>
+
+  <!-- Top / bottom accent lines -->
+  <line x1="0" y1="0"   x2="1200" y2="0"   stroke="#3B82F6" stroke-width="1.5" opacity="0.45"/>
+  <line x1="0" y1="259" x2="1200" y2="259" stroke="#8B5CF6" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- Subtle horizontal grid marks -->
+  <line x1="0" y1="44"  x2="1200" y2="44"  stroke="#1E3A5F" stroke-width="0.5" opacity="0.3"/>
+  <line x1="0" y1="214" x2="1200" y2="214" stroke="#1E3A5F" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Vertical separator -->
+  <line x1="270" y1="28" x2="270" y2="232" stroke="#1E3A5F" stroke-width="1" opacity="0.8"/>
+  <line x1="270" y1="28" x2="270" y2="232" stroke="url(#L-shield-border)" stroke-width="1" opacity="0.25"/>
+
+  <!--  -->
+  <!-- LOGO  (logo.svg embedded via transform)         -->
+  <!-- All logo coordinates are in 200x200 space;      -->
+  <!-- transform maps them into banner space.           -->
+  <!--  -->
+  <g transform="translate(45,22) scale(1.1)">
+    <!-- Outer ambient glow circle -->
+    <ellipse cx="100" cy="105" rx="68" ry="72" fill="url(#L-outer-glow)"/>
+
+    <!-- Shield solid body -->
+    <path d="M100 18 L163 45 L163 113 Q163 158 100 182 Q37 158 37 113 L37 45 Z"
+          fill="url(#L-shield-fill)"/>
+    <!-- Inner highlight -->
+    <path d="M100 18 L163 45 L163 113 Q163 158 100 182 Q37 158 37 113 L37 45 Z"
+          fill="url(#L-shield-inner)"/>
+    <!-- Border with glow -->
+    <path d="M100 18 L163 45 L163 113 Q163 158 100 182 Q37 158 37 113 L37 45 Z"
+          stroke="url(#L-shield-border)" stroke-width="2.8" stroke-linejoin="round"
+          filter="url(#f-shield-glow)"/>
+    <!-- Inner accent -->
+    <path d="M100 31 L152 54 L152 113 Q152 149 100 168 Q48 149 48 113 L48 54 Z"
+          stroke="url(#L-shield-border)" stroke-width="0.5" opacity="0.22"/>
+
+    <!-- HTTP request arrow lines -->
+    <line x1="15" y1="78"  x2="66" y2="78"  stroke="#60A5FA" stroke-width="2"   stroke-linecap="round" filter="url(#f-line-glow)"/>
+    <polygon points="70,78 64,74.5 64,81.5"  fill="#60A5FA"  filter="url(#f-line-glow)"/>
+    <line x1="11" y1="94"  x2="66" y2="94"  stroke="#818CF8" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/>
+    <polygon points="70,94 64,90.5 64,97.5"  fill="#818CF8"  opacity="0.85"/>
+    <line x1="15" y1="110" x2="66" y2="110" stroke="#A78BFA" stroke-width="1.1" stroke-linecap="round" opacity="0.6"/>
+    <polygon points="70,110 64,106.5 64,113.5" fill="#A78BFA" opacity="0.6"/>
+
+    <!-- Metric bars -->
+    <rect x="77"  y="120" width="12" height="32" rx="2.5" fill="url(#L-bar-1)" filter="url(#f-bar-glow)"/>
+    <rect x="94"  y="103" width="12" height="49" rx="2.5" fill="url(#L-bar-2)"/>
+    <rect x="111" y="88"  width="12" height="64" rx="2.5" fill="url(#L-bar-3)" filter="url(#f-bar-glow)"/>
+    <rect x="128" y="110" width="12" height="42" rx="2.5" fill="url(#L-bar-4)"/>
+
+    <!-- Threshold line -->
+    <line x1="75" y1="110" x2="142" y2="110"
+          stroke="#F59E0B" stroke-width="1.4" stroke-dasharray="3.8,2.6" opacity="0.9"/>
+    <circle cx="117" cy="109.5" r="3.2" fill="#F59E0B" opacity="0.9" filter="url(#f-line-glow)"/>
+  </g>
+
+  <!--  -->
+  <!-- TEXT                                            -->
+  <!--  -->
+
+  <!-- "ThrottleWatch" title -->
+  <text x="296" y="115"
+        font-family="-apple-system,'Segoe UI',BlinkMacSystemFont,system-ui,sans-serif"
+        font-weight="800" font-size="66" letter-spacing="-1.5"
+        fill="url(#title-grad)" filter="url(#f-title)">ThrottleWatch</text>
+
+  <!-- Tagline -->
+  <text x="299" y="152"
+        font-family="'SF Mono','Cascadia Code','Fira Code',Consolas,monospace"
+        font-size="14" letter-spacing="2.8" fill="#60A5FA" opacity="0.92">
+    OBSERVE EVERY REQUEST. UNDERSTAND EVERY LIMIT.
+  </text>
+
+  <!-- Subtitle -->
+  <text x="300" y="181"
+        font-family="-apple-system,'Segoe UI',system-ui,sans-serif"
+        font-size="14" fill="#475569" letter-spacing="0.2">
+    Rate Limiting Observability for ASP.NET Core
+  </text>
+
+  <!-- Badge pills -->
+  <rect x="299" y="200" width="88"  height="25" rx="12.5" fill="#111827" stroke="#2563EB" stroke-width="0.9"/>
+  <text x="343" y="216.5" font-family="system-ui,sans-serif" font-size="11.5" font-weight="600"
+        fill="#60A5FA" text-anchor="middle">.NET 9 | 10</text>
+
+  <rect x="397" y="200" width="64"  height="25" rx="12.5" fill="#111827" stroke="#22C55E" stroke-width="0.9"/>
+  <text x="429" y="216.5" font-family="system-ui,sans-serif" font-size="11.5" font-weight="600"
+        fill="#4ADE80" text-anchor="middle">MIT</text>
+
+  <rect x="471" y="200" width="74"  height="25" rx="12.5" fill="#111827" stroke="#7C3AED" stroke-width="0.9"/>
+  <text x="508" y="216.5" font-family="system-ui,sans-serif" font-size="11.5" font-weight="600"
+        fill="#A78BFA" text-anchor="middle">v1.0.0</text>
+
+  <!--  -->
+  <!-- RIGHT PANEL  (mini metrics window)             -->
+  <!--  -->
+  <rect x="928" y="24"  width="244" height="212" rx="12" fill="#0A1220" stroke="#1E3A5F" stroke-width="1"/>
+
+  <!-- Window chrome -->
+  <rect x="928" y="24"  width="244" height="36"  rx="12" fill="#111827"/>
+  <rect x="928" y="48"  width="244" height="12"  fill="#111827"/>
+  <circle cx="946" cy="42" r="4.5" fill="#EF4444" opacity="0.75"/>
+  <circle cx="961" cy="42" r="4.5" fill="#F59E0B" opacity="0.75"/>
+  <circle cx="976" cy="42" r="4.5" fill="#22C55E" opacity="0.75"/>
+  <text x="1050" y="47" font-family="system-ui" font-size="10.5" fill="#475569" text-anchor="middle">ThrottleWatch</text>
+
+  <!-- Metric cards -->
+  <text x="944" y="81"  font-family="system-ui" font-size="9"  fill="#64748B">Total Requests</text>
+  <text x="944" y="97"  font-family="system-ui" font-size="17" font-weight="700" fill="#F1F5F9">1,234,567</text>
+  <text x="944" y="109" font-family="system-ui" font-size="9"  fill="#22C55E">^ 12.5%</text>
+
+  <text x="1060" y="81"  font-family="system-ui" font-size="9"  fill="#64748B">Req / Sec</text>
+  <text x="1060" y="97"  font-family="system-ui" font-size="17" font-weight="700" fill="#F1F5F9">2,341</text>
+  <text x="1060" y="109" font-family="system-ui" font-size="9"  fill="#22C55E">^ 8.2%</text>
+
+  <text x="944" y="127" font-family="system-ui" font-size="9"  fill="#64748B">Blocked</text>
+  <text x="944" y="143" font-family="system-ui" font-size="17" font-weight="700" fill="#F1F5F9">45,678</text>
+  <text x="944" y="155" font-family="system-ui" font-size="9"  fill="#EF4444">^ 2.1%</text>
+
+  <text x="1060" y="127" font-family="system-ui" font-size="9"  fill="#64748B">Block Rate</text>
+  <text x="1060" y="143" font-family="system-ui" font-size="17" font-weight="700" fill="#F1F5F9">3.70%</text>
+  <text x="1060" y="155" font-family="system-ui" font-size="9"  fill="#F59E0B">^ 2.1%</text>
+
+  <!-- Divider -->
+  <line x1="934" y1="163" x2="1164" y2="163" stroke="#1E293B" stroke-width="0.8"/>
+
+  <!-- Mini sparkline -->
+  <polyline
+    points="934,202 947,188 959,195 971,180 983,186 996,172 1009,178 1021,165 1033,170 1046,158 1058,163 1070,152 1082,158 1095,146 1107,151 1119,141 1131,147 1143,136 1155,141 1163,130"
+    fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linejoin="round" opacity="0.88"/>
+  <polyline
+    points="934,212 947,208 959,211 971,203 983,207 996,198 1009,203 1021,190 1033,194 1046,183 1058,188 1070,178 1082,183 1095,172 1107,176 1119,165 1131,169 1143,158 1155,163 1163,152"
+    fill="none" stroke="#EF4444" stroke-width="1.5" stroke-linejoin="round" opacity="0.72"/>
+
+  <!-- Chart legend -->
+  <rect x="934"  y="220" width="7" height="2.5" rx="1" fill="#3B82F6" opacity="0.88"/>
+  <text x="945"  y="225" font-family="system-ui" font-size="8.5" fill="#64748B">allowed</text>
+  <rect x="990"  y="220" width="7" height="2.5" rx="1" fill="#EF4444" opacity="0.72"/>
+  <text x="1001" y="225" font-family="system-ui" font-size="8.5" fill="#64748B">blocked</text>
+  <text x="1100" y="225" font-family="system-ui" font-size="8.5" fill="#334155">req/min</text>
+</svg>

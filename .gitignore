@@ -1,0 +1,57 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.nupkg
+*.snupkg
+*.lock.json
+project.lock.json
+TestResults/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Riders / VS
+.idea/
+*.sln.iml
+.fleet/
+
+# User-specific files
+*.rsuser
+*.orig
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+appsettings.Development.json
+appsettings.Local.json
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docker override
+docker-compose.override.yml
+
+# Coverage
+coverage/
+*.opencover.xml
+coverage.json
+
+# Build output
+artifacts/
+dist/
+publish/

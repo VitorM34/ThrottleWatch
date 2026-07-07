@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="g-s" x1="12" y1="6" x2="52" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="g-sf" x1="12" y1="6" x2="52" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0.15"/>
+    </linearGradient>
+    <linearGradient id="b1" x1="0" y1="38" x2="0" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="b2" x1="0" y1="32" x2="0" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="b3" x1="0" y1="27" x2="0" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="b4" x1="0" y1="35" x2="0" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shield -->
+  <path d="M32 6 L52 15 L52 36 Q52 50 32 58 Q12 50 12 36 L12 15 Z"
+        fill="url(#g-sf)"/>
+  <path d="M32 6 L52 15 L52 36 Q52 50 32 58 Q12 50 12 36 L12 15 Z"
+        stroke="url(#g-s)" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- Request lines -->
+  <line x1="4"  y1="25" x2="19" y2="25" stroke="#60A5FA" stroke-width="1.5" stroke-linecap="round"/>
+  <polygon points="21,25 17.5,22.5 17.5,27.5" fill="#60A5FA"/>
+  <line x1="3"  y1="32" x2="19" y2="32" stroke="#818CF8" stroke-width="1" stroke-linecap="round"/>
+  <polygon points="21,32 17.5,29.5 17.5,34.5" fill="#818CF8"/>
+
+  <!-- Bars -->
+  <rect x="24" y="38" width="4" height="10" rx="1" fill="url(#b1)"/>
+  <rect x="30" y="32" width="4" height="16" rx="1" fill="url(#b2)"/>
+  <rect x="36" y="27" width="4" height="21" rx="1" fill="url(#b3)"/>
+  <rect x="42" y="35" width="4" height="13" rx="1" fill="url(#b4)"/>
+
+  <!-- Threshold -->
+  <line x1="22" y1="34" x2="48" y2="34" stroke="#F59E0B" stroke-width="1" stroke-dasharray="2.5,1.5" opacity="0.9"/>
+</svg>
