@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="500" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#060C18"/><stop offset="100%" stop-color="#0D1117"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#111827"/><stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="bar1" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#60A5FA"/><stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bg)"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="180" height="500" fill="#0A1020"/>
+  <rect x="0" y="0" width="180" height="500" fill="#111827" fill-opacity="0.6"/>
+
+  <!-- Logo in sidebar -->
+  <rect x="16" y="16" width="36" height="36" rx="8" fill="#1E3A5F"/>
+  <text x="34" y="39" font-family="system-ui" font-size="13" font-weight="700" fill="#60A5FA" text-anchor="middle">TW</text>
+  <text x="64" y="38" font-family="system-ui" font-size="12" font-weight="700" fill="#F1F5F9">ThrottleWatch</text>
+
+  <!-- Sidebar nav items -->
+  <rect x="8" y="72" width="164" height="30" rx="6" fill="#1E3A5F"/>
+  <rect x="20" y="82" width="10" height="10" rx="2" fill="#3B82F6"/>
+  <text x="38" y="91" font-family="system-ui" font-size="11" fill="#F1F5F9" font-weight="600">Overview</text>
+
+  <rect x="20" y="116" width="10" height="10" rx="2" fill="#334155"/>
+  <text x="38" y="125" font-family="system-ui" font-size="11" fill="#64748B">Endpoints</text>
+  <rect x="20" y="140" width="10" height="10" rx="2" fill="#334155"/>
+  <text x="38" y="149" font-family="system-ui" font-size="11" fill="#64748B">Clients</text>
+  <rect x="20" y="164" width="10" height="10" rx="2" fill="#334155"/>
+  <text x="38" y="173" font-family="system-ui" font-size="11" fill="#64748B">Policies</text>
+  <rect x="20" y="188" width="10" height="10" rx="2" fill="#334155"/>
+  <text x="38" y="197" font-family="system-ui" font-size="11" fill="#64748B">History</text>
+  <rect x="20" y="212" width="10" height="10" rx="2" fill="#334155"/>
+  <text x="38" y="221" font-family="system-ui" font-size="11" fill="#64748B">Alerts</text>
+  <rect x="20" y="236" width="10" height="10" rx="2" fill="#334155"/>
+  <text x="38" y="245" font-family="system-ui" font-size="11" fill="#64748B">Insights</text>
+
+  <!-- Main area -->
+  <!-- Header bar -->
+  <rect x="180" y="0" width="620" height="52" fill="#0D1117"/>
+  <line x1="180" y1="52" x2="800" y2="52" stroke="#1E293B" stroke-width="1"/>
+  <text x="196" y="31" font-family="system-ui" font-size="14" font-weight="700" fill="#F1F5F9">Overview</text>
+  <text x="196" y="46" font-family="system-ui" font-size="9.5" fill="#475569">Last 30 minutes   -  Auto-refreshing</text>
+  <rect x="680" y="14" width="100" height="24" rx="6" fill="#1E3A5F"/>
+  <text x="730" y="30" font-family="system-ui" font-size="10" fill="#60A5FA" text-anchor="middle">Updating...</text>
+
+  <!-- Stat cards row -->
+  <!-- Card 1 -->
+  <rect x="192" y="66" width="130" height="68" rx="8" fill="#111827" stroke="#1E293B" stroke-width="1"/>
+  <text x="204" y="83" font-family="system-ui" font-size="9.5" fill="#64748B">Total Requests</text>
+  <text x="204" y="104" font-family="system-ui" font-size="20" font-weight="700" fill="#F1F5F9">1,234,567</text>
+  <text x="204" y="122" font-family="system-ui" font-size="9" fill="#22C55E">^ 12.5%  vs prev</text>
+
+  <!-- Card 2 -->
+  <rect x="332" y="66" width="130" height="68" rx="8" fill="#111827" stroke="#1E293B" stroke-width="1"/>
+  <text x="344" y="83" font-family="system-ui" font-size="9.5" fill="#64748B">Req / Sec</text>
+  <text x="344" y="104" font-family="system-ui" font-size="20" font-weight="700" fill="#F1F5F9">2,341</text>
+  <text x="344" y="122" font-family="system-ui" font-size="9" fill="#22C55E">^ 8.2%</text>
+
+  <!-- Card 3 -->
+  <rect x="472" y="66" width="130" height="68" rx="8" fill="#111827" stroke="#1E293B" stroke-width="1"/>
+  <text x="484" y="83" font-family="system-ui" font-size="9.5" fill="#64748B">Blocked</text>
+  <text x="484" y="104" font-family="system-ui" font-size="20" font-weight="700" fill="#F1F5F9">45,678</text>
+  <text x="484" y="122" font-family="system-ui" font-size="9" fill="#EF4444">^ 2.1%</text>
+
+  <!-- Card 4 -->
+  <rect x="612" y="66" width="130" height="68" rx="8" fill="#111827" stroke="#1E293B" stroke-width="1"/>
+  <text x="624" y="83" font-family="system-ui" font-size="9.5" fill="#64748B">Block Rate</text>
+  <text x="624" y="104" font-family="system-ui" font-size="20" font-weight="700" fill="#F1F5F9">3.70%</text>
+  <text x="624" y="122" font-family="system-ui" font-size="9" fill="#F59E0B">^ 2.1%</text>
+
+  <!-- Charts row -->
+  <!-- Requests chart -->
+  <rect x="192" y="148" width="370" height="160" rx="8" fill="#111827" stroke="#1E293B" stroke-width="1"/>
+  <text x="204" y="165" font-family="system-ui" font-size="10" font-weight="600" fill="#F1F5F9">Requests per minute</text>
+  <polyline points="204,290 230,270 256,278 282,258 308,264 334,248 360,255 386,240 412,246 438,232 464,238 490,224 516,230 542,218" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linejoin="round"/>
+  <polyline points="204,298 230,294 256,297 282,290 308,293 334,285 360,290 386,280 412,284 438,274 464,278 490,268 516,272 542,262" fill="none" stroke="#EF4444" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/>
+  <!-- X axis -->
+  <line x1="204" y1="300" x2="542" y2="300" stroke="#1E293B" stroke-width="0.8"/>
+  <text x="204" y="310" font-family="system-ui" font-size="8" fill="#334155">14:30</text>
+  <text x="300" y="310" font-family="system-ui" font-size="8" fill="#334155">14:40</text>
+  <text x="398" y="310" font-family="system-ui" font-size="8" fill="#334155">14:50</text>
+  <text x="492" y="310" font-family="system-ui" font-size="8" fill="#334155">15:00</text>
+
+  <!-- Blocked chart -->
+  <rect x="572" y="148" width="170" height="160" rx="8" fill="#111827" stroke="#1E293B" stroke-width="1"/>
+  <text x="584" y="165" font-family="system-ui" font-size="10" font-weight="600" fill="#F1F5F9">Status Distribution</text>
+  <!-- Donut chart (simplified) -->
+  <circle cx="657" cy="228" r="38" fill="none" stroke="#1E3A5F" stroke-width="1"/>
+  <circle cx="657" cy="228" r="38" fill="none" stroke="#3B82F6" stroke-width="12" stroke-dasharray="185 54" stroke-dashoffset="0" opacity="0.9"/>
+  <circle cx="657" cy="228" r="38" fill="none" stroke="#8B5CF6" stroke-width="12" stroke-dasharray="40 199" stroke-dashoffset="-185" opacity="0.85"/>
+  <circle cx="657" cy="228" r="38" fill="none" stroke="#EF4444" stroke-width="12" stroke-dasharray="14 225" stroke-dashoffset="-225" opacity="0.8"/>
+  <text x="657" y="232" font-family="system-ui" font-size="11" font-weight="700" fill="#F1F5F9" text-anchor="middle">77.1%</text>
+  <text x="657" y="244" font-family="system-ui" font-size="8" fill="#64748B" text-anchor="middle">200 OK</text>
+  <!-- Legend -->
+  <rect x="584" y="290" width="7" height="7" rx="1" fill="#3B82F6"/>
+  <text x="595" y="298" font-family="system-ui" font-size="8" fill="#64748B">200</text>
+  <rect x="616" y="290" width="7" height="7" rx="1" fill="#8B5CF6"/>
+  <text x="627" y="298" font-family="system-ui" font-size="8" fill="#64748B">429</text>
+  <rect x="648" y="290" width="7" height="7" rx="1" fill="#EF4444"/>
+  <text x="659" y="298" font-family="system-ui" font-size="8" fill="#64748B">500</text>
+
+  <!-- Top endpoints table -->
+  <rect x="192" y="322" width="370" height="160" rx="8" fill="#111827" stroke="#1E293B" stroke-width="1"/>
+  <text x="204" y="339" font-family="system-ui" font-size="10" font-weight="600" fill="#F1F5F9">Top Endpoints</text>
+  <!-- rows -->
+  <line x1="192" y1="348" x2="562" y2="348" stroke="#1E293B" stroke-width="0.8"/>
+  <text x="204" y="362" font-family="system-ui" font-size="10" fill="#94A3B8">/api/orders</text>
+  <rect x="310" y="353" width="120" height="7" rx="3" fill="#1E3A5F"/>
+  <rect x="310" y="353" width="96"  height="7" rx="3" fill="#3B82F6" opacity="0.8"/>
+  <text x="446" y="362" font-family="system-ui" font-size="10" fill="#64748B">125.4k</text>
+
+  <text x="204" y="380" font-family="system-ui" font-size="10" fill="#94A3B8">/api/login</text>
+  <rect x="310" y="371" width="120" height="7" rx="3" fill="#1E3A5F"/>
+  <rect x="310" y="371" width="75"  height="7" rx="3" fill="#3B82F6" opacity="0.7"/>
+  <text x="446" y="380" font-family="system-ui" font-size="10" fill="#64748B">98.7k</text>
+
+  <text x="204" y="398" font-family="system-ui" font-size="10" fill="#94A3B8">/api/products</text>
+  <rect x="310" y="389" width="120" height="7" rx="3" fill="#1E3A5F"/>
+  <rect x="310" y="389" width="57"  height="7" rx="3" fill="#3B82F6" opacity="0.6"/>
+  <text x="446" y="398" font-family="system-ui" font-size="10" fill="#64748B">76.1k</text>
+
+  <text x="204" y="416" font-family="system-ui" font-size="10" fill="#94A3B8">/api/users</text>
+  <rect x="310" y="407" width="120" height="7" rx="3" fill="#1E3A5F"/>
+  <rect x="310" y="407" width="40"  height="7" rx="3" fill="#3B82F6" opacity="0.55"/>
+  <text x="446" y="416" font-family="system-ui" font-size="10" fill="#64748B">54.2k</text>
+
+  <text x="204" y="434" font-family="system-ui" font-size="10" fill="#94A3B8">/api/checkout</text>
+  <rect x="310" y="425" width="120" height="7" rx="3" fill="#1E3A5F"/>
+  <rect x="310" y="425" width="34"  height="7" rx="3" fill="#3B82F6" opacity="0.5"/>
+  <text x="446" y="434" font-family="system-ui" font-size="10" fill="#64748B">45.8k</text>
+
+  <!-- Top IPs table -->
+  <rect x="572" y="322" width="170" height="160" rx="8" fill="#111827" stroke="#1E293B" stroke-width="1"/>
+  <text x="584" y="339" font-family="system-ui" font-size="10" font-weight="600" fill="#F1F5F9">Top IPs</text>
+  <line x1="572" y1="348" x2="742" y2="348" stroke="#1E293B" stroke-width="0.8"/>
+  <text x="584" y="362" font-family="system-ui" font-size="9.5" fill="#94A3B8">192.168.1.10</text>
+  <text x="720" y="362" font-family="system-ui" font-size="9.5" fill="#64748B" text-anchor="end">12.4k</text>
+  <text x="584" y="378" font-family="system-ui" font-size="9.5" fill="#94A3B8">203.0.113.45</text>
+  <text x="720" y="378" font-family="system-ui" font-size="9.5" fill="#EF4444" text-anchor="end">8.7k</text>
+  <text x="584" y="394" font-family="system-ui" font-size="9.5" fill="#94A3B8">198.51.100.23</text>
+  <text x="720" y="394" font-family="system-ui" font-size="9.5" fill="#64748B" text-anchor="end">6.3k</text>
+  <text x="584" y="410" font-family="system-ui" font-size="9.5" fill="#94A3B8">203.0.113.88</text>
+  <text x="720" y="410" font-family="system-ui" font-size="9.5" fill="#EF4444" text-anchor="end">4.1k</text>
+  <text x="584" y="426" font-family="system-ui" font-size="9.5" fill="#94A3B8">198.51.100.77</text>
+  <text x="720" y="426" font-family="system-ui" font-size="9.5" fill="#64748B" text-anchor="end">3.8k</text>
+</svg>

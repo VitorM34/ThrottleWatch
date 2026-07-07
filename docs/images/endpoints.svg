@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+  <rect width="800" height="500" fill="#060C18"/>
+  <rect x="0" y="0" width="180" height="500" fill="#0A1020"/>
+  <rect x="16" y="16" width="36" height="36" rx="8" fill="#1E3A5F"/>
+  <text x="34" y="39" font-family="system-ui" font-size="13" font-weight="700" fill="#60A5FA" text-anchor="middle">TW</text>
+  <text x="64" y="38" font-family="system-ui" font-size="12" font-weight="700" fill="#F1F5F9">ThrottleWatch</text>
+  <text x="38" y="91" font-family="system-ui" font-size="11" fill="#64748B">Overview</text>
+  <rect x="8" y="108" width="164" height="30" rx="6" fill="#1E3A5F"/>
+  <text x="38" y="127" font-family="system-ui" font-size="11" fill="#F1F5F9" font-weight="600">Endpoints</text>
+  <text x="38" y="153" font-family="system-ui" font-size="11" fill="#64748B">Clients</text>
+  <text x="38" y="177" font-family="system-ui" font-size="11" fill="#64748B">Policies</text>
+  <text x="38" y="201" font-family="system-ui" font-size="11" fill="#64748B">Alerts</text>
+  <text x="38" y="225" font-family="system-ui" font-size="11" fill="#64748B">Insights</text>
+
+  <rect x="180" y="0" width="620" height="52" fill="#0D1117"/>
+  <line x1="180" y1="52" x2="800" y2="52" stroke="#1E293B" stroke-width="1"/>
+  <text x="196" y="33" font-family="system-ui" font-size="14" font-weight="700" fill="#F1F5F9">Endpoints</text>
+
+  <!-- Table header -->
+  <rect x="192" y="66" width="590" height="32" rx="8" fill="#111827" stroke="#1E293B" stroke-width="1"/>
+  <text x="210" y="86" font-family="system-ui" font-size="10" font-weight="600" fill="#64748B">ENDPOINT</text>
+  <text x="400" y="86" font-family="system-ui" font-size="10" font-weight="600" fill="#64748B">REQUESTS</text>
+  <text x="490" y="86" font-family="system-ui" font-size="10" font-weight="600" fill="#64748B">BLOCKED</text>
+  <text x="580" y="86" font-family="system-ui" font-size="10" font-weight="600" fill="#64748B">BLOCK RATE</text>
+  <text x="690" y="86" font-family="system-ui" font-size="10" font-weight="600" fill="#64748B">STATUS</text>
+
+  <!-- Rows -->
+  <rect x="192" y="104" width="590" height="36" rx="4" fill="#0D1624"/>
+  <text x="210" y="126" font-family="'SF Mono',Consolas,monospace" font-size="11" fill="#60A5FA">GET /api/orders</text>
+  <text x="415" y="126" font-family="system-ui" font-size="11" fill="#F1F5F9">125,412</text>
+  <text x="505" y="126" font-family="system-ui" font-size="11" fill="#EF4444">3,201</text>
+  <rect x="582" y="115" width="60" height="14" rx="7" fill="#451A03"/>
+  <text x="612" y="126" font-family="system-ui" font-size="10" fill="#F97316" text-anchor="middle">2.55%</text>
+  <rect x="692" y="115" width="54" height="14" rx="7" fill="#14532D"/>
+  <text x="719" y="126" font-family="system-ui" font-size="10" fill="#4ADE80" text-anchor="middle">Healthy</text>
+
+  <rect x="192" y="146" width="590" height="36" rx="4" fill="#111827"/>
+  <text x="210" y="168" font-family="'SF Mono',Consolas,monospace" font-size="11" fill="#60A5FA">POST /api/login</text>
+  <text x="415" y="168" font-family="system-ui" font-size="11" fill="#F1F5F9">98,734</text>
+  <text x="505" y="168" font-family="system-ui" font-size="11" fill="#EF4444">12,441</text>
+  <rect x="582" y="157" width="60" height="14" rx="7" fill="#7F1D1D"/>
+  <text x="612" y="168" font-family="system-ui" font-size="10" fill="#FCA5A5" text-anchor="middle">12.6%</text>
+  <rect x="692" y="157" width="54" height="14" rx="7" fill="#7F1D1D"/>
+  <text x="719" y="168" font-family="system-ui" font-size="10" fill="#FCA5A5" text-anchor="middle">Warning</text>
+
+  <rect x="192" y="188" width="590" height="36" rx="4" fill="#0D1624"/>
+  <text x="210" y="210" font-family="'SF Mono',Consolas,monospace" font-size="11" fill="#60A5FA">GET /api/products</text>
+  <text x="415" y="210" font-family="system-ui" font-size="11" fill="#F1F5F9">76,103</text>
+  <text x="505" y="210" font-family="system-ui" font-size="11" fill="#EF4444">831</text>
+  <rect x="582" y="199" width="60" height="14" rx="7" fill="#14532D"/>
+  <text x="612" y="210" font-family="system-ui" font-size="10" fill="#4ADE80" text-anchor="middle">1.09%</text>
+  <rect x="692" y="199" width="54" height="14" rx="7" fill="#14532D"/>
+  <text x="719" y="210" font-family="system-ui" font-size="10" fill="#4ADE80" text-anchor="middle">Healthy</text>
+
+  <rect x="192" y="230" width="590" height="36" rx="4" fill="#111827"/>
+  <text x="210" y="252" font-family="'SF Mono',Consolas,monospace" font-size="11" fill="#60A5FA">GET /api/users</text>
+  <text x="415" y="252" font-family="system-ui" font-size="11" fill="#F1F5F9">54,200</text>
+  <text x="505" y="252" font-family="system-ui" font-size="11" fill="#EF4444">610</text>
+  <rect x="582" y="241" width="60" height="14" rx="7" fill="#14532D"/>
+  <text x="612" y="252" font-family="system-ui" font-size="10" fill="#4ADE80" text-anchor="middle">1.12%</text>
+  <rect x="692" y="241" width="54" height="14" rx="7" fill="#14532D"/>
+  <text x="719" y="252" font-family="system-ui" font-size="10" fill="#4ADE80" text-anchor="middle">Healthy</text>
+
+  <rect x="192" y="272" width="590" height="36" rx="4" fill="#0D1624"/>
+  <text x="210" y="294" font-family="'SF Mono',Consolas,monospace" font-size="11" fill="#60A5FA">POST /api/checkout</text>
+  <text x="415" y="294" font-family="system-ui" font-size="11" fill="#F1F5F9">45,812</text>
+  <text x="505" y="294" font-family="system-ui" font-size="11" fill="#EF4444">221</text>
+  <rect x="582" y="283" width="60" height="14" rx="7" fill="#14532D"/>
+  <text x="612" y="294" font-family="system-ui" font-size="10" fill="#4ADE80" text-anchor="middle">0.48%</text>
+  <rect x="692" y="283" width="54" height="14" rx="7" fill="#14532D"/>
+  <text x="719" y="294" font-family="system-ui" font-size="10" fill="#4ADE80" text-anchor="middle">Healthy</text>
+
+  <!-- Bottom detail chart -->
+  <rect x="192" y="322" width="590" height="160" rx="8" fill="#111827" stroke="#1E293B" stroke-width="1"/>
+  <text x="204" y="340" font-family="system-ui" font-size="10" font-weight="600" fill="#F1F5F9">POST /api/login  -  Block Rate over time</text>
+  <polyline points="204,460 240,440 276,448 312,425 348,430 384,410 420,418 456,398 492,405 528,388 564,394 600,376 636,383 672,365 708,370 750,355"
+    fill="none" stroke="#EF4444" stroke-width="1.5" stroke-linejoin="round" opacity="0.85"/>
+  <line x1="204" y1="462" x2="760" y2="462" stroke="#1E293B" stroke-width="0.8"/>
+  <line x1="204" y1="348" x2="204" y2="462" stroke="#1E293B" stroke-width="0.8"/>
+</svg>

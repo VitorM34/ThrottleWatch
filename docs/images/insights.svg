@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+  <rect width="800" height="500" fill="#060C18"/>
+  <rect x="0" y="0" width="180" height="500" fill="#0A1020"/>
+  <rect x="16" y="16" width="36" height="36" rx="8" fill="#1E3A5F"/>
+  <text x="34" y="39" font-family="system-ui" font-size="13" font-weight="700" fill="#60A5FA" text-anchor="middle">TW</text>
+  <text x="64" y="38" font-family="system-ui" font-size="12" font-weight="700" fill="#F1F5F9">ThrottleWatch</text>
+  <text x="38" y="91" font-family="system-ui" font-size="11" fill="#64748B">Overview</text>
+  <text x="38" y="115" font-family="system-ui" font-size="11" fill="#64748B">Endpoints</text>
+  <text x="38" y="139" font-family="system-ui" font-size="11" fill="#64748B">Alerts</text>
+  <rect x="8" y="150" width="164" height="30" rx="6" fill="#1E1A3A"/>
+  <text x="38" y="169" font-family="system-ui" font-size="11" fill="#A78BFA" font-weight="600">Insights</text>
+
+  <rect x="180" y="0" width="620" height="52" fill="#0D1117"/>
+  <line x1="180" y1="52" x2="800" y2="52" stroke="#1E293B" stroke-width="1"/>
+  <text x="196" y="33" font-family="system-ui" font-size="14" font-weight="700" fill="#F1F5F9">Smart Insights</text>
+  <text x="196" y="46" font-family="system-ui" font-size="9.5" fill="#475569">AI-powered analysis updated 1 minute ago</text>
+
+  <!-- Insight cards -->
+  <!-- Insight 1 -->
+  <rect x="192" y="66" width="590" height="96" rx="8" fill="#0F0A20" stroke="#7C3AED" stroke-width="1"/>
+  <rect x="192" y="66" width="4" height="96" rx="2" fill="#7C3AED"/>
+  <rect x="206" y="74" width="28" height="28" rx="14" fill="#1E1A3A"/>
+  <text x="220" y="93" font-family="system-ui" font-size="14" text-anchor="middle" fill="#A78BFA">!</text>
+  <text x="246" y="87" font-family="system-ui" font-size="11" font-weight="700" fill="#C4B5FD">Login endpoint limits may be too aggressive</text>
+  <text x="246" y="104" font-family="system-ui" font-size="10" fill="#94A3B8">POST /api/login is blocking 12.6% of requests. Based on traffic patterns, the current</text>
+  <text x="246" y="118" font-family="system-ui" font-size="10" fill="#94A3B8">limit of 5 req/min per IP appears too restrictive for mobile clients on NAT networks.</text>
+  <rect x="246" y="126" width="120" height="20" rx="10" fill="#2E1065"/>
+  <text x="306" y="139" font-family="system-ui" font-size="10" fill="#A78BFA" text-anchor="middle">Increase to 10 req/min</text>
+  <rect x="376" y="126" width="80" height="20" rx="10" fill="#1E1A3A"/>
+  <text x="416" y="139" font-family="system-ui" font-size="10" fill="#64748B" text-anchor="middle">Dismiss</text>
+
+  <!-- Insight 2 -->
+  <rect x="192" y="174" width="590" height="96" rx="8" fill="#0A1500" stroke="#22C55E" stroke-width="1"/>
+  <rect x="192" y="174" width="4" height="96" rx="2" fill="#22C55E"/>
+  <rect x="206" y="182" width="28" height="28" rx="14" fill="#052E16"/>
+  <text x="220" y="201" font-family="system-ui" font-size="14" text-anchor="middle" fill="#4ADE80">+</text>
+  <text x="246" y="195" font-family="system-ui" font-size="11" font-weight="700" fill="#4ADE80">Order endpoint is well-optimized</text>
+  <text x="246" y="212" font-family="system-ui" font-size="10" fill="#94A3B8">GET /api/orders shows healthy traffic distribution with only 2.55% block rate.</text>
+  <text x="246" y="226" font-family="system-ui" font-size="10" fill="#94A3B8">Your current rate limit policy is well-calibrated for this endpoint.</text>
+  <rect x="246" y="234" width="80" height="20" rx="10" fill="#052E16"/>
+  <text x="286" y="247" font-family="system-ui" font-size="10" fill="#4ADE80" text-anchor="middle">No action</text>
+
+  <!-- Insight 3 -->
+  <rect x="192" y="282" width="590" height="96" rx="8" fill="#100A00" stroke="#F59E0B" stroke-width="1"/>
+  <rect x="192" y="282" width="4" height="96" rx="2" fill="#F59E0B"/>
+  <rect x="206" y="290" width="28" height="28" rx="14" fill="#431A00"/>
+  <text x="220" y="309" font-family="system-ui" font-size="14" text-anchor="middle" fill="#FCD34D">i</text>
+  <text x="246" y="303" font-family="system-ui" font-size="11" font-weight="700" fill="#FCD34D">Recurring spike every day at 09:00 UTC</text>
+  <text x="246" y="320" font-family="system-ui" font-size="10" fill="#94A3B8">Traffic analysis detected a consistent spike pattern between 09:00-09:30 UTC daily.</text>
+  <text x="246" y="334" font-family="system-ui" font-size="10" fill="#94A3B8">Consider adding a scheduled higher-limit policy window to reduce false positives.</text>
+  <rect x="246" y="342" width="130" height="20" rx="10" fill="#431A00"/>
+  <text x="311" y="355" font-family="system-ui" font-size="10" fill="#FCD34D" text-anchor="middle">Add Scheduled Policy</text>
+
+  <!-- Insight 4 -->
+  <rect x="192" y="390" width="590" height="80" rx="8" fill="#0A0F1A" stroke="#3B82F6" stroke-width="1"/>
+  <rect x="192" y="390" width="4" height="80" rx="2" fill="#3B82F6"/>
+  <text x="246" y="411" font-family="system-ui" font-size="11" font-weight="700" fill="#93C5FD">Top offender: 203.0.113.45  -  8,700 blocks/hour</text>
+  <text x="246" y="428" font-family="system-ui" font-size="10" fill="#94A3B8">This IP has been consistently hitting rate limits for the past 6 hours across 3 endpoints.</text>
+  <text x="246" y="444" font-family="system-ui" font-size="10" fill="#94A3B8">Likely automated scanner. Recommend adding to blocklist.</text>
+  <rect x="246" y="452" width="100" height="20" rx="10" fill="#1E3A5F"/>
+  <text x="296" y="465" font-family="system-ui" font-size="10" fill="#60A5FA" text-anchor="middle">Add to Blocklist</text>
+</svg>

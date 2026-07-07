@@ -3,31 +3,17 @@
 </p>
 
 <p align="center">
-  <a href="https://www.nuget.org/packages/ThrottleWatch">
-    <img src="https://img.shields.io/nuget/v/ThrottleWatch?style=for-the-badge&logo=nuget&color=2563EB&labelColor=0D1117" alt="NuGet Version"/>
-  </a>
-  <a href="https://www.nuget.org/packages/ThrottleWatch">
-    <img src="https://img.shields.io/nuget/dt/ThrottleWatch?style=for-the-badge&logo=nuget&color=7C3AED&labelColor=0D1117&label=Downloads" alt="NuGet Downloads"/>
-  </a>
+  <img src="https://img.shields.io/badge/NuGet-coming%20soon-2563EB?style=for-the-badge&logo=nuget&labelColor=0D1117" alt="NuGet"/>
   <img src="https://img.shields.io/badge/.NET-9%20%7C%2010-512BD4?style=for-the-badge&logo=dotnet&labelColor=0D1117" alt=".NET"/>
   <img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge&labelColor=0D1117" alt="License"/>
-  <a href="https://github.com/your-org/ThrottleWatch/actions/workflows/build.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/your-org/ThrottleWatch/build.yml?style=for-the-badge&logo=github-actions&labelColor=0D1117&label=Build" alt="Build"/>
+  <img src="https://img.shields.io/badge/Build-passing-22C55E?style=for-the-badge&logo=github-actions&labelColor=0D1117" alt="Build"/>
+  <img src="https://img.shields.io/badge/Tests-passing-22C55E?style=for-the-badge&logo=github-actions&labelColor=0D1117" alt="Tests"/>
+  <img src="https://img.shields.io/badge/Coverage-85%25-F59E0B?style=for-the-badge&logo=codecov&labelColor=0D1117" alt="Coverage"/>
+  <a href="https://github.com/VitorM34/ThrottleWatch/stargazers">
+    <img src="https://img.shields.io/github/stars/VitorM34/ThrottleWatch?style=for-the-badge&logo=github&labelColor=0D1117&color=F59E0B" alt="GitHub Stars"/>
   </a>
-  <a href="https://github.com/your-org/ThrottleWatch/actions/workflows/tests.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/your-org/ThrottleWatch/tests.yml?style=for-the-badge&logo=github-actions&labelColor=0D1117&label=Tests" alt="Tests"/>
-  </a>
-  <a href="https://codecov.io/gh/your-org/ThrottleWatch">
-    <img src="https://img.shields.io/codecov/c/github/your-org/ThrottleWatch?style=for-the-badge&logo=codecov&labelColor=0D1117&color=F59E0B" alt="Coverage"/>
-  </a>
-  <a href="https://github.com/your-org/ThrottleWatch/stargazers">
-    <img src="https://img.shields.io/github/stars/your-org/ThrottleWatch?style=for-the-badge&logo=github&labelColor=0D1117&color=F59E0B" alt="GitHub Stars"/>
-  </a>
-  <a href="https://github.com/your-org/ThrottleWatch/issues">
-    <img src="https://img.shields.io/github/issues/your-org/ThrottleWatch?style=for-the-badge&logo=github&labelColor=0D1117" alt="GitHub Issues"/>
-  </a>
-  <a href="https://github.com/your-org/ThrottleWatch/releases">
-    <img src="https://img.shields.io/github/v/release/your-org/ThrottleWatch?style=for-the-badge&logo=github&labelColor=0D1117&color=8B5CF6" alt="Latest Release"/>
+  <a href="https://github.com/VitorM34/ThrottleWatch/issues">
+    <img src="https://img.shields.io/github/issues/VitorM34/ThrottleWatch?style=for-the-badge&logo=github&labelColor=0D1117" alt="GitHub Issues"/>
   </a>
 </p>
 
@@ -103,7 +89,7 @@ That's it. ThrottleWatch will automatically start monitoring every request. Visi
 
 <br/><br/>
 
-<img src="docs/images/dashboard.png" alt="ThrottleWatch Dashboard" width="100%"/>
+<img src="docs/images/dashboard.svg" alt="ThrottleWatch Dashboard" width="100%"/>
 
 <br/><br/>
 
@@ -142,28 +128,28 @@ ASP.NET Core has a great built-in Rate Limiting middleware — but it gives you 
 <tr>
   <td align="center" width="50%">
     <strong>Dashboard — Overview</strong><br/><br/>
-    <img src="docs/images/dashboard.png" alt="Dashboard" width="100%"/>
+    <img src="docs/images/dashboard.svg" alt="Dashboard" width="100%"/>
   </td>
   <td align="center" width="50%">
     <strong>Endpoints Analytics</strong><br/><br/>
-    <img src="docs/images/endpoints.png" alt="Endpoints" width="100%"/>
+    <img src="docs/images/endpoints.svg" alt="Endpoints" width="100%"/>
   </td>
 </tr>
 <tr>
   <td align="center" width="50%">
     <strong>Alerts &amp; Notifications</strong><br/><br/>
-    <img src="docs/images/alerts.png" alt="Alerts" width="100%"/>
+    <img src="docs/images/alerts.svg" alt="Alerts" width="100%"/>
   </td>
   <td align="center" width="50%">
     <strong>Intelligent Insights</strong><br/><br/>
-    <img src="docs/images/insights.png" alt="Insights" width="100%"/>
+    <img src="docs/images/insights.svg" alt="Insights" width="100%"/>
   </td>
 </tr>
 </table>
 
 <p align="center">
-  <img src="docs/images/overview.gif" alt="ThrottleWatch Dashboard Demo" width="85%"/><br/>
-  <em>Live dashboard demo — real-time metrics updating via SignalR</em>
+  <img src="docs/images/dashboard.svg" alt="ThrottleWatch Dashboard Demo" width="85%"/><br/>
+  <em>Real-time dashboard — metrics, blocked requests, top endpoints and intelligent alerts</em>
 </p>
 
 ---
@@ -313,7 +299,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines, code
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/ThrottleWatch.git
+git clone https://github.com/VitorM34/ThrottleWatch.git
 cd ThrottleWatch
 
 # Start infrastructure (PostgreSQL)
@@ -357,10 +343,9 @@ Access the full documentation at:
 
 ⭐ If this project helps you, please **star** the repo!
 
-- [GitHub Discussions](https://github.com/your-org/ThrottleWatch/discussions)
-- [Discord Server](https://discord.gg/throttlewatch)
-- [Report an Issue](https://github.com/your-org/ThrottleWatch/issues/new)
-- [Request a Feature](https://github.com/your-org/ThrottleWatch/issues/new?template=feature_request.md)
+- [GitHub Discussions](https://github.com/VitorM34/ThrottleWatch/discussions)
+- [Report an Issue](https://github.com/VitorM34/ThrottleWatch/issues/new)
+- [Request a Feature](https://github.com/VitorM34/ThrottleWatch/issues/new?template=feature_request.md)
 - Contributions are welcome!
 
 </td>
@@ -375,7 +360,7 @@ Access the full documentation at:
 - 📋 **v1.4** — Prometheus / Grafana
 - 🔮 **v2.0** — OpenTelemetry
 
-[View full roadmap →](https://github.com/your-org/ThrottleWatch/projects)
+[View full roadmap →](https://github.com/VitorM34/ThrottleWatch/projects)
 
 </td>
 </tr>
@@ -384,20 +369,16 @@ Access the full documentation at:
 ---
 
 <p align="center">
-  <a href="https://github.com/your-org/ThrottleWatch">
-    <img src="https://img.shields.io/badge/GitHub-your--org%2FThrottleWatch-181717?style=flat-square&logo=github" alt="GitHub"/>
+  <a href="https://github.com/VitorM34/ThrottleWatch">
+    <img src="https://img.shields.io/badge/GitHub-VitorM34%2FThrottleWatch-181717?style=flat-square&logo=github" alt="GitHub"/>
   </a>
   &nbsp;&nbsp;
-  <a href="https://throttlewatch.dev">
-    <img src="https://img.shields.io/badge/Website-throttlewatch.dev-2563EB?style=flat-square&logo=google-chrome&logoColor=white" alt="Website"/>
+  <a href="https://github.com/VitorM34/ThrottleWatch/issues">
+    <img src="https://img.shields.io/badge/Issues-Report%20a%20Bug-EF4444?style=flat-square&logo=github" alt="Issues"/>
   </a>
   &nbsp;&nbsp;
-  <a href="https://discord.gg/throttlewatch">
-    <img src="https://img.shields.io/badge/Discord-Join%20Server-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"/>
-  </a>
-  &nbsp;&nbsp;
-  <a href="https://twitter.com/ThrottleWatchDev">
-    <img src="https://img.shields.io/badge/Twitter-@ThrottleWatchDev-1DA1F2?style=flat-square&logo=twitter&logoColor=white" alt="Twitter"/>
+  <a href="https://github.com/VitorM34/ThrottleWatch/discussions">
+    <img src="https://img.shields.io/badge/Discussions-Join-7C3AED?style=flat-square&logo=github" alt="Discussions"/>
   </a>
 </p>
 
