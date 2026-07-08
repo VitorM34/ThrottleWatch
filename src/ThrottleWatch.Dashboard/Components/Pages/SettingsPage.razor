@@ -1,0 +1,82 @@
+@page "/settings"
+@inject IThemeService ThemeService
+@inject IToastService ToastService
+@inject IOptions<ThrottleWatchOptions> Options
+@using Microsoft.Extensions.Options
+
+<PageTitle>Configurações - ThrottleWatch</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Configurações</h1>
+        <p class="page-subtitle">Configurações e preferências do dashboard</p>
+    </div>
+</div>
+
+<div style="max-width: 640px; display: flex; flex-direction: column; gap: 24px;">
+    <ContentCard Title="Aparência">
+        <div class="form-group">
+            <label class="form-label">Tema</label>
+            <div style="display: flex; gap: 12px; margin-top: 4px;">
+                <button class="btn @(ThemeService.IsDarkMode ? "btn--primary" : "btn--ghost")"
+                        @onclick='() => SetTheme(true)'
+                        aria-pressed="@ThemeService.IsDarkMode.ToString().ToLowerInvariant()">
+                    ☾ Modo Escuro
+                </button>
+                <button class="btn @(!ThemeService.IsDarkMode ? "btn--primary" : "btn--ghost")"
+                        @onclick='() => SetTheme(false)'
+                        aria-pressed="@(!ThemeService.IsDarkMode).ToString().ToLowerInvariant()">
+                    ☀ Modo Claro
+                </button>
+            </div>
+        </div>
+    </ContentCard>
+
+    <ContentCard Title="Conexão com a API">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="form-group">
+                <label class="form-label">URL Base da API</label>
+                <input type="url" class="form-control" value="@Options.Value.ApiBaseUrl" readonly aria-label="URL Base da API" />
+                <small style="color: var(--tw-text-muted); font-size: 0.8125rem;">Configurado via appsettings.json</small>
+            </div>
+            <div class="form-group">
+                <label class="form-label">URL do Hub SignalR</label>
+                <input type="url" class="form-control" value="@Options.Value.HubUrl" readonly aria-label="URL do Hub SignalR" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Intervalo de Atualização</label>
+                <input type="text" class="form-control" value="@Options.Value.RefreshIntervalSeconds segundos" readonly aria-label="Intervalo de atualização" />
+            </div>
+            <AlertBanner Variant="info" Message="As configurações de conexão são definidas via appsettings.json e requerem reinicialização para ter efeito." />
+        </div>
+    </ContentCard>
+
+    <ContentCard Title="Sobre o Dashboard">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Versão</span>
+                <span style="font-size: 0.9375rem; font-weight: 600;">1.0.0</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Framework</span>
+                <span style="font-size: 0.9375rem; font-weight: 600;">.NET 10 / Blazor Web App</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Modo de Renderização</span>
+                <span style="font-size: 0.9375rem; font-weight: 600;">Interactive Server</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Gráficos</span>
+                <span style="font-size: 0.9375rem; font-weight: 600;">Blazor-ApexCharts 6.1</span>
+            </div>
+        </div>
+    </ContentCard>
+</div>
+
+@code {
+    private void SetTheme(bool isDark)
+    {
+        ThemeService.SetDarkMode(isDark);
+        ToastService.ShowSuccess(isDark ? "Modo escuro ativado" : "Modo claro ativado");
+    }
+}

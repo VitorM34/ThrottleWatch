@@ -1,0 +1,23 @@
+@* Error state view — shown when a data fetch fails *@
+
+<div class="state-view @Class" role="alert">
+    <div class="state-view__icon" aria-hidden="true">⚠</div>
+    <div class="state-view__title">@Title</div>
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <p class="state-view__message">@Message</p>
+    }
+    @if (OnRetry.HasDelegate)
+    {
+        <button class="btn btn--secondary" @onclick="OnRetry">
+            ↺ Retry
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Failed to load data";
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public EventCallback OnRetry { get; set; }
+    [Parameter] public string? Class { get; set; }
+}

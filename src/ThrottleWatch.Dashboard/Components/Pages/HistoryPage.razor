@@ -1,0 +1,84 @@
+@page "/history"
+@inject IMetricsService MetricsService
+@implements IDisposable
+
+<PageTitle>Histórico - ThrottleWatch</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Histórico</h1>
+        <p class="page-subtitle">Tendências históricas de requisições e rate limiting</p>
+    </div>
+    <div class="page-actions">
+        <select class="form-control" style="width: 160px;" @bind="_window" @bind:after="LoadDataAsync" aria-label="Selecionar período">
+            <option value="30">Últimos 30 min</option>
+            <option value="60">Última 1 hora</option>
+            <option value="180">Últimas 3 horas</option>
+            <option value="360">Últimas 6 horas</option>
+            <option value="1440">Últimas 24 horas</option>
+        </select>
+        <button class="btn btn--secondary btn--sm" @onclick="LoadDataAsync" disabled="@_isLoading">Atualizar</button>
+    </div>
+</div>
+
+@if (_hasError)
+{
+    <ErrorState Title="Erro ao carregar histórico" OnRetry="LoadDataAsync" />
+}
+else
+{
+    <ContentCard Title="Volume de Requisições" Subtitle="@($"Últimos {GetWindowLabel()}")">
+        <RequestsLineChart SeriesData="_timeSeries" IsLoading="_isLoading" />
+    </ContentCard>
+
+    <div style="margin-top: 24px;">
+        <ContentCard Title="Top Endpoints no Período" Subtitle="Por total de requisições">
+            <TopEndpointsBarChart Endpoints="_endpoints" IsLoading="_isLoading" />
+        </ContentCard>
+    </div>
+}
+
+@code {
+    private IReadOnlyList<TimeSeriesData> _timeSeries = [];
+    private IReadOnlyList<EndpointMetrics> _endpoints = [];
+    private int _window = 60;
+    private bool _isLoading = true;
+    private bool _hasError;
+    private CancellationTokenSource _cts = new();
+
+    protected override async Task OnInitializedAsync() => await LoadDataAsync();
+
+    private async Task LoadDataAsync()
+    {
+        _isLoading = true;
+        _hasError = false;
+        StateHasChanged();
+        try
+        {
+            var tsTask = MetricsService.GetRequestTimeSeriesAsync(TimeSpan.FromMinutes(_window), _cts.Token);
+            var epTask = MetricsService.GetTopEndpointsAsync(10, _cts.Token);
+            await Task.WhenAll(tsTask, epTask);
+            _timeSeries = tsTask.Result;
+            _endpoints = epTask.Result;
+        }
+        catch (OperationCanceledException) { }
+        catch { _hasError = true; }
+        finally { _isLoading = false; StateHasChanged(); }
+    }
+
+    private string GetWindowLabel() => _window switch
+    {
+        30 => "30 minutos",
+        60 => "1 hora",
+        180 => "3 horas",
+        360 => "6 horas",
+        1440 => "24 horas",
+        _ => $"{_window} minutos"
+    };
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}

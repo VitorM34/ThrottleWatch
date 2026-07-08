@@ -1,0 +1,51 @@
+
+@* Confirmation dialog — used for destructive or irreversible actions *@
+
+@if (IsOpen)
+{
+    <div class="dialog-backdrop"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="dialog-title-@_id"
+         aria-describedby="dialog-body-@_id">
+        <div class="dialog dialog--sm">
+            <div class="dialog__header">
+                <h3 id="dialog-title-@_id" class="dialog__title">@Title</h3>
+                <button class="btn btn--ghost btn--icon btn--sm"
+                        @onclick="Cancel"
+                        aria-label="Close dialog">
+                    ✕
+                </button>
+            </div>
+            <div class="dialog__body" id="dialog-body-@_id">
+                <p style="color: var(--tw-text-secondary); font-size: 0.9375rem;">@Message</p>
+            </div>
+            <div class="dialog__footer">
+                <button class="btn btn--ghost" @onclick="Cancel">
+                    @CancelLabel
+                </button>
+                <button class="btn btn--@(IsDangerous ? "danger" : "primary")"
+                        @onclick="Confirm"
+                        autofocus>
+                    @ConfirmLabel
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private readonly string _id = Guid.NewGuid().ToString("N")[..8];
+
+    [Parameter] public string Title { get; set; } = "Confirm action";
+    [Parameter] public string Message { get; set; } = "Are you sure you want to proceed?";
+    [Parameter] public string ConfirmLabel { get; set; } = "Confirm";
+    [Parameter] public string CancelLabel { get; set; } = "Cancel";
+    [Parameter] public bool IsDangerous { get; set; }
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private async Task Confirm() => await OnConfirm.InvokeAsync();
+    private async Task Cancel() => await OnCancel.InvokeAsync();
+}

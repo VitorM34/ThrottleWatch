@@ -1,0 +1,32 @@
+﻿@page "/Error"
+@using Microsoft.AspNetCore.Diagnostics
+
+<PageTitle>Error — ThrottleWatch</PageTitle>
+
+<div class="not-found">
+    <div class="not-found__code" style="font-size: 4rem;">500</div>
+    <h2 class="not-found__title">An error occurred</h2>
+    <p class="not-found__message">
+        An unexpected error occurred while processing your request.
+    </p>
+    @if (ShowRequestId)
+    {
+        <p style="font-size: 0.8125rem; color: var(--tw-text-muted); margin-top: 8px;">
+            Request ID: <code>@RequestId</code>
+        </p>
+    }
+    <a href="/" class="btn btn--primary" style="margin-top: 16px;">
+        Back to Dashboard
+    </a>
+</div>
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = HttpContext?.TraceIdentifier;
+}

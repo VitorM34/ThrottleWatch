@@ -1,0 +1,83 @@
+@page "/endpoints"
+@inject IMetricsService MetricsService
+@implements IDisposable
+
+<PageTitle>Endpoints - ThrottleWatch</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Endpoints</h1>
+        <p class="page-subtitle">Todos os endpoints monitorados e suas métricas de rate limiting</p>
+    </div>
+    <div class="page-actions">
+        <input type="search"
+               class="form-control"
+               style="width: 220px;"
+               placeholder="Buscar endpoints..."
+               @bind="_searchQuery"
+               @bind:event="oninput"
+               aria-label="Buscar endpoints" />
+        <button class="btn btn--secondary btn--sm"
+                @onclick="RefreshAsync"
+                disabled="@_isLoading"
+                aria-label="Atualizar endpoints">
+            @if (_isLoading) { <span class="spinner spinner--sm" aria-hidden="true"></span> }
+            else { <span>Atualizar</span> }
+        </button>
+    </div>
+</div>
+
+@if (_hasError)
+{
+    <ErrorState Title="Erro ao carregar endpoints" OnRetry="RefreshAsync" />
+}
+else
+{
+    <ContentCard Title="Todos os Endpoints" Subtitle="@($"{FilteredEndpoints.Count()} endpoints")">
+        <EndpointsTable Endpoints="FilteredEndpoints.ToList()" IsLoading="_isLoading" />
+    </ContentCard>
+}
+
+@code {
+    private IReadOnlyList<EndpointMetrics> _endpoints = [];
+    private string _searchQuery = string.Empty;
+    private bool _isLoading = true;
+    private bool _hasError;
+    private CancellationTokenSource _cts = new();
+
+    private IEnumerable<EndpointMetrics> FilteredEndpoints =>
+        string.IsNullOrWhiteSpace(_searchQuery)
+            ? _endpoints
+            : _endpoints.Where(e =>
+                e.Path.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                e.Method.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                e.PolicyName.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync() => await RefreshAsync();
+
+    private async Task RefreshAsync()
+    {
+        _isLoading = true;
+        _hasError = false;
+        StateHasChanged();
+
+        try
+        {
+            _endpoints = await MetricsService.GetAllEndpointsAsync(_cts.Token);
+            if (_endpoints is null) { _hasError = true; _endpoints = []; }
+        }
+        catch (OperationCanceledException) { }
+        catch { _hasError = true; }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}

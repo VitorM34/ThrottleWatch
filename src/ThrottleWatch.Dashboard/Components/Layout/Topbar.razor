@@ -1,0 +1,94 @@
+@inject IThemeService ThemeService
+@inject ISignalRService SignalR
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<header class="topbar @(_sidebarCollapsed ? "topbar--collapsed" : "")"
+        role="banner"
+        aria-label="Barra superior">
+
+    <div class="topbar__breadcrumb" aria-label="Navegação">
+        <span class="topbar__breadcrumb-item">ThrottleWatch</span>
+        @if (!string.IsNullOrEmpty(PageTitle))
+        {
+            <span class="topbar__breadcrumb-sep" aria-hidden="true">/</span>
+            <span class="topbar__breadcrumb-item topbar__breadcrumb-item--active"
+                  aria-current="page">@PageTitle</span>
+        }
+    </div>
+
+    <div class="topbar__actions" role="toolbar" aria-label="Ações da barra superior">
+        <div class="connection-indicator connection-indicator--@_connectionState.ToString().ToLowerInvariant()"
+             aria-label="Status da conexão: @_connectionState"
+             role="status"
+             aria-live="polite">
+            <div class="connection-indicator__dot" aria-hidden="true"></div>
+            <span class="topbar__connection-label">@GetConnectionLabel()</span>
+        </div>
+
+        <div class="divider" style="width: 1px; height: 20px; margin: 0; background: var(--tw-surface-border);"></div>
+
+        <button class="btn btn--ghost btn--icon"
+                @onclick="ToggleTheme"
+                aria-label="@(ThemeService.IsDarkMode ? "Mudar para modo claro" : "Mudar para modo escuro")"
+                title="@(ThemeService.IsDarkMode ? "Modo claro" : "Modo escuro")">
+            @if (ThemeService.IsDarkMode)
+            {
+                <span aria-hidden="true">☀</span>
+            }
+            else
+            {
+                <span aria-hidden="true">☾</span>
+            }
+        </button>
+    </div>
+</header>
+
+@code {
+    [Parameter] public string? PageTitle { get; set; }
+    [Parameter] public bool SidebarCollapsed { get; set; }
+
+    private ConnectionState _connectionState = ConnectionState.Disconnected;
+    private bool _sidebarCollapsed;
+
+    protected override void OnParametersSet()
+    {
+        _sidebarCollapsed = SidebarCollapsed;
+    }
+
+    protected override void OnInitialized()
+    {
+        _connectionState = SignalR.State;
+        SignalR.ConnectionStateChanged += OnConnectionStateChanged;
+        ThemeService.ThemeChanged += OnThemeChanged;
+    }
+
+    private void ToggleTheme()
+    {
+        ThemeService.ToggleTheme();
+    }
+
+    private void OnConnectionStateChanged(object? sender, ConnectionState state)
+    {
+        _connectionState = state;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnThemeChanged(object? sender, EventArgs e) =>
+        InvokeAsync(StateHasChanged);
+
+    private string GetConnectionLabel() => _connectionState switch
+    {
+        ConnectionState.Connected => "Ao vivo",
+        ConnectionState.Connecting => "Conectando",
+        ConnectionState.Reconnecting => "Reconectando",
+        ConnectionState.Failed => "Desconectado",
+        _ => "Offline"
+    };
+
+    public void Dispose()
+    {
+        SignalR.ConnectionStateChanged -= OnConnectionStateChanged;
+        ThemeService.ThemeChanged -= OnThemeChanged;
+    }
+}

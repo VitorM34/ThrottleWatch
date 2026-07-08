@@ -1,0 +1,40 @@
+@* Generic card wrapper with header, body and optional footer *@
+
+<div class="card @Class">
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <div class="card__header">
+            <div>
+                <div class="card__title">@Title</div>
+                @if (!string.IsNullOrEmpty(Subtitle))
+                {
+                    <div class="card__subtitle">@Subtitle</div>
+                }
+            </div>
+            @if (HeaderActions is not null)
+            {
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    @HeaderActions
+                </div>
+            }
+        </div>
+    }
+    <div class="card__body">
+        @ChildContent
+    </div>
+    @if (Footer is not null)
+    {
+        <div class="card__footer">
+            @Footer
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? HeaderActions { get; set; }
+    [Parameter] public RenderFragment? Footer { get; set; }
+}

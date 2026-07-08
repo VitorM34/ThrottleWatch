@@ -1,0 +1,96 @@
+@inject IToastService ToastService
+@implements IDisposable
+
+<div class="toast-container" role="region" aria-label="Notifications" aria-live="polite">
+    @foreach (var toast in _toasts)
+    {
+        <div class="toast toast--@toast.Type.ToString().ToLowerInvariant() @(toast.IsLeaving ? "leaving" : "")"
+             role="alert"
+             aria-atomic="true">
+            <span class="toast__icon toast__icon--@toast.Type.ToString().ToLowerInvariant()" aria-hidden="true">
+                @GetIcon(toast.Type)
+            </span>
+            <div class="toast__content">
+                @if (!string.IsNullOrEmpty(toast.Title))
+                {
+                    <div class="toast__title">@toast.Title</div>
+                }
+                <div class="toast__message">@toast.Message</div>
+            </div>
+            <button class="toast__close"
+                    @onclick="() => DismissToast(toast)"
+                    aria-label="Dismiss notification">
+                ✕
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private readonly List<ToastViewModel> _toasts = [];
+
+    protected override void OnInitialized()
+    {
+        ToastService.ToastAdded += OnToastAdded;
+        ToastService.ToastRemoved += OnToastRemoved;
+    }
+
+    private void OnToastAdded(object? sender, ToastMessage message)
+    {
+        var vm = new ToastViewModel(message);
+        InvokeAsync(async () =>
+        {
+            _toasts.Add(vm);
+            StateHasChanged();
+
+            await Task.Delay(message.DurationMs);
+            await RemoveToast(vm);
+        });
+    }
+
+    private void OnToastRemoved(object? sender, Guid id)
+    {
+        var vm = _toasts.FirstOrDefault(t => t.Id == id);
+        if (vm is not null)
+            InvokeAsync(() => RemoveToast(vm));
+    }
+
+    private async Task DismissToast(ToastViewModel vm) =>
+        await RemoveToast(vm);
+
+    private async Task RemoveToast(ToastViewModel vm)
+    {
+        if (!_toasts.Contains(vm)) return;
+
+        vm.IsLeaving = true;
+        StateHasChanged();
+        await Task.Delay(300);
+
+        _toasts.Remove(vm);
+        StateHasChanged();
+    }
+
+    private static string GetIcon(ToastType type) => type switch
+    {
+        ToastType.Success => "✓",
+        ToastType.Error => "✕",
+        ToastType.Warning => "⚠",
+        ToastType.Info => "ℹ",
+        _ => "ℹ"
+    };
+
+    public void Dispose()
+    {
+        ToastService.ToastAdded -= OnToastAdded;
+        ToastService.ToastRemoved -= OnToastRemoved;
+    }
+
+    private sealed class ToastViewModel(ToastMessage message)
+    {
+        public Guid Id { get; } = message.Id;
+        public string Message { get; } = message.Message;
+        public string? Title { get; } = message.Title;
+        public ToastType Type { get; } = message.Type;
+        public bool IsLeaving { get; set; }
+    }
+}

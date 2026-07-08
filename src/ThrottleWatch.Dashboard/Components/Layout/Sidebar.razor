@@ -1,0 +1,162 @@
+@inject IThemeService ThemeService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<aside class="sidebar @(_collapsed ? "sidebar--collapsed" : "") @(_mobileOpen ? "sidebar--mobile-open" : "")"
+       role="navigation"
+       aria-label="Navegação principal">
+
+    <a href="/" class="sidebar__logo" aria-label="ThrottleWatch Dashboard — Início">
+        <img src="/favicon.svg" alt="ThrottleWatch logo" class="sidebar__logo-icon" />
+        <span class="sidebar__logo-text">ThrottleWatch</span>
+    </a>
+
+    <nav class="sidebar__nav">
+        <div class="sidebar__section">
+            <div class="sidebar__section-label" aria-hidden="true">Visão Geral</div>
+
+            <NavLink href="/"
+                     class="sidebar__item"
+                     ActiveClass="sidebar__item--active"
+                     Match="NavLinkMatch.All"
+                     aria-label="Visão Geral do Dashboard">
+                <span class="sidebar__item-icon" aria-hidden="true">⬡</span>
+                <span class="sidebar__item-label">Visão Geral</span>
+            </NavLink>
+
+            <NavLink href="/endpoints"
+                     class="sidebar__item"
+                     ActiveClass="sidebar__item--active"
+                     aria-label="Endpoints">
+                <span class="sidebar__item-icon" aria-hidden="true">⤢</span>
+                <span class="sidebar__item-label">Endpoints</span>
+            </NavLink>
+
+            <NavLink href="/clients"
+                     class="sidebar__item"
+                     ActiveClass="sidebar__item--active"
+                     aria-label="Clientes">
+                <span class="sidebar__item-icon" aria-hidden="true">◈</span>
+                <span class="sidebar__item-label">Clientes</span>
+            </NavLink>
+        </div>
+
+        <div class="sidebar__section">
+            <div class="sidebar__section-label" aria-hidden="true">Configuração</div>
+
+            <NavLink href="/policies"
+                     class="sidebar__item"
+                     ActiveClass="sidebar__item--active"
+                     aria-label="Políticas">
+                <span class="sidebar__item-icon" aria-hidden="true">◉</span>
+                <span class="sidebar__item-label">Políticas</span>
+            </NavLink>
+
+            <NavLink href="/alerts"
+                     class="sidebar__item"
+                     ActiveClass="sidebar__item--active"
+                     aria-label="Alertas">
+                <span class="sidebar__item-icon" aria-hidden="true">◬</span>
+                <span class="sidebar__item-label">Alertas</span>
+                @if (_activeAlertCount > 0)
+                {
+                    <span class="sidebar__item-badge badge badge--error" aria-label="@_activeAlertCount alertas ativos">
+                        @(_activeAlertCount > 99 ? "99+" : _activeAlertCount.ToString())
+                    </span>
+                }
+            </NavLink>
+        </div>
+
+        <div class="sidebar__section">
+            <div class="sidebar__section-label" aria-hidden="true">Análises</div>
+
+            <NavLink href="/history"
+                     class="sidebar__item"
+                     ActiveClass="sidebar__item--active"
+                     aria-label="Histórico">
+                <span class="sidebar__item-icon" aria-hidden="true">◴</span>
+                <span class="sidebar__item-label">Histórico</span>
+            </NavLink>
+
+            <NavLink href="/insights"
+                     class="sidebar__item"
+                     ActiveClass="sidebar__item--active"
+                     aria-label="Insights">
+                <span class="sidebar__item-icon" aria-hidden="true">◈</span>
+                <span class="sidebar__item-label">Insights</span>
+            </NavLink>
+        </div>
+
+        <div class="sidebar__section">
+            <div class="sidebar__section-label" aria-hidden="true">Sistema</div>
+
+            <NavLink href="/health"
+                     class="sidebar__item"
+                     ActiveClass="sidebar__item--active"
+                     aria-label="Saúde do Sistema">
+                <span class="sidebar__item-icon" aria-hidden="true">◎</span>
+                <span class="sidebar__item-label">Saúde</span>
+            </NavLink>
+
+            <NavLink href="/settings"
+                     class="sidebar__item"
+                     ActiveClass="sidebar__item--active"
+                     aria-label="Configurações">
+                <span class="sidebar__item-icon" aria-hidden="true">⚙</span>
+                <span class="sidebar__item-label">Configurações</span>
+            </NavLink>
+
+            <NavLink href="/about"
+                     class="sidebar__item"
+                     ActiveClass="sidebar__item--active"
+                     aria-label="Sobre">
+                <span class="sidebar__item-icon" aria-hidden="true">◷</span>
+                <span class="sidebar__item-label">Sobre</span>
+            </NavLink>
+        </div>
+    </nav>
+
+    <div class="sidebar__footer">
+        <button class="sidebar__item btn--ghost"
+                style="width: 100%; border: none; text-align: left;"
+                @onclick="ToggleCollapse"
+                aria-label="@(_collapsed ? "Expandir menu" : "Recolher menu")"
+                title="@(_collapsed ? "Expandir" : "Recolher")">
+            <span class="sidebar__item-icon" aria-hidden="true">@(_collapsed ? "▶" : "◀")</span>
+            <span class="sidebar__item-label">Recolher</span>
+        </button>
+    </div>
+</aside>
+
+@code {
+    [Parameter] public EventCallback<bool> OnCollapsedChanged { get; set; }
+
+    private bool _collapsed;
+    private bool _mobileOpen;
+    private int _activeAlertCount;
+
+    protected override void OnInitialized()
+    {
+        ThemeService.ThemeChanged += OnThemeChanged;
+    }
+
+    private async Task ToggleCollapse()
+    {
+        _collapsed = !_collapsed;
+        await OnCollapsedChanged.InvokeAsync(_collapsed);
+    }
+
+    private void OnThemeChanged(object? sender, EventArgs e) =>
+        InvokeAsync(StateHasChanged);
+
+    public void SetAlertCount(int count)
+    {
+        _activeAlertCount = count;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ThemeService.ThemeChanged -= OnThemeChanged;
+    }
+}

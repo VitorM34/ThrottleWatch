@@ -1,0 +1,91 @@
+@page "/about"
+
+<PageTitle>Sobre - ThrottleWatch</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Sobre</h1>
+        <p class="page-subtitle">ThrottleWatch — Observabilidade Open Source de Rate Limiting para ASP.NET Core</p>
+    </div>
+</div>
+
+<div style="max-width: 720px; display: flex; flex-direction: column; gap: 24px;">
+    <ContentCard Title="O que é o ThrottleWatch?">
+        <p style="font-size: 0.9375rem; color: var(--tw-text-secondary); line-height: 1.7;">
+            ThrottleWatch é uma camada de observabilidade open source para o Rate Limiting do ASP.NET Core.
+            Oferece monitoramento em tempo real, análises históricas, alertas inteligentes e insights
+            para ajudá-lo a entender o desempenho das suas políticas de rate limiting e como os clientes interagem com suas APIs.
+        </p>
+    </ContentCard>
+
+    <ContentCard Title="Arquitetura">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            @foreach (var component in _components)
+            {
+                <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--tw-surface-raised); border-radius: var(--tw-radius-md);">
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--tw-color-brand-blue); margin-top: 6px; flex-shrink: 0;"></div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.9375rem; margin-bottom: 2px;">@component.Name</div>
+                        <div style="font-size: 0.875rem; color: var(--tw-text-muted);">@component.Description</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </ContentCard>
+
+    <ContentCard Title="Stack de Tecnologia">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
+            @foreach (var tech in _techStack)
+            {
+                <div style="padding: 12px 16px; background: var(--tw-surface-raised); border-radius: var(--tw-radius-md); border: 1px solid var(--tw-surface-border);">
+                    <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">@tech.Category</div>
+                    <div style="font-weight: 600; font-size: 0.9375rem;">@tech.Name</div>
+                </div>
+            }
+        </div>
+    </ContentCard>
+
+    <ContentCard Title="Open Source">
+        <p style="font-size: 0.9375rem; color: var(--tw-text-secondary); margin-bottom: 16px;">
+            ThrottleWatch é distribuído sob a Licença MIT. Contribuições são bem-vindas!
+        </p>
+        <div style="display: flex; gap: 12px;">
+            <a href="https://github.com/VitorM34/ThrottleWatch"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn btn--secondary"
+               aria-label="View ThrottleWatch on GitHub (opens in new tab)">
+                ⬡ GitHub Repository
+            </a>
+        </div>
+    </ContentCard>
+</div>
+
+@code {
+    private sealed record ArchComponent(string Name, string Description);
+    private sealed record TechItem(string Category, string Name);
+
+    private readonly ArchComponent[] _components =
+    [
+        new("ThrottleWatch Middleware", "Intercepta requisições HTTP, registra métricas e avalia políticas de rate limiting em O(1)"),
+        new("Fila em Memória", "Buffer thread-safe via System.Threading.Channels para coleta de métricas de alta vazão"),
+        new("Background Worker", "IHostedService que persiste métricas em lote no PostgreSQL sem bloquear as requisições"),
+        new("SignalR Hub", "Streaming em tempo real de métricas ao vivo para os clientes do dashboard"),
+        new("Blazor Dashboard", "Dashboard com Interactive Server Rendering, gráficos, tabelas e atualizações em tempo real"),
+        new("PostgreSQL + EF Core", "Armazenamento de séries temporais para análises históricas e tendências de longo prazo")
+    ];
+
+    private readonly TechItem[] _techStack =
+    [
+        new("Runtime", ".NET 10"),
+        new("Web", "ASP.NET Core"),
+        new("UI", "Blazor Web App"),
+        new("Tempo Real", "SignalR"),
+        new("Gráficos", "Blazor-ApexCharts"),
+        new("Banco de Dados", "PostgreSQL"),
+        new("ORM", "EF Core"),
+        new("Hosting", "ASP.NET Core Kestrel"),
+        new("Auth", "ASP.NET Core"),
+        new("Licença", "MIT")
+    ];
+}

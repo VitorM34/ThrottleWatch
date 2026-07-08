@@ -1,0 +1,136 @@
+@page "/health"
+@inject IMetricsService MetricsService
+@implements IDisposable
+
+<PageTitle>Saúde - ThrottleWatch</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Saúde do Sistema</h1>
+        <p class="page-subtitle">Health checks e status dos componentes</p>
+    </div>
+    <div class="page-actions">
+        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">Atualizar</button>
+    </div>
+</div>
+
+@if (_isLoading)
+{
+    <div class="grid grid--3">
+        @for (int i = 0; i < 3; i++) { <SkeletonCard /> }
+    </div>
+}
+else if (_hasError || _health is null)
+{
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card__body">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--tw-status-error); box-shadow: 0 0 8px var(--tw-status-error);"></div>
+                <span style="font-size: 1.125rem; font-weight: 600;">API Inacessível</span>
+            </div>
+            <p style="margin-top: 8px; color: var(--tw-text-muted); font-size: 0.875rem;">Não foi possível conectar à API do ThrottleWatch. Verifique se a aplicação está em execução.</p>
+        </div>
+    </div>
+    <button class="btn btn--primary" @onclick="RefreshAsync">Tentar novamente</button>
+}
+else
+{
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card__body">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 16px; height: 16px; border-radius: 50%; background: @GetOverallColor(_health.Status); box-shadow: 0 0 10px @GetOverallColor(_health.Status);"></div>
+                <div>
+                    <div style="font-size: 1.25rem; font-weight: 700;">Status Geral: @_health.Status</div>
+                    <div style="font-size: 0.875rem; color: var(--tw-text-muted);">Duração total das verificações: @_health.TotalDuration.TotalMilliseconds.ToString("F0") ms</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (_health.Entries.Any())
+    {
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            @foreach (var (name, entry) in _health.Entries)
+            {
+                <div class="card">
+                    <div class="card__body">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 10px; height: 10px; border-radius: 50%; background: @GetOverallColor(entry.Status);"></div>
+                                <span style="font-weight: 600;">@name</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <Badge Variant="@GetStatusVariant(entry.Status)">@entry.Status</Badge>
+                                <span style="font-size: 0.8125rem; color: var(--tw-text-muted);">@entry.Duration.TotalMilliseconds.ToString("F0") ms</span>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(entry.Description))
+                        {
+                            <p style="font-size: 0.875rem; color: var(--tw-text-secondary); margin: 0;">@entry.Description</p>
+                        }
+                        @if (entry.Data.Any())
+                        {
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                                @foreach (var kv in entry.Data)
+                                {
+                                    <div style="font-size: 0.8125rem; background: var(--tw-surface-overlay); padding: 3px 10px; border-radius: var(--tw-radius-sm);">
+                                        <span style="color: var(--tw-text-muted);">@kv.Key: </span>@kv.Value
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <EmptyState Icon="◎" Title="Nenhum health check registrado" Message="Adicione health checks à sua aplicação ASP.NET Core para vê-los aqui." />
+    }
+}
+
+@code {
+    private HealthStatus? _health;
+    private bool _isLoading = true;
+    private bool _hasError;
+    private CancellationTokenSource _cts = new();
+
+    protected override async Task OnInitializedAsync() => await RefreshAsync();
+
+    private async Task RefreshAsync()
+    {
+        _isLoading = true;
+        _hasError = false;
+        StateHasChanged();
+        try
+        {
+            _health = await MetricsService.GetHealthAsync(_cts.Token);
+        }
+        catch (OperationCanceledException) { }
+        catch { _hasError = true; }
+        finally { _isLoading = false; StateHasChanged(); }
+    }
+
+    private static string GetOverallColor(string status) => status.ToLowerInvariant() switch
+    {
+        "healthy" => "var(--tw-status-success)",
+        "degraded" => "var(--tw-status-warning)",
+        "unhealthy" => "var(--tw-status-error)",
+        _ => "var(--tw-text-muted)"
+    };
+
+    private static string GetStatusVariant(string status) => status.ToLowerInvariant() switch
+    {
+        "healthy" => "success",
+        "degraded" => "warning",
+        "unhealthy" => "error",
+        _ => "neutral"
+    };
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}

@@ -1,0 +1,19 @@
+﻿@using ThrottleWatch.Dashboard.Components.Layout
+
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Página não encontrada — ThrottleWatch</PageTitle>
+        <LayoutView Layout="typeof(MainLayout)">
+            <div class="not-found">
+                <div class="not-found__code">404</div>
+                <h2 class="not-found__title">Página não encontrada</h2>
+                <p class="not-found__message">A página que você está procurando não existe.</p>
+                <a href="/" class="btn btn--primary">Voltar ao Dashboard</a>
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>
