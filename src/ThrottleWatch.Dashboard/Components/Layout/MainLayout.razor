@@ -1,0 +1,89 @@
+﻿@inherits LayoutComponentBase
+@inject IThemeService ThemeService
+@inject ISignalRService SignalR
+@inject IToastService ToastService
+@implements IDisposable
+
+<div class="@ThemeClass app-shell">
+    <Sidebar OnCollapsedChanged="OnSidebarCollapsedChanged" />
+
+    <div class="app-content @(_sidebarCollapsed ? "app-content--collapsed" : "")">
+        <Topbar PageTitle="@PageTitle" SidebarCollapsed="_sidebarCollapsed" />
+
+        <main class="app-main" id="main-content" role="main" aria-label="Conteúdo principal">
+            @Body
+        </main>
+    </div>
+</div>
+
+<ToastHost />
+
+@code {
+    private bool _sidebarCollapsed;
+
+    private string ThemeClass => ThemeService.IsDarkMode ? "dark" : "light";
+
+    protected override async Task OnInitializedAsync()
+    {
+        ThemeService.ThemeChanged += OnThemeChanged;
+        SignalR.AlertReceived += OnAlertReceived;
+        await SignalR.StartAsync();
+    }
+
+    private void OnSidebarCollapsedChanged(bool collapsed)
+    {
+        _sidebarCollapsed = collapsed;
+        StateHasChanged();
+    }
+
+    private void OnThemeChanged(object? sender, EventArgs e) =>
+        InvokeAsync(StateHasChanged);
+
+    private void OnAlertReceived(object? sender, AlertInfo alert)
+    {
+        var message = $"{alert.Title}: {alert.Message}";
+        switch (alert.Severity)
+        {
+            case AlertSeverity.Critical:
+                ToastService.ShowError(message, "Alerta Crítico");
+                break;
+            case AlertSeverity.Warning:
+                ToastService.ShowWarning(message, "Aviso");
+                break;
+            default:
+                ToastService.ShowInfo(message, "Alerta");
+                break;
+        }
+    }
+
+    private string? PageTitle => Navigation?.Uri is { } uri
+        ? GetPageTitle(uri)
+        : null;
+
+    [Inject] private NavigationManager? Navigation { get; set; }
+
+    private static string? GetPageTitle(string uri)
+    {
+        var path = new Uri(uri).AbsolutePath.TrimStart('/').ToLowerInvariant();
+        return path switch
+        {
+            "" => "Visão Geral",
+            "endpoints" => "Endpoints",
+            "clients" => "Clientes",
+            "policies" => "Políticas",
+            "alerts" => "Alertas",
+            "history" => "Histórico",
+            "insights" => "Insights",
+            "settings" => "Configurações",
+            "about" => "Sobre",
+            "health" => "Saúde",
+            _ => null
+        };
+    }
+
+    public void Dispose()
+    {
+        ThemeService.ThemeChanged -= OnThemeChanged;
+        SignalR.AlertReceived -= OnAlertReceived;
+    }
+}

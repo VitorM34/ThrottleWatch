@@ -1,0 +1,140 @@
+@page "/policies"
+@inject IMetricsService MetricsService
+@implements IDisposable
+
+<PageTitle>Políticas - ThrottleWatch</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Políticas</h1>
+        <p class="page-subtitle">Políticas de rate limiting ativas e suas estatísticas</p>
+    </div>
+    <div class="page-actions">
+        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">Atualizar</button>
+    </div>
+</div>
+
+@if (_hasError)
+{
+    <ErrorState Title="Erro ao carregar políticas" OnRetry="RefreshAsync" />
+}
+else if (_isLoading)
+{
+    <div class="grid grid--3">
+        @for (int i = 0; i < 3; i++) { <SkeletonCard /> }
+    </div>
+}
+else if (!_policies.Any())
+{
+    <EmptyState Icon="◉" Title="Nenhuma política configurada" Message="As políticas aparecem quando o rate limiting é configurado na sua aplicação ASP.NET Core." />
+}
+else
+{
+    <div class="grid grid--3">
+        @foreach (var policy in _policies)
+        {
+            <div class="card">
+                <div class="card__header">
+                    <div>
+                        <div class="card__title">@policy.Name</div>
+                        <div class="card__subtitle">@policy.Algorithm</div>
+                    </div>
+                    <Badge Variant="@(policy.IsActive ? "success" : "neutral")" ShowDot="true" Pulse="policy.IsActive">
+                        @(policy.IsActive ? "Ativa" : "Inativa")
+                    </Badge>
+                </div>
+                <div class="card__body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Limite</div>
+                            <div style="font-size: 1.25rem; font-weight: 700;">@policy.PermitLimit.ToString("N0")</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Janela</div>
+                            <div style="font-size: 1.25rem; font-weight: 700;">@FormatWindow(policy.Window)</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Total de Req.</div>
+                            <div style="font-size: 1.25rem; font-weight: 700;">@FormatNumber(policy.TotalRequests)</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Rejeitadas</div>
+                            <div style="font-size: 1.25rem; font-weight: 700; color: @(policy.RejectionRatePercent > 10 ? "var(--tw-status-error)" : "inherit")">
+                                @policy.RejectedRequests.ToString("N0")
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 4px;">
+                            <span style="color: var(--tw-text-muted)">Taxa de Rejeição</span>
+                            <span style="color: @GetRejectionColor(policy.RejectionRatePercent)">@policy.RejectionRatePercent.ToString("F1")%</span>
+                        </div>
+                        <ProgressBar Value="policy.RejectionRatePercent" Variant="@GetProgressVariant(policy.RejectionRatePercent)" Label="Taxa de rejeição" />
+                    </div>
+                    <div style="font-size: 0.8125rem; color: var(--tw-text-muted);">
+                        @policy.ActiveConnections conexões ativas
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private IReadOnlyList<PolicyInfo> _policies = [];
+    private bool _isLoading = true;
+    private bool _hasError;
+    private CancellationTokenSource _cts = new();
+
+    protected override async Task OnInitializedAsync() => await RefreshAsync();
+
+    private async Task RefreshAsync()
+    {
+        _isLoading = true;
+        _hasError = false;
+        StateHasChanged();
+        try
+        {
+            _policies = await MetricsService.GetPoliciesAsync(_cts.Token);
+            if (_policies is null) { _hasError = true; _policies = []; }
+        }
+        catch (OperationCanceledException) { }
+        catch { _hasError = true; }
+        finally { _isLoading = false; StateHasChanged(); }
+    }
+
+    private static string FormatWindow(TimeSpan window)
+    {
+        if (window.TotalDays >= 1)    return $"{(int)window.TotalDays}d";
+        if (window.TotalHours >= 1)   return $"{(int)window.TotalHours}h";
+        if (window.TotalMinutes >= 1) return $"{(int)window.TotalMinutes}m";
+        return $"{(int)window.TotalSeconds}s";
+    }
+
+    private static string FormatNumber(long value) => value switch
+    {
+        >= 1_000_000 => $"{value / 1_000_000.0:F1}M",
+        >= 1_000     => $"{value / 1_000.0:F1}K",
+        _            => value.ToString("N0")
+    };
+
+    private static string GetRejectionColor(double rate)
+    {
+        if (rate > 20) return "var(--tw-status-error)";
+        if (rate > 5)  return "var(--tw-status-warning)";
+        return "inherit";
+    }
+
+    private static string GetProgressVariant(double rate)
+    {
+        if (rate > 20) return "red";
+        if (rate > 5)  return "orange";
+        return "blue";
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}

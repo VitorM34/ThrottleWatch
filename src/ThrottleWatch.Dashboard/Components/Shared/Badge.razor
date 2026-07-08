@@ -1,0 +1,20 @@
+@* Reusable Badge component with semantic color variants *@
+
+<span class="badge badge--@Variant.ToLowerInvariant() @(Pulse ? "badge--pulse" : "") @Class"
+      aria-label="@AriaLabel">
+    @if (ShowDot)
+    {
+        <span class="badge__dot" aria-hidden="true"></span>
+    }
+    @ChildContent
+</span>
+
+@code {
+    /// <summary>Color variant: success, warning, error, info, neutral, purple</summary>
+    [Parameter] public string Variant { get; set; } = "neutral";
+    [Parameter] public bool ShowDot { get; set; }
+    [Parameter] public bool Pulse { get; set; }
+    [Parameter] public string? AriaLabel { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

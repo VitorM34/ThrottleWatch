@@ -1,0 +1,25 @@
+@* Empty state view — shown when a list or dataset has no items *@
+
+<div class="state-view @Class" role="status" aria-label="@Title">
+    @if (!string.IsNullOrEmpty(Icon))
+    {
+        <div class="state-view__icon" aria-hidden="true">@Icon</div>
+    }
+    <div class="state-view__title">@Title</div>
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <p class="state-view__message">@Message</p>
+    }
+    @if (ChildContent is not null)
+    {
+        <div class="state-view__action">@ChildContent</div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Icon { get; set; } = "◌";
+    [Parameter] public string Title { get; set; } = "Nenhum dado disponível";
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

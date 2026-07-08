@@ -1,0 +1,97 @@
+@page "/clients"
+@inject IMetricsService MetricsService
+@implements IDisposable
+
+<PageTitle>Clientes - ThrottleWatch</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Clientes</h1>
+        <p class="page-subtitle">Endereços IP e suas métricas de atividade</p>
+    </div>
+    <div class="page-actions">
+        <input type="search"
+               class="form-control"
+               style="width: 220px;"
+               placeholder="Buscar por IP..."
+               @bind="_searchQuery"
+               @bind:event="oninput"
+               aria-label="Buscar clientes por IP" />
+        <select class="form-control" style="width: 140px;" @bind="_riskFilter" aria-label="Filtrar por nível de risco">
+            <option value="">Todos os riscos</option>
+            <option value="Low">Baixo</option>
+            <option value="Medium">Médio</option>
+            <option value="High">Alto</option>
+            <option value="Critical">Crítico</option>
+        </select>
+        <button class="btn btn--secondary btn--sm"
+                @onclick="RefreshAsync"
+                disabled="@_isLoading"
+                aria-label="Atualizar clientes">
+            Atualizar
+        </button>
+    </div>
+</div>
+
+@if (_hasError)
+{
+    <ErrorState Title="Erro ao carregar clientes" OnRetry="RefreshAsync" />
+}
+else
+{
+    <div class="grid grid--4" style="margin-bottom: 24px;">
+        <MetricCard Label="Total de Clientes" Value="@_clients.Count.ToString("N0")" Icon="◈" AccentVariant="blue" IsLoading="_isLoading" />
+        <MetricCard Label="Bloqueados Agora" Value="@_clients.Count(c => c.IsBlocked).ToString("N0")" Icon="✕" AccentVariant="red" IsLoading="_isLoading" />
+        <MetricCard Label="Alto Risco" Value="@_clients.Count(c => c.RiskLevel >= ClientRisk.High).ToString("N0")" Icon="◬" AccentVariant="orange" IsLoading="_isLoading" />
+        <MetricCard Label="Ativos Hoje" Value="@_clients.Count(c => (DateTimeOffset.UtcNow - c.LastSeen).TotalHours < 24).ToString("N0")" Icon="◎" AccentVariant="green" IsLoading="_isLoading" />
+    </div>
+
+    <ContentCard Title="Todos os Clientes" Subtitle="@($"{FilteredClients.Count()} clientes")">
+        <ClientsTable Clients="FilteredClients.ToList()" IsLoading="_isLoading" />
+    </ContentCard>
+}
+
+@code {
+    private IReadOnlyList<ClientMetrics> _clients = [];
+    private string _searchQuery = string.Empty;
+    private string _riskFilter = string.Empty;
+    private bool _isLoading = true;
+    private bool _hasError;
+    private CancellationTokenSource _cts = new();
+
+    private IEnumerable<ClientMetrics> FilteredClients
+    {
+        get
+        {
+            var q = _clients.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(_searchQuery))
+                q = q.Where(c => c.IpAddress.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(_riskFilter) && Enum.TryParse<ClientRisk>(_riskFilter, out var risk))
+                q = q.Where(c => c.RiskLevel == risk);
+            return q;
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => await RefreshAsync();
+
+    private async Task RefreshAsync()
+    {
+        _isLoading = true;
+        _hasError = false;
+        StateHasChanged();
+        try
+        {
+            _clients = await MetricsService.GetAllClientsAsync(_cts.Token);
+            if (_clients is null) { _hasError = true; _clients = []; }
+        }
+        catch (OperationCanceledException) { }
+        catch { _hasError = true; }
+        finally { _isLoading = false; StateHasChanged(); }
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}

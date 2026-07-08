@@ -1,0 +1,119 @@
+@using ApexCharts
+
+@* Line chart showing requests over time (allowed vs blocked) *@
+
+<div class="chart-wrapper" aria-label="Requests over time chart" role="img">
+    @if (IsLoading)
+    {
+        <div class="skeleton skeleton--chart"></div>
+    }
+    else if (!SeriesData.Any())
+    {
+        <EmptyState Icon="◎" Title="No time series data" Message="Data will appear once requests are recorded." />
+    }
+    else
+    {
+        <ApexChart TItem="TimeSeriesPoint"
+                   Title=""
+                   Options="_options"
+                   @ref="_chart">
+            @foreach (var series in SeriesData)
+            {
+                <ApexPointSeries TItem="TimeSeriesPoint"
+                                 Items="series.Points"
+                                 SeriesType="SeriesType.Line"
+                                 Name="@series.Name"
+                                 XValue="@(p => p.Timestamp.ToUnixTimeMilliseconds())"
+                                 YValue="@(p => (decimal)p.Value)" />
+            }
+        </ApexChart>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<TimeSeriesData> SeriesData { get; set; } = [];
+    [Parameter] public bool IsLoading { get; set; }
+
+    private ApexChart<TimeSeriesPoint>? _chart;
+    private ApexChartOptions<TimeSeriesPoint> _options = null!;
+
+    protected override void OnInitialized()
+    {
+        _options = BuildOptions();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_chart is not null && !IsLoading)
+            await _chart.RenderAsync();
+    }
+
+    private static ApexChartOptions<TimeSeriesPoint> BuildOptions() => new()
+    {
+        Chart = new Chart
+        {
+            Background = "transparent",
+            ForeColor = "#9aa3b8",
+            Toolbar = new Toolbar { Show = false },
+            Zoom = new Zoom { Enabled = false },
+            Animations = new Animations
+            {
+                Enabled = true,
+                Speed = 400,
+                AnimateGradually = new AnimateGradually { Enabled = false }
+            }
+        },
+        Colors = ["#4f8ef7", "#ef4444"],
+        Stroke = new Stroke
+        {
+            Curve = [Curve.Smooth, Curve.Smooth],
+            Width = [2, 2]
+        },
+        Fill = new Fill
+        {
+            Type = [FillType.Gradient, FillType.Gradient],
+            Gradient = new FillGradient
+            {
+                Type = GradientType.Vertical,
+                ShadeIntensity = 0.5,
+                OpacityFrom = 0.3,
+                OpacityTo = 0.0
+            }
+        },
+        Grid = new Grid
+        {
+            BorderColor = "#2a3047",
+            StrokeDashArray = 4,
+            Xaxis = new GridXAxis { Lines = new Lines { Show = false } },
+            Yaxis = new GridYAxis { Lines = new Lines { Show = true } }
+        },
+        Xaxis = new XAxis
+        {
+            Type = XAxisType.Datetime,
+            AxisBorder = new AxisBorder { Show = false },
+            AxisTicks = new AxisTicks { Show = false },
+            Labels = new XAxisLabels
+            {
+                Style = new AxisLabelStyle { Colors = "#9aa3b8", FontSize = "12px" }
+            }
+        },
+        Yaxis = [new YAxis
+        {
+            Labels = new YAxisLabels
+            {
+                Style = new AxisLabelStyle { Colors = "#9aa3b8", FontSize = "12px" }
+            }
+        }],
+        Legend = new Legend
+        {
+            Position = LegendPosition.Top,
+            HorizontalAlign = Align.Right,
+            Labels = new LegendLabels { Colors = "#9aa3b8" }
+        },
+        Tooltip = new Tooltip
+        {
+            Theme = Mode.Dark,
+            X = new TooltipX { Format = "HH:mm:ss" }
+        }
+    };
+}

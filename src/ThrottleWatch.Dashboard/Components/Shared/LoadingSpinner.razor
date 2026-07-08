@@ -1,0 +1,35 @@
+@* Reusable loading spinner with optional label *@
+
+<div class="loading-spinner @Class"
+     role="status"
+     aria-busy="true"
+     aria-label="@(Label ?? "Loading")">
+    <div class="spinner spinner--@Size.ToLowerInvariant()" aria-hidden="true"></div>
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <span class="loading-spinner__label">@Label</span>
+    }
+</div>
+
+<style>
+    .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 24px;
+    }
+
+    .loading-spinner__label {
+        font-size: 0.875rem;
+        color: var(--tw-text-muted);
+    }
+</style>
+
+@code {
+    /// <summary>Size: sm, md, lg</summary>
+    [Parameter] public string Size { get; set; } = "md";
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public string? Class { get; set; }
+}

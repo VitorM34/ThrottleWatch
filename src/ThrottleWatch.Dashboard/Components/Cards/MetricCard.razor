@@ -1,0 +1,76 @@
+@* Metric card with accent stripe, value, label and optional delta *@
+
+<div class="metric-card @Class" aria-label="@Label: @FormattedValue">
+    <div class="metric-card__accent metric-card__accent--@AccentVariant"></div>
+
+    @if (!string.IsNullOrEmpty(Icon))
+    {
+        <div class="metric-card__icon metric-card__icon--@AccentVariant" aria-hidden="true">
+            @Icon
+        </div>
+    }
+
+    <div class="metric-card__label">@Label</div>
+
+    <div class="metric-card__value @(FormattedValue.Length > 9 ? "metric-card__value--small" : "")">
+        @if (IsLoading)
+        {
+            <div class="skeleton" style="height: 1.75rem; width: 70%;"></div>
+        }
+        else
+        {
+            @FormattedValue
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(Subtitle))
+    {
+        <div style="font-size: 0.8125rem; color: var(--tw-text-muted); margin-top: 4px;">
+            @Subtitle
+        </div>
+    }
+
+    @if (Delta.HasValue)
+    {
+        <div class="metric-card__delta metric-card__delta--@GetDeltaClass()" aria-label="Change: @FormatDelta()">
+            @GetDeltaArrow() @FormatDelta()
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public string Value { get; set; } = "—";
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Color variant: blue, green, red, orange, purple</summary>
+    [Parameter] public string AccentVariant { get; set; } = "blue";
+
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public double? Delta { get; set; }
+    [Parameter] public bool DeltaInverted { get; set; }
+    [Parameter] public string? Class { get; set; }
+
+    private string FormattedValue => IsLoading ? "..." : Value;
+
+    private string GetDeltaClass()
+    {
+        if (!Delta.HasValue) return "neutral";
+        var isPositive = Delta.Value >= 0;
+        if (DeltaInverted) isPositive = !isPositive;
+        return isPositive ? "up" : "down";
+    }
+
+    private string GetDeltaArrow()
+    {
+        if (!Delta.HasValue) return string.Empty;
+        return Delta.Value >= 0 ? "↑" : "↓";
+    }
+
+    private string FormatDelta()
+    {
+        if (!Delta.HasValue) return string.Empty;
+        return $"{Math.Abs(Delta.Value):F1}%";
+    }
+}

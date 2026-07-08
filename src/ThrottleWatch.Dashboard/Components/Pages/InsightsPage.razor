@@ -1,0 +1,161 @@
+@page "/insights"
+@inject IMetricsService MetricsService
+@implements IDisposable
+
+<PageTitle>Insights - ThrottleWatch</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Insights</h1>
+        <p class="page-subtitle">Recomendações inteligentes baseadas nos padrões de tráfego observados</p>
+    </div>
+    <div class="page-actions">
+        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">Atualizar</button>
+    </div>
+</div>
+
+@if (_hasError)
+{
+    <ErrorState Title="Erro ao carregar insights" OnRetry="RefreshAsync" />
+}
+else if (_isLoading)
+{
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        @for (int i = 0; i < 3; i++)
+        {
+            <div class="card">
+                <div class="card__body" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="skeleton skeleton--text" style="width: 30%;"></div>
+                    <div class="skeleton skeleton--text" style="width: 60%;"></div>
+                    <div class="skeleton skeleton--text" style="width: 80%;"></div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else if (!_insights.Any())
+{
+    <EmptyState Icon="◈"
+                Title="Nenhum insight disponível"
+                Message="Os insights são gerados após coletar dados de tráfego suficientes. Volte após sua aplicação receber mais requisições." />
+}
+else
+{
+    <div class="grid grid--3" style="margin-bottom: 24px;">
+        <MetricCard Label="Alta Prioridade" Value="@_insights.Count(i => i.Priority == InsightPriority.High).ToString()" AccentVariant="red" />
+        <MetricCard Label="Média Prioridade" Value="@_insights.Count(i => i.Priority == InsightPriority.Medium).ToString()" AccentVariant="orange" />
+        <MetricCard Label="Baixa Prioridade" Value="@_insights.Count(i => i.Priority == InsightPriority.Low).ToString()" AccentVariant="blue" />
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+        @foreach (var insight in _insights.OrderByDescending(i => i.Priority))
+        {
+            <div class="card">
+                <div class="card__body">
+                    <div style="display: flex; align-items: flex-start; gap: 16px;">
+                        <div style="width: 44px; height: 44px; border-radius: var(--tw-radius-md); display: flex; align-items: center; justify-content: center; background: @GetInsightBg(insight.Type); flex-shrink: 0;">
+                            <span style="font-size: 1.25rem;" aria-hidden="true">@GetInsightIcon(insight.Type)</span>
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+                                <span style="font-weight: 600; font-size: 0.9375rem;">@insight.Title</span>
+                                <Badge Variant="@GetPriorityVariant(insight.Priority)">@insight.Priority</Badge>
+                                <Badge Variant="neutral">@FormatInsightType(insight.Type)</Badge>
+                            </div>
+                            <p style="font-size: 0.875rem; color: var(--tw-text-secondary); margin: 0 0 10px;">@insight.Description</p>
+                            @if (!string.IsNullOrEmpty(insight.Recommendation))
+                            {
+                                <div style="background: var(--tw-surface-raised); border-radius: var(--tw-radius-md); padding: 10px 14px; border-left: 3px solid var(--tw-color-brand-blue);">
+                                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--tw-color-brand-blue); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em;">Recomendação</div>
+                                    <div style="font-size: 0.875rem; color: var(--tw-text-secondary);">@insight.Recommendation</div>
+                                </div>
+                            }
+                            @if (insight.Metadata.Any())
+                            {
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                                    @foreach (var kv in insight.Metadata)
+                                    {
+                                        <div style="font-size: 0.8125rem; color: var(--tw-text-muted); background: var(--tw-surface-overlay); padding: 2px 8px; border-radius: var(--tw-radius-sm);">
+                                            <span style="color: var(--tw-text-muted);">@kv.Key: </span>@kv.Value
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <div style="font-size: 0.8125rem; color: var(--tw-text-muted); white-space: nowrap; flex-shrink: 0;">
+                            @insight.DetectedAt.ToString("MMM d, HH:mm")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private IReadOnlyList<InsightInfo> _insights = [];
+    private bool _isLoading = true;
+    private bool _hasError;
+    private CancellationTokenSource _cts = new();
+
+    protected override async Task OnInitializedAsync() => await RefreshAsync();
+
+    private async Task RefreshAsync()
+    {
+        _isLoading = true;
+        _hasError = false;
+        StateHasChanged();
+        try
+        {
+            _insights = await MetricsService.GetInsightsAsync(_cts.Token);
+            if (_insights is null) { _hasError = true; _insights = []; }
+        }
+        catch (OperationCanceledException) { }
+        catch { _hasError = true; }
+        finally { _isLoading = false; StateHasChanged(); }
+    }
+
+    private static string GetInsightIcon(InsightType t) => t switch
+    {
+        InsightType.AnomalyDetected => "◬",
+        InsightType.TrafficSpike => "▲",
+        InsightType.SuspiciousClient => "◈",
+        InsightType.PolicyOptimization => "◉",
+        InsightType.CapacityWarning => "⚠",
+        InsightType.PatternDetected => "◎",
+        _ => "ℹ"
+    };
+
+    private static string GetInsightBg(InsightType t) => t switch
+    {
+        InsightType.AnomalyDetected => "var(--tw-status-error-bg)",
+        InsightType.TrafficSpike => "var(--tw-status-warning-bg)",
+        InsightType.SuspiciousClient => "var(--tw-status-error-bg)",
+        InsightType.CapacityWarning => "var(--tw-status-warning-bg)",
+        _ => "var(--tw-status-info-bg)"
+    };
+
+    private static string GetPriorityVariant(InsightPriority p) => p switch
+    {
+        InsightPriority.High => "error",
+        InsightPriority.Medium => "warning",
+        _ => "info"
+    };
+
+    private static string FormatInsightType(InsightType t) => t switch
+    {
+        InsightType.AnomalyDetected => "Anomalia",
+        InsightType.TrafficSpike => "Pico de Tráfego",
+        InsightType.SuspiciousClient => "Cliente Suspeito",
+        InsightType.PolicyOptimization => "Otimização de Política",
+        InsightType.CapacityWarning => "Aviso de Capacidade",
+        InsightType.PatternDetected => "Padrão Detectado",
+        _ => t.ToString()
+    };
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}

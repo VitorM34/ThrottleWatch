@@ -1,0 +1,19 @@
+@* Reusable progress bar component *@
+
+<div class="progress @Class"
+     role="progressbar"
+     aria-valuenow="@Value"
+     aria-valuemin="0"
+     aria-valuemax="100"
+     aria-label="@Label">
+    <div class="progress__bar progress__bar--@Variant.ToLowerInvariant()"
+         style="width: @(Math.Clamp(Value, 0, 100))%">
+    </div>
+</div>
+
+@code {
+    [Parameter] public double Value { get; set; }
+    [Parameter] public string Variant { get; set; } = "blue";
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public string? Class { get; set; }
+}

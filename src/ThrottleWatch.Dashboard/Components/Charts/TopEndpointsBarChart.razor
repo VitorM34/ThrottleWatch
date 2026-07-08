@@ -1,0 +1,105 @@
+@using ApexCharts
+
+@* Horizontal bar chart showing top endpoints by request volume *@
+
+<div class="chart-wrapper" aria-label="Top endpoints bar chart" role="img">
+    @if (IsLoading)
+    {
+        <div class="skeleton skeleton--chart" style="height: 240px;"></div>
+    }
+    else if (!Endpoints.Any())
+    {
+        <EmptyState Icon="⤢" Title="No endpoints data" Message="Endpoints will appear after recording requests." />
+    }
+    else
+    {
+        <ApexChart TItem="EndpointMetrics"
+                   Options="_options"
+                   @ref="_chart">
+            <ApexPointSeries TItem="EndpointMetrics"
+                             Items="Endpoints"
+                             SeriesType="SeriesType.Bar"
+                             Name="Total Requests"
+                             XValue="@(e => TruncatePath(e.Path))"
+                             YValue="@(e => (decimal)e.TotalRequests)" />
+            <ApexPointSeries TItem="EndpointMetrics"
+                             Items="Endpoints"
+                             SeriesType="SeriesType.Bar"
+                             Name="Blocked"
+                             XValue="@(e => TruncatePath(e.Path))"
+                             YValue="@(e => (decimal)e.BlockedRequests)" />
+        </ApexChart>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<EndpointMetrics> Endpoints { get; set; } = [];
+    [Parameter] public bool IsLoading { get; set; }
+
+    private ApexChart<EndpointMetrics>? _chart;
+    private ApexChartOptions<EndpointMetrics> _options = null!;
+
+    protected override void OnInitialized()
+    {
+        _options = BuildOptions();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_chart is not null && !IsLoading)
+            await _chart.RenderAsync();
+    }
+
+    private static string TruncatePath(string path) =>
+        path.Length > 30 ? "..." + path[^27..] : path;
+
+    private static ApexChartOptions<EndpointMetrics> BuildOptions() => new()
+    {
+        Chart = new Chart
+        {
+            Background = "transparent",
+            ForeColor = "#9aa3b8",
+            Toolbar = new Toolbar { Show = false },
+            Type = ChartType.Bar
+        },
+        Colors = ["#4f8ef7", "#ef4444"],
+        PlotOptions = new PlotOptions
+        {
+            Bar = new PlotOptionsBar
+            {
+                Horizontal = true,
+                BarHeight = "70%",
+                BorderRadius = 4
+            }
+        },
+        Grid = new Grid
+        {
+            BorderColor = "#2a3047",
+            StrokeDashArray = 4,
+            Xaxis = new GridXAxis { Lines = new Lines { Show = true } },
+            Yaxis = new GridYAxis { Lines = new Lines { Show = false } }
+        },
+        Xaxis = new XAxis
+        {
+            AxisBorder = new AxisBorder { Show = false },
+            Labels = new XAxisLabels
+            {
+                Style = new AxisLabelStyle { Colors = "#9aa3b8", FontSize = "12px" }
+            }
+        },
+        Yaxis = [new YAxis
+        {
+            Labels = new YAxisLabels
+            {
+                Style = new AxisLabelStyle { Colors = "#9aa3b8", FontSize = "11px" }
+            }
+        }],
+        Legend = new Legend
+        {
+            Position = LegendPosition.Top,
+            Labels = new LegendLabels { Colors = "#9aa3b8" }
+        },
+        Tooltip = new Tooltip { Theme = Mode.Dark },
+        DataLabels = new DataLabels { Enabled = false }
+    };
+}

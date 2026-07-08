@@ -1,0 +1,138 @@
+@* Table showing endpoint metrics with sorting *@
+
+<div class="tw-table-wrapper">
+    @if (IsLoading)
+    {
+        <table class="tw-table" aria-busy="true" aria-label="Loading endpoints">
+            <thead>
+                <tr>
+                    <th>Endpoint</th><th>Method</th><th>Total</th>
+                    <th>Blocked</th><th>Block Rate</th><th>Avg Latency</th><th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < 5; i++)
+                {
+                    <tr aria-hidden="true">
+                        <td><div class="skeleton skeleton--text" style="width: 80%;"></div></td>
+                        <td><div class="skeleton skeleton--text" style="width: 50px;"></div></td>
+                        <td><div class="skeleton skeleton--text" style="width: 60px;"></div></td>
+                        <td><div class="skeleton skeleton--text" style="width: 60px;"></div></td>
+                        <td><div class="skeleton skeleton--text" style="width: 55px;"></div></td>
+                        <td><div class="skeleton skeleton--text" style="width: 65px;"></div></td>
+                        <td><div class="skeleton skeleton--text" style="width: 70px;"></div></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else if (!Endpoints.Any())
+    {
+        <EmptyState Icon="⤢" Title="No endpoints recorded" Message="Endpoints appear once requests are processed." />
+    }
+    else
+    {
+        <table class="tw-table" aria-label="Endpoints metrics table">
+            <thead>
+                <tr>
+                    <th class="sortable" @onclick='() => Sort("path")' aria-sort="@GetSort("path")">Endpoint @SortIcon("path")</th>
+                    <th>Method</th>
+                    <th class="sortable" @onclick='() => Sort("total")' aria-sort="@GetSort("total")">Total @SortIcon("total")</th>
+                    <th class="sortable" @onclick='() => Sort("blocked")' aria-sort="@GetSort("blocked")">Blocked @SortIcon("blocked")</th>
+                    <th class="sortable" @onclick='() => Sort("blockrate")' aria-sort="@GetSort("blockrate")">Block Rate @SortIcon("blockrate")</th>
+                    <th class="sortable" @onclick='() => Sort("latency")' aria-sort="@GetSort("latency")">Avg Latency @SortIcon("latency")</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var endpoint in GetSortedEndpoints())
+                {
+                    <tr>
+                        <td><code>@endpoint.Path</code></td>
+                        <td><Badge Variant="@GetMethodVariant(endpoint.Method)">@endpoint.Method</Badge></td>
+                        <td style="font-variant-numeric: tabular-nums;">@endpoint.TotalRequests.ToString("N0")</td>
+                        <td style="font-variant-numeric: tabular-nums;">@endpoint.BlockedRequests.ToString("N0")</td>
+                        <td>
+                            <span style="color: @GetRateColor(endpoint.BlockRatePercent)">
+                                @endpoint.BlockRatePercent.ToString("F1")%
+                            </span>
+                        </td>
+                        <td style="font-variant-numeric: tabular-nums;">@endpoint.AverageLatencyMs.ToString("F0") ms</td>
+                        <td>
+                            <Badge Variant="@GetStatusVariant(endpoint.Status)" ShowDot="true">@endpoint.Status</Badge>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<EndpointMetrics> Endpoints { get; set; } = [];
+    [Parameter] public bool IsLoading { get; set; }
+
+    private string _sortColumn = "total";
+    private bool _sortDescending = true;
+
+    private IEnumerable<EndpointMetrics> GetSortedEndpoints()
+    {
+        IEnumerable<EndpointMetrics> sorted = _sortColumn switch
+        {
+            "path" => _sortDescending ? Endpoints.OrderByDescending(e => e.Path) : Endpoints.OrderBy(e => e.Path),
+            "blocked" => _sortDescending ? Endpoints.OrderByDescending(e => e.BlockedRequests) : Endpoints.OrderBy(e => e.BlockedRequests),
+            "blockrate" => _sortDescending ? Endpoints.OrderByDescending(e => e.BlockRatePercent) : Endpoints.OrderBy(e => e.BlockRatePercent),
+            "latency" => _sortDescending ? Endpoints.OrderByDescending(e => e.AverageLatencyMs) : Endpoints.OrderBy(e => e.AverageLatencyMs),
+            _ => _sortDescending ? Endpoints.OrderByDescending(e => e.TotalRequests) : Endpoints.OrderBy(e => e.TotalRequests)
+        };
+        return sorted;
+    }
+
+    private void Sort(string column)
+    {
+        if (_sortColumn == column)
+            _sortDescending = !_sortDescending;
+        else
+        {
+            _sortColumn = column;
+            _sortDescending = true;
+        }
+    }
+
+    private string SortIcon(string column)
+    {
+        if (_sortColumn != column) return "⇅";
+        return _sortDescending ? "↓" : "↑";
+    }
+
+    private string GetSort(string column)
+    {
+        if (_sortColumn != column) return "none";
+        return _sortDescending ? "descending" : "ascending";
+    }
+
+    private static string GetMethodVariant(string method) => method.ToUpperInvariant() switch
+    {
+        "GET" => "info",
+        "POST" => "success",
+        "PUT" => "warning",
+        "PATCH" => "warning",
+        "DELETE" => "error",
+        _ => "neutral"
+    };
+
+    private static string GetStatusVariant(EndpointStatus status) => status switch
+    {
+        EndpointStatus.Healthy => "success",
+        EndpointStatus.Warning => "warning",
+        EndpointStatus.Critical => "error",
+        _ => "neutral"
+    };
+
+    private static string GetRateColor(double rate)
+    {
+        if (rate > 20) return "var(--tw-status-error)";
+        if (rate > 5)  return "var(--tw-status-warning)";
+        return "var(--tw-text-primary)";
+    }
+}

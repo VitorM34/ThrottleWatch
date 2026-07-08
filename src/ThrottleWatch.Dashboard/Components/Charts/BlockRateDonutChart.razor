@@ -1,0 +1,103 @@
+@using ApexCharts
+
+@* Donut chart showing the breakdown of allowed vs blocked requests *@
+
+<div class="chart-wrapper" aria-label="Block rate distribution chart" role="img">
+    @if (IsLoading)
+    {
+        <div class="skeleton" style="height: 220px; border-radius: 50%; width: 220px; margin: 0 auto;"></div>
+    }
+    else if (Total == 0)
+    {
+        <EmptyState Icon="◎" Title="No data" Message="Requests will appear here." />
+    }
+    else
+    {
+        <ApexChart TItem="DonutSlice"
+                   Options="_options"
+                   @ref="_chart">
+            <ApexPointSeries TItem="DonutSlice"
+                             Items="_slices"
+                             SeriesType="SeriesType.Donut"
+                             Name="Requests"
+                             XValue="@(s => s.Label)"
+                             YValue="@(s => (decimal)s.Value)" />
+        </ApexChart>
+    }
+</div>
+
+@code {
+    [Parameter] public long Allowed { get; set; }
+    [Parameter] public long Blocked { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+
+    private ApexChart<DonutSlice>? _chart;
+    private ApexChartOptions<DonutSlice> _options = null!;
+    private List<DonutSlice> _slices = [];
+
+    private long Total => Allowed + Blocked;
+
+    protected override void OnInitialized()
+    {
+        _options = BuildOptions();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _slices =
+        [
+            new("Allowed", Allowed),
+            new("Blocked", Blocked)
+        ];
+
+        if (_chart is not null)
+            await _chart.RenderAsync();
+    }
+
+    private static ApexChartOptions<DonutSlice> BuildOptions() => new()
+    {
+        Chart = new Chart
+        {
+            Background = "transparent",
+            ForeColor = "#9aa3b8",
+            Toolbar = new Toolbar { Show = false }
+        },
+        Colors = ["#22c55e", "#ef4444"],
+        PlotOptions = new PlotOptions
+        {
+            Pie = new PlotOptionsPie
+            {
+                Donut = new PlotOptionsDonut
+                {
+                    Size = "65%",
+                    Labels = new DonutLabels
+                    {
+                        Show = true,
+                        Total = new DonutLabelTotal
+                        {
+                            Show = true,
+                            Label = "Total",
+                            Color = "#9aa3b8",
+                            FontSize = "13px"
+                        },
+                        Value = new DonutLabelValue
+                        {
+                            Color = "#f0f2f8",
+                            FontSize = "20px",
+                            FontWeight = "700"
+                        }
+                    }
+                }
+            }
+        },
+        Legend = new Legend
+        {
+            Position = LegendPosition.Bottom,
+            Labels = new LegendLabels { Colors = "#9aa3b8" }
+        },
+        Tooltip = new Tooltip { Theme = Mode.Dark },
+        DataLabels = new DataLabels { Enabled = false }
+    };
+
+    private sealed record DonutSlice(string Label, long Value);
+}

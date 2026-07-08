@@ -1,0 +1,142 @@
+@* Table showing client IP metrics with risk badges *@
+
+<div class="tw-table-wrapper">
+    @if (IsLoading)
+    {
+        <table class="tw-table" aria-busy="true" aria-label="Loading clients">
+            <thead>
+                <tr>
+                    <th>IP Address</th><th>Total</th><th>Blocked</th>
+                    <th>Block Rate</th><th>Risk</th><th>Last Seen</th><th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < 5; i++)
+                {
+                    <tr aria-hidden="true">
+                        <td><div class="skeleton skeleton--text"></div></td>
+                        <td><div class="skeleton skeleton--text"></div></td>
+                        <td><div class="skeleton skeleton--text"></div></td>
+                        <td><div class="skeleton skeleton--text"></div></td>
+                        <td><div class="skeleton skeleton--text"></div></td>
+                        <td><div class="skeleton skeleton--text"></div></td>
+                        <td><div class="skeleton skeleton--text"></div></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else if (!Clients.Any())
+    {
+        <EmptyState Icon="◈" Title="No clients recorded" Message="Clients appear once requests are processed." />
+    }
+    else
+    {
+        <table class="tw-table" aria-label="Client metrics table">
+            <thead>
+                <tr>
+                    <th class="sortable" @onclick='() => Sort("ip")' aria-sort='@GetSort("ip")'>IP Address @SortIcon("ip")</th>
+                    <th class="sortable" @onclick='() => Sort("total")' aria-sort='@GetSort("total")'>Total @SortIcon("total")</th>
+                    <th class="sortable" @onclick='() => Sort("blocked")' aria-sort='@GetSort("blocked")'>Blocked @SortIcon("blocked")</th>
+                    <th class="sortable" @onclick='() => Sort("blockrate")' aria-sort='@GetSort("blockrate")'>Block Rate @SortIcon("blockrate")</th>
+                    <th class="sortable" @onclick='() => Sort("risk")' aria-sort='@GetSort("risk")'>Risk @SortIcon("risk")</th>
+                    <th class="sortable" @onclick='() => Sort("lastseen")' aria-sort='@GetSort("lastseen")'>Last Seen @SortIcon("lastseen")</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var client in GetSortedClients())
+                {
+                    <tr>
+                        <td><code>@client.IpAddress</code></td>
+                        <td style="font-variant-numeric: tabular-nums;">@client.TotalRequests.ToString("N0")</td>
+                        <td style="font-variant-numeric: tabular-nums;">@client.BlockedRequests.ToString("N0")</td>
+                        <td><span style="color: @GetRateColor(client.BlockRatePercent)">@client.BlockRatePercent.ToString("F1")%</span></td>
+                        <td><Badge Variant="@GetRiskVariant(client.RiskLevel)">@client.RiskLevel</Badge></td>
+                        <td style="font-size: 0.8125rem; color: var(--tw-text-muted);">@FormatTimeAgo(client.LastSeen)</td>
+                        <td>
+                            @if (client.IsBlocked)
+                            {
+                                <Badge Variant="error" ShowDot="true">Blocked</Badge>
+                            }
+                            else
+                            {
+                                <Badge Variant="success" ShowDot="true">Active</Badge>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<ClientMetrics> Clients { get; set; } = [];
+    [Parameter] public bool IsLoading { get; set; }
+
+    private string _sortColumn = "total";
+    private bool _sortDescending = true;
+
+    private IEnumerable<ClientMetrics> GetSortedClients()
+    {
+        IEnumerable<ClientMetrics> sorted = _sortColumn switch
+        {
+            "ip" => _sortDescending ? Clients.OrderByDescending(c => c.IpAddress) : Clients.OrderBy(c => c.IpAddress),
+            "blocked" => _sortDescending ? Clients.OrderByDescending(c => c.BlockedRequests) : Clients.OrderBy(c => c.BlockedRequests),
+            "blockrate" => _sortDescending ? Clients.OrderByDescending(c => c.BlockRatePercent) : Clients.OrderBy(c => c.BlockRatePercent),
+            "risk" => _sortDescending ? Clients.OrderByDescending(c => c.RiskLevel) : Clients.OrderBy(c => c.RiskLevel),
+            "lastseen" => _sortDescending ? Clients.OrderByDescending(c => c.LastSeen) : Clients.OrderBy(c => c.LastSeen),
+            _ => _sortDescending ? Clients.OrderByDescending(c => c.TotalRequests) : Clients.OrderBy(c => c.TotalRequests)
+        };
+        return sorted;
+    }
+
+    private void Sort(string column)
+    {
+        if (_sortColumn == column)
+            _sortDescending = !_sortDescending;
+        else
+        {
+            _sortColumn = column;
+            _sortDescending = true;
+        }
+    }
+
+    private string SortIcon(string column)
+    {
+        if (_sortColumn != column) return "⇅";
+        return _sortDescending ? "↓" : "↑";
+    }
+
+    private string GetSort(string column)
+    {
+        if (_sortColumn != column) return "none";
+        return _sortDescending ? "descending" : "ascending";
+    }
+
+    private static string GetRiskVariant(ClientRisk risk) => risk switch
+    {
+        ClientRisk.Low => "success",
+        ClientRisk.Medium => "warning",
+        ClientRisk.High => "error",
+        ClientRisk.Critical => "error",
+        _ => "neutral"
+    };
+
+    private static string GetRateColor(double rate)
+    {
+        if (rate > 50) return "var(--tw-status-error)";
+        if (rate > 20) return "var(--tw-status-warning)";
+        return "var(--tw-text-primary)";
+    }
+
+    private static string FormatTimeAgo(DateTimeOffset time)
+    {
+        var diff = DateTimeOffset.UtcNow - time;
+        if (diff.TotalSeconds < 60) return $"{(int)diff.TotalSeconds}s ago";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}m ago";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h ago";
+        return $"{(int)diff.TotalDays}d ago";
+    }
+}

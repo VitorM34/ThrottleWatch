@@ -1,0 +1,301 @@
+@page "/"
+@inject IMetricsService MetricsService
+@inject ISignalRService SignalR
+@inject IToastService ToastService
+@implements IDisposable
+
+<PageTitle>Visão Geral — ThrottleWatch</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Visão Geral</h1>
+        <p class="page-subtitle">Métricas de rate limiting em tempo real</p>
+    </div>
+    <div class="page-actions">
+        @if (_lastUpdated.HasValue)
+        {
+            <span style="font-size: 0.8125rem; color: var(--tw-text-muted);">
+                Atualizado @FormatTimeAgo(_lastUpdated.Value)
+            </span>
+        }
+        <button class="btn btn--secondary btn--sm"
+                @onclick="RefreshAsync"
+                disabled="@_isLoading"
+                aria-label="Atualizar dados do dashboard">
+            @if (_isLoading)
+            {
+                <span class="spinner spinner--sm" aria-hidden="true"></span>
+            }
+            else
+            {
+                <span aria-hidden="true">↺</span>
+            }
+            Atualizar
+        </button>
+    </div>
+</div>
+
+@if (_hasError)
+{
+    <ErrorState Title="Erro ao carregar o dashboard"
+                Message="Verifique se a API do ThrottleWatch está em execução e acessível."
+                OnRetry="RefreshAsync" />
+}
+else
+{
+    <section aria-label="Métricas principais" style="margin-bottom: 24px;">
+        <div class="grid grid--5">
+            <MetricCard Label="Total de Requisições"
+                        Value="@FormatNumber(_metrics?.TotalRequests ?? 0)"
+                        Icon="◎"
+                        AccentVariant="blue"
+                        IsLoading="_isLoading"
+                        Subtitle="@($"Desde {GetUptimeLabel()}")" />
+
+            <MetricCard Label="Permitidas"
+                        Value="@FormatNumber(_metrics?.AllowedRequests ?? 0)"
+                        Icon="✓"
+                        AccentVariant="green"
+                        IsLoading="_isLoading" />
+
+            <MetricCard Label="Bloqueadas"
+                        Value="@FormatNumber(_metrics?.BlockedRequests ?? 0)"
+                        Icon="✕"
+                        AccentVariant="red"
+                        IsLoading="_isLoading"
+                        Subtitle="@($"{_metrics?.BlockRatePercent:F1}% de bloqueio")" />
+
+            <MetricCard Label="Req/s"
+                        Value="@($"{_metrics?.RequestsPerSecond:F1}")"
+                        Icon="⟳"
+                        AccentVariant="orange"
+                        IsLoading="_isLoading" />
+
+            <MetricCard Label="Latência Média"
+                        Value="@($"{_metrics?.AverageLatencyMs:F0} ms")"
+                        Icon="◷"
+                        AccentVariant="purple"
+                        IsLoading="_isLoading" />
+        </div>
+    </section>
+
+    <section aria-label="Métricas secundárias" style="margin-bottom: 24px;">
+        <div class="grid grid--3">
+            <MetricCard Label="Clientes Ativos"
+                        Value="@(_metrics?.ActiveClients.ToString("N0") ?? "—")"
+                        Icon="◈"
+                        AccentVariant="blue"
+                        IsLoading="_isLoading" />
+
+            <MetricCard Label="Taxa de Bloqueio"
+                        Value="@($"{_metrics?.BlockRatePercent:F2}%")"
+                        Icon="◉"
+                        AccentVariant="@(_metrics?.BlockRatePercent > 10 ? "red" : "green")"
+                        IsLoading="_isLoading" />
+
+            <MetricCard Label="Disponibilidade"
+                        Value="@FormatUptime(_metrics?.Uptime)"
+                        Icon="▲"
+                        AccentVariant="green"
+                        IsLoading="_isLoading" />
+        </div>
+    </section>
+
+    <div class="grid grid--2" style="margin-bottom: 24px;">
+        <ContentCard Title="Requisições ao Longo do Tempo" Subtitle="Últimos 60 minutos">
+            <RequestsLineChart SeriesData="_timeSeries" IsLoading="_isLoadingCharts" />
+        </ContentCard>
+
+        <ContentCard Title="Distribuição de Tráfego" Subtitle="Permitidas vs Bloqueadas">
+            <BlockRateDonutChart Allowed="_metrics?.AllowedRequests ?? 0"
+                                 Blocked="_metrics?.BlockedRequests ?? 0"
+                                 IsLoading="_isLoading" />
+        </ContentCard>
+    </div>
+
+    <div class="grid grid--2" style="margin-bottom: 24px;">
+        <ContentCard Title="Top Endpoints" Subtitle="Por volume de requisições">
+            <HeaderActions>
+                <a href="/endpoints" class="btn btn--ghost btn--sm">Ver todos →</a>
+            </HeaderActions>
+            <ChildContent>
+                <TopEndpointsBarChart Endpoints="_topEndpoints" IsLoading="_isLoadingCharts" />
+            </ChildContent>
+        </ContentCard>
+
+        <ContentCard Title="Top Clientes" Subtitle="Por volume de requisições">
+            <HeaderActions>
+                <a href="/clients" class="btn btn--ghost btn--sm">Ver todos →</a>
+            </HeaderActions>
+            <ChildContent>
+                @if (_isLoadingCharts)
+                {
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <div class="skeleton skeleton--text"></div>
+                        }
+                    </div>
+                }
+                else if (!_topClients.Any())
+                {
+                    <EmptyState Icon="◈" Title="Nenhum cliente registrado ainda" />
+                }
+                else
+                {
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        @foreach (var client in _topClients.Take(8))
+                        {
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--tw-surface-border-subtle);">
+                                <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                                    <Badge Variant="@GetRiskVariant(client.RiskLevel)" ShowDot="true" />
+                                    <code style="font-size: 0.8125rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@client.IpAddress</code>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+                                    <span style="font-size: 0.8125rem; color: var(--tw-text-muted);">@client.TotalRequests.ToString("N0") req</span>
+                                    <span style="font-size: 0.8125rem; color: @GetRateColor(client.BlockRatePercent)">@client.BlockRatePercent.ToString("F1")%</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </ChildContent>
+        </ContentCard>
+    </div>
+}
+
+@code {
+    private DashboardMetrics? _metrics;
+    private IReadOnlyList<TimeSeriesData> _timeSeries = [];
+    private IReadOnlyList<EndpointMetrics> _topEndpoints = [];
+    private IReadOnlyList<ClientMetrics> _topClients = [];
+    private bool _isLoading = true;
+    private bool _isLoadingCharts = true;
+    private bool _hasError;
+    private DateTimeOffset? _lastUpdated;
+    private CancellationTokenSource _cts = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        SignalR.MetricsUpdated += OnMetricsUpdated;
+        await LoadAllAsync();
+    }
+
+    private async Task LoadAllAsync()
+    {
+        _isLoading = true;
+        _isLoadingCharts = true;
+        _hasError = false;
+
+        try
+        {
+            _metrics = await MetricsService.GetDashboardMetricsAsync(_cts.Token);
+            _isLoading = false;
+
+            if (_metrics is null)
+            {
+                _hasError = true;
+                return;
+            }
+
+            StateHasChanged();
+
+            var chartsTask = Task.WhenAll(
+                LoadTimeSeriesAsync(),
+                LoadTopEndpointsAsync(),
+                LoadTopClientsAsync()
+            );
+            await chartsTask;
+            _isLoadingCharts = false;
+            _lastUpdated = DateTimeOffset.UtcNow;
+        }
+        catch (OperationCanceledException) { }
+        catch
+        {
+            _hasError = true;
+            _isLoading = false;
+            _isLoadingCharts = false;
+        }
+    }
+
+    private async Task LoadTimeSeriesAsync()
+    {
+        _timeSeries = await MetricsService.GetRequestTimeSeriesAsync(TimeSpan.FromHours(1), _cts.Token);
+    }
+
+    private async Task LoadTopEndpointsAsync()
+    {
+        _topEndpoints = await MetricsService.GetTopEndpointsAsync(10, _cts.Token);
+    }
+
+    private async Task LoadTopClientsAsync()
+    {
+        _topClients = await MetricsService.GetTopClientsAsync(10, _cts.Token);
+    }
+
+    private async Task RefreshAsync()
+    {
+        await LoadAllAsync();
+        StateHasChanged();
+    }
+
+    private void OnMetricsUpdated(object? sender, DashboardMetrics metrics)
+    {
+        _metrics = metrics;
+        _lastUpdated = DateTimeOffset.UtcNow;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private static string FormatNumber(long value) => value switch
+    {
+        >= 1_000_000_000 => $"{value / 1_000_000_000.0:F1}B",
+        >= 1_000_000 => $"{value / 1_000_000.0:F1}M",
+        >= 1_000 => $"{value / 1_000.0:F1}K",
+        _ => value.ToString("N0")
+    };
+
+    private static string FormatUptime(TimeSpan? uptime)
+    {
+        if (uptime is null) return "—";
+        if (uptime.Value.TotalDays >= 1) return $"{(int)uptime.Value.TotalDays}d {uptime.Value.Hours}h";
+        if (uptime.Value.TotalHours >= 1) return $"{(int)uptime.Value.TotalHours}h {uptime.Value.Minutes}m";
+        return $"{(int)uptime.Value.TotalMinutes}m";
+    }
+
+    private string GetUptimeLabel()
+    {
+        if (_metrics?.Uptime is null) return "inicialização";
+        return FormatUptime(_metrics.Uptime) + " atrás";
+    }
+
+    private static string FormatTimeAgo(DateTimeOffset time)
+    {
+        var diff = DateTimeOffset.UtcNow - time;
+        if (diff.TotalSeconds < 5) return "agora mesmo";
+        if (diff.TotalSeconds < 60) return $"{(int)diff.TotalSeconds}s atrás";
+        return $"{(int)diff.TotalMinutes}m atrás";
+    }
+
+    private static string GetRiskVariant(ClientRisk risk) => risk switch
+    {
+        ClientRisk.Low => "success",
+        ClientRisk.Medium => "warning",
+        ClientRisk.High => "error",
+        ClientRisk.Critical => "error",
+        _ => "neutral"
+    };
+
+    private static string GetRateColor(double rate)
+    {
+        if (rate > 50) return "var(--tw-status-error)";
+        if (rate > 20) return "var(--tw-status-warning)";
+        return "var(--tw-text-muted)";
+    }
+
+    public void Dispose()
+    {
+        SignalR.MetricsUpdated -= OnMetricsUpdated;
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}

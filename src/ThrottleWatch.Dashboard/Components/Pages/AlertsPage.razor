@@ -1,0 +1,172 @@
+@page "/alerts"
+@inject IMetricsService MetricsService
+@inject IToastService ToastService
+@implements IDisposable
+
+<PageTitle>Alertas - ThrottleWatch</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Alertas</h1>
+        <p class="page-subtitle">Alertas e notificações de rate limiting</p>
+    </div>
+    <div class="page-actions">
+        <select class="form-control" style="width: 140px;" @bind="_statusFilter" aria-label="Filtrar por status">
+            <option value="">Todos os status</option>
+            <option value="Active">Ativo</option>
+            <option value="Acknowledged">Reconhecido</option>
+            <option value="Resolved">Resolvido</option>
+        </select>
+        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">Atualizar</button>
+    </div>
+</div>
+
+@if (_hasError)
+{
+    <ErrorState Title="Erro ao carregar alertas" OnRetry="RefreshAsync" />
+}
+else
+{
+    <div class="grid grid--4" style="margin-bottom: 24px;">
+        <MetricCard Label="Total" Value="@_alerts.Count.ToString()" AccentVariant="blue" IsLoading="_isLoading" />
+        <MetricCard Label="Críticos" Value="@_alerts.Count(a => a.Severity == AlertSeverity.Critical && a.Status == AlertStatus.Active).ToString()" AccentVariant="red" IsLoading="_isLoading" />
+        <MetricCard Label="Avisos" Value="@_alerts.Count(a => a.Severity == AlertSeverity.Warning && a.Status == AlertStatus.Active).ToString()" AccentVariant="orange" IsLoading="_isLoading" />
+        <MetricCard Label="Resolvidos" Value="@_alerts.Count(a => a.Status == AlertStatus.Resolved).ToString()" AccentVariant="green" IsLoading="_isLoading" />
+    </div>
+
+    @if (_isLoading)
+    {
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            @for (int i = 0; i < 4; i++)
+            {
+                <div class="card">
+                    <div class="card__body">
+                        <div class="skeleton skeleton--text" style="width: 40%; margin-bottom: 8px;"></div>
+                        <div class="skeleton skeleton--text" style="width: 70%;"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (!FilteredAlerts.Any())
+    {
+        <EmptyState Icon="◬" Title="Nenhum alerta" Message="Os alertas aparecem quando os limites de rate limiting são ultrapassados." />
+    }
+    else
+    {
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            @foreach (var alert in FilteredAlerts.OrderByDescending(a => a.CreatedAt))
+            {
+                <div class="card">
+                    <div class="card__body">
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+                            <div style="display: flex; align-items: flex-start; gap: 12px; flex: 1; min-width: 0;">
+                                <div style="padding: 6px; border-radius: var(--tw-radius-md); background: @GetAlertBg(alert.Severity); flex-shrink: 0;">
+                                    <span style="font-size: 1rem; color: @GetAlertColor(alert.Severity);" aria-hidden="true">@GetAlertIcon(alert.Severity)</span>
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
+                                        <span style="font-weight: 600; font-size: 0.9375rem;">@alert.Title</span>
+                                        <Badge Variant="@GetSeverityVariant(alert.Severity)">@alert.Severity</Badge>
+                                        <Badge Variant="@GetStatusVariant(alert.Status)">@alert.Status</Badge>
+                                    </div>
+                                    <p style="font-size: 0.875rem; color: var(--tw-text-secondary); margin: 0;">@alert.Message</p>
+                                    @if (!string.IsNullOrEmpty(alert.Source))
+                                    {
+                                        <div style="font-size: 0.8125rem; color: var(--tw-text-muted); margin-top: 4px;">
+                                            Origem: <code>@alert.Source</code>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div style="font-size: 0.8125rem; color: var(--tw-text-muted); white-space: nowrap; flex-shrink: 0;">
+                                @FormatTimeAgo(alert.CreatedAt)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+
+@code {
+    private IReadOnlyList<AlertInfo> _alerts = [];
+    private string _statusFilter = string.Empty;
+    private bool _isLoading = true;
+    private bool _hasError;
+    private CancellationTokenSource _cts = new();
+
+    private IEnumerable<AlertInfo> FilteredAlerts =>
+        string.IsNullOrWhiteSpace(_statusFilter)
+            ? _alerts
+            : _alerts.Where(a => a.Status.ToString() == _statusFilter);
+
+    protected override async Task OnInitializedAsync() => await RefreshAsync();
+
+    private async Task RefreshAsync()
+    {
+        _isLoading = true;
+        _hasError = false;
+        StateHasChanged();
+        try
+        {
+            _alerts = await MetricsService.GetAlertsAsync(_cts.Token);
+            if (_alerts is null) { _hasError = true; _alerts = []; }
+        }
+        catch (OperationCanceledException) { }
+        catch { _hasError = true; }
+        finally { _isLoading = false; StateHasChanged(); }
+    }
+
+    private static string GetAlertIcon(AlertSeverity s) => s switch
+    {
+        AlertSeverity.Critical => "✕",
+        AlertSeverity.Warning => "⚠",
+        _ => "ℹ"
+    };
+
+    private static string GetAlertColor(AlertSeverity s) => s switch
+    {
+        AlertSeverity.Critical => "var(--tw-status-error)",
+        AlertSeverity.Warning => "var(--tw-status-warning)",
+        _ => "var(--tw-color-brand-blue)"
+    };
+
+    private static string GetAlertBg(AlertSeverity s) => s switch
+    {
+        AlertSeverity.Critical => "var(--tw-status-error-bg)",
+        AlertSeverity.Warning => "var(--tw-status-warning-bg)",
+        _ => "var(--tw-status-info-bg)"
+    };
+
+    private static string GetSeverityVariant(AlertSeverity s) => s switch
+    {
+        AlertSeverity.Critical => "error",
+        AlertSeverity.Warning => "warning",
+        _ => "info"
+    };
+
+    private static string GetStatusVariant(AlertStatus s) => s switch
+    {
+        AlertStatus.Active => "error",
+        AlertStatus.Acknowledged => "warning",
+        AlertStatus.Resolved => "success",
+        _ => "neutral"
+    };
+
+    private static string FormatTimeAgo(DateTimeOffset time)
+    {
+        var diff = DateTimeOffset.UtcNow - time;
+        if (diff.TotalSeconds < 60) return $"{(int)diff.TotalSeconds}s atrás";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}m atrás";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h atrás";
+        return $"{(int)diff.TotalDays}d atrás";
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}
