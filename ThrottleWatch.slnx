@@ -1,8 +1,17 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/ThrottleWatch.Api/ThrottleWatch.Api.csproj" />
+    <Project Path="src/ThrottleWatch.Application/ThrottleWatch.Application.csproj" />
+    <Project Path="src/ThrottleWatch.Client/ThrottleWatch.Client.csproj" />
     <Project Path="src/ThrottleWatch.Dashboard/ThrottleWatch.Dashboard.csproj" />
+    <Project Path="src/ThrottleWatch.Domain/ThrottleWatch.Domain.csproj" />
+    <Project Path="src/ThrottleWatch.Infrastructure/ThrottleWatch.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/ThrottleWatch.Api.Tests/ThrottleWatch.Api.Tests.csproj" />
+    <Project Path="tests/ThrottleWatch.Application.Tests/ThrottleWatch.Application.Tests.csproj" />
     <Project Path="tests/ThrottleWatch.Dashboard.Tests/ThrottleWatch.Dashboard.Tests.csproj" />
+    <Project Path="tests/ThrottleWatch.Domain.Tests/ThrottleWatch.Domain.Tests.csproj" />
+    <Project Path="tests/ThrottleWatch.Infrastructure.Tests/ThrottleWatch.Infrastructure.Tests.csproj" />
   </Folder>
 </Solution>
