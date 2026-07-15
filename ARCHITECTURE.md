@@ -1,6 +1,6 @@
 # ThrottleWatch — Documento Oficial de Arquitetura
 
-**Versão:** 1.0  
+**Versão:** 1.1  
 **Status:** Definitivo  
 **Última atualização:** Julho 2026
 
@@ -204,11 +204,12 @@ ThrottleWatch/
 - Classes abstratas e concretas de entidades (`Entity`, `MetricEntry`, `AlertRule`, `AlertEvent`, `Insight`)
 - Enums (`AlertSeverity`, `InsightType`, `ThrottleStatus`)
 - Interfaces de repositório (`IMetricsRepository`, `IAlertRepository`, `IInsightRepository`)
+- Read models para resultados agregados de consulta (`EndpointSummary`, `ClientSummary`, `TimeSeriesPoint`)
 - Interface de evento de domínio (`IDomainEvent`)
 - Records de eventos de domínio (`MetricRecordedEvent`, `AlertTriggeredEvent`, `InsightGeneratedEvent`)
-- Exceções de domínio (`DomainException` e subclasses)
+- Exceções de domínio (`DomainException` e subclasses, incluindo `AlertEventNotFoundException`)
 - Factory methods nas próprias entidades
-- Métodos de comportamento nas entidades (`CanTrigger`, `Acknowledge`, `Dismiss`)
+- Métodos de comportamento nas entidades (`CanTrigger`, `Acknowledge`, `Dismiss`, `Update`)
 
 **NÃO pode conter:**
 - Referência a qualquer pacote NuGet externo
@@ -243,9 +244,10 @@ ThrottleWatch/
 **Pode conter:**
 - Interfaces de serviço (`IMetricsService`, `IAlertService`, `IInsightService`)
 - Implementações de serviço (`MetricsService`, `AlertService`, `InsightService`)
-- DTOs de entrada e saída (`MetricsSummaryDto`, `TopEndpointDto`, `CreateAlertRuleDto`, `AlertRuleDto`, etc.)
+- DTOs de entrada e saída (`IngestMetricDto`, `MetricsSummaryDto`, `CreateAlertRuleDto`, `AlertRuleDto`, etc.)
 - Interfaces de infraestrutura necessárias à Application (`IMetricQueue`, `IDomainEventDispatcher`)
 - Validators FluentValidation (`CreateAlertRuleValidator`, etc.)
+- Extension methods de registro de DI (`AddApplication`)
 - Mapeamento manual entre entidades e DTOs
 
 **NÃO pode conter:**
@@ -442,15 +444,27 @@ ThrottleWatch.Domain/
 │   ├── AlertTriggeredEvent.cs # Disparado ao acionar um alerta
 │   └── InsightGeneratedEvent.cs
 ├── Exceptions/
-│   ├── DomainException.cs          # Base de todas as exceções de domínio
+│   ├── DomainException.cs              # Base de todas as exceções de domínio
 │   ├── InvalidMetricException.cs
 │   ├── AlertRuleNotFoundException.cs
+│   ├── AlertEventNotFoundException.cs
 │   └── InsightNotFoundException.cs
+├── ReadModels/
+│   ├── EndpointSummary.cs     # Resultado agregado de top endpoints
+│   ├── ClientSummary.cs       # Resultado agregado de top clients
+│   └── TimeSeriesPoint.cs     # Ponto de série temporal
 └── Interfaces/
     ├── IMetricsRepository.cs   # Contrato de persistência de métricas
     ├── IAlertRepository.cs     # Contrato de persistência de alertas
     └── IInsightRepository.cs   # Contrato de persistência de insights
 ```
+
+**Contratos de repositório — intenções distintas:**
+
+- `IAlertRepository.GetAllAsync` — listagem completa (UI / gerenciamento), inclui regras desabilitadas
+- `IAlertRepository.GetActiveRulesAsync` — apenas regras habilitadas (evaluator de background)
+- `IInsightRepository.GetByIdAsync` — busca pontual; não carregar lista completa só para achar um ID
+- `IMetricsRepository` — queries agregadas retornam `ReadModels`, não entidades de domínio
 
 ### ThrottleWatch.Application
 
@@ -458,7 +472,8 @@ ThrottleWatch.Domain/
 ThrottleWatch.Application/
 ├── DTOs/
 │   ├── Metrics/
-│   │   ├── MetricsSummaryDto.cs
+│   │   ├── IngestMetricDto.cs
+│   │   ├── MetricsSummaryDto.cs   # BlockRatePercent é propriedade derivada do DTO
 │   │   ├── TopEndpointDto.cs
 │   │   ├── TopClientDto.cs
 │   │   └── TimeSeriesPointDto.cs
@@ -479,9 +494,11 @@ ThrottleWatch.Application/
 │   ├── AlertService.cs
 │   ├── IInsightService.cs
 │   └── InsightService.cs
-└── Validators/
-    ├── CreateAlertRuleValidator.cs
-    └── UpdateAlertRuleValidator.cs
+├── Validators/
+│   ├── CreateAlertRuleValidator.cs
+│   └── UpdateAlertRuleValidator.cs
+└── Extensions/
+    └── ApplicationExtensions.cs   # AddApplication(IServiceCollection)
 ```
 
 ### ThrottleWatch.Infrastructure
@@ -717,20 +734,25 @@ sequenceDiagram
 20. Exceções de domínio derivam **sempre** de `DomainException`
 21. Interfaces de repositório são definidas no **Domain** — implementações ficam na Infrastructure
 22. `IDomainEvent` é uma interface própria do Domain — **nenhuma dependência de MediatR no Domain**
+23. Queries agregadas do `IMetricsRepository` retornam **ReadModels** (`EndpointSummary`, `ClientSummary`, `TimeSeriesPoint`), não entidades de domínio
+24. `IAlertRepository.GetAllAsync` lista todas as regras; `GetActiveRulesAsync` retorna apenas regras habilitadas (uso do evaluator)
+25. Entidades não encontradas usam exceções específicas (`AlertRuleNotFoundException`, `AlertEventNotFoundException`, `InsightNotFoundException`)
 
 ### Regras de Application
 
-23. `IMetricQueue` é definido na **Application** — não no Domain
-24. `IDomainEventDispatcher` é definido na **Application** — implementado na Infrastructure
-25. Application Services recebem e retornam **DTOs** — nunca entidades de domínio diretamente para a Api
-26. Validações de entrada são responsabilidade da **Application** (FluentValidation)
+26. `IMetricQueue` é definido na **Application** — não no Domain
+27. `IDomainEventDispatcher` é definido na **Application** — implementado na Infrastructure
+28. Application Services recebem e retornam **DTOs** — nunca entidades de domínio diretamente para a Api
+29. Validações de entrada são responsabilidade da **Application** (FluentValidation)
+30. Application Services **coordenam** casos de uso — não contêm regras de negócio nem cálculos de domínio; valores derivados (ex.: `BlockRatePercent`) ficam no DTO
+31. Busca por ID usa `GetByIdAsync` no repositório — **nunca** carregar uma lista completa só para filtrar em memória
 
 ### Regras de Infrastructure
 
-27. Cada entidade do Domain possui sua própria classe de configuração EF Core (`IEntityTypeConfiguration<T>`)
-28. Migrations são geradas **apenas** na Infrastructure
-29. Background Services são registrados e implementados na **Infrastructure**
-30. A fila de métricas (`IMetricQueue`) usa `System.Threading.Channels` internamente
+32. Cada entidade do Domain possui sua própria classe de configuração EF Core (`IEntityTypeConfiguration<T>`)
+33. Migrations são geradas **apenas** na Infrastructure
+34. Background Services são registrados e implementados na **Infrastructure**
+35. A fila de métricas (`IMetricQueue`) usa `System.Threading.Channels` internamente
 
 ---
 
@@ -823,7 +845,7 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 |---|---|---|
 | Base | `DomainException` | `DomainException` |
 | Específica | contexto + `Exception` | `InvalidMetricException` |
-| Not found | entidade + `NotFoundException` | `AlertRuleNotFoundException` |
+| Not found | entidade + `NotFoundException` | `AlertRuleNotFoundException`, `AlertEventNotFoundException`, `InsightNotFoundException` |
 
 ### Configurações EF Core
 
