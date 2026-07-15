@@ -65,6 +65,34 @@ public sealed class AlertRule : Entity
         LastTriggeredAt = triggeredAt;
     }
 
+    public void Update(
+        string name,
+        string condition,
+        double threshold,
+        AlertSeverity severity,
+        int cooldownMinutes,
+        string? description = null)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainException("AlertRule name cannot be null or empty.");
+
+        if (string.IsNullOrWhiteSpace(condition))
+            throw new DomainException("AlertRule condition cannot be null or empty.");
+
+        if (threshold < 0)
+            throw new DomainException("AlertRule threshold cannot be negative.");
+
+        if (cooldownMinutes < 0)
+            throw new DomainException("AlertRule cooldownMinutes cannot be negative.");
+
+        Name = name.Trim();
+        Description = description?.Trim();
+        Condition = condition.Trim();
+        Threshold = threshold;
+        Severity = severity;
+        CooldownMinutes = cooldownMinutes;
+    }
+
     public void Enable() => IsEnabled = true;
 
     public void Disable() => IsEnabled = false;
