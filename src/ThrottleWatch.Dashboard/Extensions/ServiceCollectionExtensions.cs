@@ -26,7 +26,6 @@ public static class ServiceCollectionExtensions
             client.DefaultRequestHeaders.Add("Accept", "application/json");
         });
 
-        services.AddSingleton<ISignalRService, SignalRService>();
         services.AddScoped<IThemeService, ThemeService>();
         services.AddScoped<IToastService, ToastService>();
 

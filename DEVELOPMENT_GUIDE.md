@@ -1,6 +1,8 @@
 # ThrottleWatch — Development Guide
 
 > **Constituição do projeto.** Este documento define como o ThrottleWatch deve ser desenvolvido, mantido e estendido. Todo contribuidor deve seguir estas regras.
+>
+> **Fonte de verdade arquitetural:** `ARCHITECTURE.md` prevalece sobre este guia em caso de conflito. **SignalR não faz parte da arquitetura** (ADR-012). Comunicação Dashboard ↔ Api é exclusivamente HTTP/REST.
 
 | | |
 |---|---|
@@ -22,7 +24,7 @@
 7. [Frontend (Dashboard)](#7-frontend-dashboard)
 8. [Backend (API e Application)](#8-backend-api-e-application)
 9. [Middleware](#9-middleware)
-10. [SignalR](#10-signalr)
+10. [Comunicação Dashboard ↔ Api](#10-comunicação-dashboard--api)
 11. [Persistência](#11-persistência)
 12. [Background Workers](#12-background-workers)
 13. [Logging](#13-logging)
@@ -73,7 +75,7 @@ O ThrottleWatch preenche essa lacuna como uma **camada de observabilidade** para
 |---|---|
 | **Non-blocking hot path** | Middleware nunca bloqueia a thread de request |
 | **Separation of concerns** | UI não acessa banco; Components não chamam HTTP diretamente |
-| **Official Microsoft patterns** | Blazor Web App, DI, Options, HttpClientFactory, SignalR |
+| **Official Microsoft patterns** | Blazor Web App, DI, Options, HttpClientFactory |
 | **Testability** | Toda lógica de negócio testável sem infraestrutura |
 | **Small PRs** | Uma funcionalidade por PR; ideal ≤ 20 arquivos |
 | **No fictitious data in UI** | Componentes exibem estados reais ou Empty/Error states |
@@ -105,7 +107,6 @@ flowchart TB
     end
 
     subgraph RealTime["Tempo real"]
-        HUB[SignalR Hub]
         DASH[Blazor Dashboard]
     end
 
@@ -116,7 +117,7 @@ flowchart TB
     BW -->|batch insert| PG
     BW -->|broadcast| HUB
     HUB --> DASH
-    DASH -->|HTTP + SignalR| API
+    DASH -->|HTTP| API
 ```
 
 ### Pipeline explicado
@@ -127,7 +128,6 @@ flowchart TB
 | **Queue** | Buffer thread-safe via `Channels` | Não |
 | **Background Worker** | Drena fila em batches e persiste | Não (thread separada) |
 | **Persistência** | EF Core + PostgreSQL para histórico | Não |
-| **SignalR Hub** | Broadcast de diffs para dashboards conectados | Não |
 | **Dashboard** | Blazor Web App com Interactive Server | N/A |
 
 ### Estado atual vs. planejado
@@ -139,7 +139,6 @@ flowchart TB
 | `ThrottleWatch.Application` | 🔲 Planejado |
 | `ThrottleWatch.Domain` | 🔲 Planejado |
 | `ThrottleWatch.Infrastructure` | 🔲 Planejado |
-| `ThrottleWatch.SignalR` | 🔲 Planejado |
 
 > [!NOTE]
 > Contribuições devem respeitar a arquitetura **planejada**, mesmo que o projeto alvo ainda não exista. Não introduza atalhos que contradigam a estrutura definida neste guia.
@@ -158,7 +157,6 @@ ThrottleWatch.sln
 │   ├── ThrottleWatch.Application/      # Use cases, CQRS, interfaces de aplicação
 │   ├── ThrottleWatch.Infrastructure/   # EF Core, repositórios, serviços externos
 │   ├── ThrottleWatch.Middleware/       # Middleware ASP.NET Core + extensions
-│   ├── ThrottleWatch.SignalR/          # Hub, contratos e client extensions
 │   └── ThrottleWatch.Dashboard/        # Blazor Web App (Interactive Server)
 │
 ├── tests/
@@ -187,10 +185,9 @@ ThrottleWatch.sln
 | **Application** | Domain | Commands, Queries, handlers, interfaces de serviço |
 | **Infrastructure** | Application, Domain | EF Core, repositórios, implementações concretas |
 | **Middleware** | Application | Interceptação de requests, enqueue de métricas |
-| **SignalR** | Application | Hub, mapeamento de eventos, contratos |
-| **Dashboard** | Nenhum projeto interno* | UI Blazor, HTTP clients, SignalR client |
+| **Dashboard** | Nenhum projeto interno* | UI Blazor, HTTP clients |
 
-\* O Dashboard comunica-se com a API via HTTP/SignalR. Não referencia Domain, Application ou Infrastructure diretamente.
+\* O Dashboard comunica-se com a API via HTTP. Não referencia Domain, Application ou Infrastructure diretamente.
 
 ### Quando criar um novo projeto
 
@@ -243,7 +240,6 @@ Infrastructure/
 │   ├── Configurations/
 │   ├── Migrations/
 │   └── Repositories/
-├── SignalR/
 ├── Workers/
 └── Extensions/
 ```
@@ -268,7 +264,6 @@ Dashboard/
 │   ├── Cards/         # MetricCard, ContentCard
 │   ├── Charts/        # ApexCharts wrappers
 │   └── Tables/        # Tabelas com ordenação
-├── Services/          # IMetricsService, ISignalRService, etc.
 ├── Models/            # Modelos de domínio da UI
 ├── DTOs/              # Contratos HTTP + ToModel()
 ├── Extensions/        # ServiceCollectionExtensions
@@ -291,7 +286,6 @@ Dashboard/
 | Registro DI | `Extensions/ServiceCollectionExtensions.cs` |
 | Middleware | `ThrottleWatch.Middleware/` |
 | Worker | `Infrastructure/Workers/` |
-| Hub SignalR | `ThrottleWatch.SignalR/` ou `Infrastructure/SignalR/` |
 | Command (CQRS) | `Application/Commands/` |
 | Query (CQRS) | `Application/Queries/` |
 | Validator | `Application/Validators/` |
@@ -391,7 +385,7 @@ flowchart BT
     APP[Application]
     DOM[Domain]
 
-    DASH -->|HTTP/SignalR| API[API Host]
+    DASH -->|HTTP| API[API Host]
     MW --> APP
     INF --> APP
     APP --> DOM
@@ -437,7 +431,6 @@ var data = await MetricsService.GetDashboardMetricsAsync();
 |---|---|
 | Blazor Web App | Framework UI |
 | Interactive Server | Render mode global via `<Routes @rendermode="InteractiveServer" />` |
-| SignalR Client | Atualizações em tempo real |
 | Blazor-ApexCharts | Gráficos |
 | HttpClientFactory | Comunicação HTTP tipada |
 | Options Pattern | Configuração via `appsettings.json` |
@@ -451,7 +444,7 @@ var data = await MetricsService.GetDashboardMetricsAsync();
 | **Layout** | Shell da aplicação (sidebar, topbar, tema) |
 | **Shared** | Componentes genéricos reutilizáveis |
 | **Cards / Charts / Tables** | Componentes de domínio visual |
-| **Services** | Comunicação HTTP, SignalR, tema, toast |
+| **Services** | Comunicação HTTP, tema, toast |
 | **DTOs** | Contrato com API + `ToModel()` |
 | **Models** | Objetos usados pelos componentes |
 
@@ -503,10 +496,10 @@ Toda page que consome dados deve tratar:
 | Vazio | `<EmptyState />` |
 | Sucesso | Conteúdo normal |
 
-### SignalR no Dashboard
+### Atualização de dados no Dashboard
 
-- Cliente encapsulado em `ISignalRService` / `SignalRService`
-- Pages assinam eventos em `OnInitializedAsync` e cancelam em `Dispose`
+- Pages usam polling HTTP (`PeriodicTimer` + `RefreshIntervalSeconds`)
+- Cancelar o polling em `Dispose` / `DisposeAsync`
 - Atualizações de UI via `InvokeAsync(StateHasChanged)`
 
 ---
@@ -551,7 +544,6 @@ app.MapGet("/api/throttlewatch/metrics/summary", GetDashboardMetrics)
 | Alertas | `/api/throttlewatch/alerts` |
 | Insights | `/api/throttlewatch/insights` |
 | Health | `/api/throttlewatch/health` |
-| Hub SignalR | `/hubs/throttle` |
 
 ### Adicionar um endpoint
 
@@ -615,38 +607,13 @@ app.MapControllers();
 
 ---
 
-## 10. SignalR
+## 10. Comunicação Dashboard ↔ Api
 
-### Hub
+**SignalR não é utilizado** (ver ADR-012 em `ARCHITECTURE.md`).
 
-```csharp
-public sealed class ThrottleWatchHub : Hub
-{
-    // Sem lógica de negócio no Hub — apenas broadcast
-}
-```
-
-### Padrão de nomenclatura de eventos
-
-| Evento | Direção | Payload |
-|---|---|---|
-| `MetricsUpdated` | Server → Client | `DashboardMetrics` |
-| `AlertReceived` | Server → Client | `AlertInfo` |
-| `EndpointStatsUpdated` | Server → Client | `EndpointMetrics` |
-
-### Regras
-
-- Nomes de eventos em **PascalCase**
-- Payloads são DTOs/Models serializáveis
-- Hub não acessa DbContext diretamente — recebe dados via serviço
-- Cliente Dashboard encapsula conexão em `ISignalRService`
-
-### Adicionar um novo evento
-
-1. Definir payload (Model/DTO)
-2. Broadcast no Worker ou serviço de aplicação
-3. Registrar handler no `SignalRService` do Dashboard
-4. Page assina evento e atualiza UI
+- Dashboard consome apenas endpoints HTTP/REST da Api
+- Atualizações da UI usam **polling HTTP** (`RefreshIntervalSeconds` em `ThrottleWatchOptions`)
+- Não criar Hubs, `HubConnection`, nem pacote `Microsoft.AspNetCore.SignalR.Client`
 
 ---
 
@@ -718,7 +685,7 @@ dotnet ef database update \
 
 ### Responsabilidade
 
-Drenar a fila in-memory e persistir em batches, depois notificar via SignalR.
+Drenar a fila in-memory e persistir em batches. Sem notificação SignalR.
 
 ### Template
 
@@ -776,7 +743,6 @@ Serilog (ou `ILogger<T>` nativo) com logs estruturados.
 | Request bloqueada pelo rate limiter | Information |
 | Batch persistido | Debug |
 | Falha de persistência | Error |
-| Reconexão SignalR | Warning |
 | Startup / shutdown | Information |
 | Configuração inválida | Critical |
 
@@ -870,14 +836,13 @@ Use Result Pattern em handlers quando falhas são **esperadas** (ex.: policy nã
 | `Virtualize` | Listas com > 50 items |
 | Skeleton / loading states | Toda operação async |
 | Lazy loading de charts | Pages com múltiplos gráficos |
-| SignalR diffs | Enviar apenas dados alterados |
 
 ### Caching
 
 | Camada | Estratégia |
 |---|---|
 | API | `IMemoryCache` para queries frequentes (top endpoints) |
-| Dashboard | Sem cache local — SignalR mantém dados frescos |
+| Dashboard | Sem cache local — polling HTTP mantém dados frescos |
 | Worker | Sem cache — write-through para PostgreSQL |
 
 ---
@@ -941,7 +906,7 @@ flowchart TB
 |---|---|---|---|
 | Unit (Domain/App) | `ThrottleWatch.UnitTests` | xUnit | Handlers, validators, domain logic |
 | Unit (UI) | `ThrottleWatch.Dashboard.Tests` | xUnit + bUnit | Components, services, DTO mapping |
-| Integration | `ThrottleWatch.IntegrationTests` | xUnit + WebApplicationFactory | Endpoints, DB, SignalR |
+| Integration | `ThrottleWatch.IntegrationTests` | xUnit + WebApplicationFactory | Endpoints, DB |
 | E2E | `ThrottleWatch.E2ETests` | Playwright | Fluxos completos (futuro) |
 
 ### Quando criar testes
@@ -1137,7 +1102,7 @@ chore(deps): bump Blazor-ApexCharts to 6.2.0
 
 | Versão | Foco |
 |---|---|
-| v1.0 | Middleware + Dashboard + PostgreSQL + SignalR |
+| v1.0 | Middleware + Dashboard + PostgreSQL |
 | v1.1 | Alertas (Webhook, Slack, Discord, Email) |
 | v1.2 | Insights e recomendações |
 | v1.3 | Multi-tenant |
@@ -1161,7 +1126,7 @@ chore(deps): bump Blazor-ApexCharts to 6.2.0
 | 7 | **Sempre** seguir SOLID |
 | 8 | **Sempre** tratar estados loading/error/empty na UI |
 | 9 | **Sempre** manter compatibilidade .NET 9 / .NET 10 |
-| 10 | **Sempre** seguir documentação oficial Microsoft para Blazor, SignalR, EF Core |
+| 10 | **Sempre** seguir documentação oficial Microsoft para Blazor, EF Core |
 | 11 | **Sempre** usar Options Pattern para configuração |
 | 12 | **Sempre** usar HttpClientFactory para HTTP clients |
 | 13 | **Nunca** bloquear requests no Middleware |
@@ -1180,7 +1145,6 @@ chore(deps): bump Blazor-ApexCharts to 6.2.0
 | Recurso | Link |
 |---|---|
 | Blazor Web App | https://learn.microsoft.com/aspnet/core/blazor |
-| SignalR | https://learn.microsoft.com/aspnet/core/signalr |
 | EF Core | https://learn.microsoft.com/ef/core |
 | HttpClientFactory | https://learn.microsoft.com/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests |
 | Options Pattern | https://learn.microsoft.com/aspnet/core/fundamentals/configuration/options |

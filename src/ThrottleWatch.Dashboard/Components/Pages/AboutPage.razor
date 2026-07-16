@@ -70,8 +70,8 @@
         new("ThrottleWatch Middleware", "Intercepta requisições HTTP, registra métricas e avalia políticas de rate limiting em O(1)"),
         new("Fila em Memória", "Buffer thread-safe via System.Threading.Channels para coleta de métricas de alta vazão"),
         new("Background Worker", "IHostedService que persiste métricas em lote no PostgreSQL sem bloquear as requisições"),
-        new("SignalR Hub", "Streaming em tempo real de métricas ao vivo para os clientes do dashboard"),
-        new("Blazor Dashboard", "Dashboard com Interactive Server Rendering, gráficos, tabelas e atualizações em tempo real"),
+        new("API REST", "Minimal APIs para ingestão e consulta de métricas, alertas e insights"),
+        new("Blazor Dashboard", "Dashboard com Interactive Server Rendering, gráficos e atualização via polling HTTP"),
         new("PostgreSQL + EF Core", "Armazenamento de séries temporais para análises históricas e tendências de longo prazo")
     ];
 
@@ -80,7 +80,7 @@
         new("Runtime", ".NET 10"),
         new("Web", "ASP.NET Core"),
         new("UI", "Blazor Web App"),
-        new("Tempo Real", "SignalR"),
+        new("Comunicação", "HTTP / REST"),
         new("Gráficos", "Blazor-ApexCharts"),
         new("Banco de Dados", "PostgreSQL"),
         new("ORM", "EF Core"),

@@ -1,6 +1,6 @@
 # ThrottleWatch — Documento Oficial de Arquitetura
 
-**Versão:** 1.1  
+**Versão:** 1.2  
 **Status:** Definitivo  
 **Última atualização:** Julho 2026
 
@@ -38,7 +38,7 @@ ThrottleWatch é uma plataforma open source de observabilidade focada em monitor
 - Capturar eventos de rate limiting de aplicações ASP.NET Core via SDK (ThrottleWatch.Client)
 - Processar e persistir métricas de forma eficiente e não bloqueante
 - Disponibilizar uma API REST para consulta e gerenciamento
-- Exibir dados em tempo real via Dashboard Blazor + SignalR
+- Exibir dados via Dashboard Blazor consumindo a API REST
 - Disparar alertas com base em regras configuráveis
 - Gerar insights automáticos sobre padrões de bloqueio
 
@@ -140,7 +140,7 @@ graph TD
     I -->|depende de| D
     API -->|depende de| A
     API -->|depende de| I
-    DASH -->|HTTP + SignalR| API
+    DASH -->|HTTP| API
     C -->|HTTP POST| API
 
     style D fill:#2d6a4f,color:#fff
@@ -169,7 +169,7 @@ ThrottleWatch/
 │   ├── ThrottleWatch.Domain/        # Camada de domínio
 │   ├── ThrottleWatch.Application/   # Camada de aplicação (casos de uso)
 │   ├── ThrottleWatch.Infrastructure/# Camada de infraestrutura
-│   ├── ThrottleWatch.Api/           # API REST + SignalR (ponto de entrada principal)
+│   ├── ThrottleWatch.Api/           # API REST (ponto de entrada principal)
 │   ├── ThrottleWatch.Dashboard/     # Dashboard Blazor
 │   └── ThrottleWatch.Client/        # SDK para aplicações consumidoras
 │
@@ -317,11 +317,10 @@ ThrottleWatch/
 
 ### ThrottleWatch.Api
 
-**Objetivo:** Ser o ponto de entrada principal do sistema. Expõe a API REST e os Hubs SignalR. Conecta todas as camadas via injeção de dependência.
+**Objetivo:** Ser o ponto de entrada principal do sistema. Expõe a API REST. Conecta todas as camadas via injeção de dependência.
 
 **Responsabilidades:**
 - Definir todos os endpoints Minimal API organizados por recurso
-- Hospedar os SignalR Hubs para comunicação em tempo real
 - Registrar todas as dependências (DI composition root)
 - Configurar o pipeline HTTP (middlewares, autenticação, logging, health checks)
 - Mapear erros para respostas HTTP padronizadas (`ProblemDetails`)
@@ -330,7 +329,6 @@ ThrottleWatch/
 **Pode conter:**
 - `Program.cs` (ponto de entrada e composição)
 - Endpoints Minimal API organizados por recurso (`MetricsEndpoints`, `AlertsEndpoints`, `InsightsEndpoints`)
-- SignalR Hubs (`MetricsHub`)
 - Extension methods de configuração do pipeline
 - Filtros de exceção e tratamento global de erros
 - Configurações de CORS, autenticação e rate limiting
@@ -355,10 +353,10 @@ ThrottleWatch/
 
 ### ThrottleWatch.Dashboard
 
-**Objetivo:** Interface visual de monitoramento em tempo real. Consome a API REST e o SignalR do ThrottleWatch.Api.
+**Objetivo:** Interface visual de monitoramento. Consome exclusivamente a API REST do ThrottleWatch.Api.
 
 **Responsabilidades:**
-- Exibir métricas em tempo real via SignalR
+- Exibir métricas via polling/consultas à API REST
 - Exibir gráficos históricos via chamadas à API REST
 - Gerenciar regras de alerta pela interface
 - Exibir insights e recomendações
@@ -366,7 +364,6 @@ ThrottleWatch/
 **Pode conter:**
 - Componentes Blazor (páginas e componentes reutilizáveis)
 - Serviços HTTP que chamam `ThrottleWatch.Api` (`IMetricsApiClient`, `IAlertsApiClient`)
-- Cliente SignalR para receber atualizações em tempo real
 - DTOs locais para desserialização das respostas da API
 - Lógica de apresentação e estado de UI
 
@@ -378,7 +375,6 @@ ThrottleWatch/
 
 **Dependências permitidas:**
 - `Microsoft.AspNetCore.Components.WebAssembly` ou Blazor Server packages
-- `Microsoft.AspNetCore.SignalR.Client`
 - Pacotes de UI (charts, componentes)
 
 **Dependências proibidas:**
@@ -539,10 +535,8 @@ ThrottleWatch.Api/
 │   ├── MetricsEndpoints.cs
 │   ├── AlertsEndpoints.cs
 │   └── InsightsEndpoints.cs
-├── Hubs/
-│   └── MetricsHub.cs
 ├── Middleware/
-│   └── GlobalExceptionMiddleware.cs
+│   └── GlobalExceptionHandler.cs       # IExceptionHandler + ProblemDetails (doc Microsoft)
 ├── Extensions/
 │   ├── ApiExtensions.cs
 │   └── SwaggerExtensions.cs
@@ -651,23 +645,6 @@ ThrottleWatch.Infrastructure
 ThrottleWatch.Application → ThrottleWatch.Api → HTTP Response JSON
 ```
 
-### Fluxo de Tempo Real (Infrastructure → Api → Dashboard)
-
-```
-MetricProcessorService (Infrastructure)
-        │  após persistir, dispara domain event
-        │  chama IDomainEventDispatcher.Dispatch(MetricRecordedEvent)
-        ▼
-DomainEventDispatcher (Infrastructure)
-        │  notifica handlers registrados
-        ▼
-MetricsHub (ThrottleWatch.Api)
-        │  IHubContext<MetricsHub>.Clients.All.SendAsync(...)
-        ▼
-ThrottleWatch.Dashboard (SignalR Client)
-        │  recebe evento e atualiza UI em tempo real
-```
-
 ### Diagrama de Fluxo Mermaid
 
 ```mermaid
@@ -687,8 +664,6 @@ sequenceDiagram
     loop Background Processing
         INF->>INF: MetricProcessorService drena fila
         INF->>DB: MetricsRepository.AddRangeAsync()
-        INF->>API: DomainEventDispatcher → MetricsHub
-        API->>DASH: SignalR broadcast
     end
 
     DASH->>API: GET /api/metrics/summary
@@ -890,12 +865,6 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 **Driver:** `Npgsql.EntityFrameworkCore.PostgreSQL`  
 **Não usar:** SQL inline, Dapper ou acesso direto fora da Infrastructure
 
-### SignalR
-
-**Onde:** Hub definido em `ThrottleWatch.Api`. Cliente SignalR em `ThrottleWatch.Dashboard`.  
-**Não usar em:** Domain, Application, Infrastructure (exceto para despachar eventos ao Hub via `IHubContext<T>`)  
-**Uso:** Broadcast de métricas e alertas em tempo real para o Dashboard
-
 ### Serilog
 
 **Onde:** Configurado em `ThrottleWatch.Infrastructure` (extensão de setup) e habilitado em `ThrottleWatch.Api` (`Program.cs`)  
@@ -1011,9 +980,18 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 ### ADR-009 — Dashboard como projeto separado
 
 **Status:** Aceito  
-**Decisão:** O Dashboard Blazor é um projeto separado (`ThrottleWatch.Dashboard`) que consome a API via HTTP e SignalR.  
+**Decisão:** O Dashboard Blazor é um projeto separado (`ThrottleWatch.Dashboard`) que consome a API exclusivamente via HTTP.  
 **Motivo:** Separação de responsabilidades. O Dashboard é puro frontend — não deve ter acesso a camadas internas. Pode ser implantado separadamente se necessário.  
 **Consequência:** Dashboard não referencia Domain, Application ou Infrastructure.
+
+---
+
+### ADR-012 — Sem SignalR
+
+**Status:** Aceito  
+**Decisão:** O projeto **não** utiliza SignalR. Não há Hubs na Api e o Dashboard não consome push em tempo real via SignalR.  
+**Motivo:** Decisão explícita do mantenedor. A comunicação Dashboard ↔ Api é exclusivamente HTTP/REST.  
+**Consequência:** Atualizações do Dashboard via polling ou refresh HTTP. Domain events continuam existindo para coordenação interna, sem broadcast SignalR.
 
 ---
 
@@ -1085,6 +1063,7 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 
 ### Restrições Gerais
 
+- Não utilizar SignalR
 - Não utilizar MediatR
 - Não introduzir CQRS como padrão arquitetural
 - Não criar Value Objects para encapsular primitivos simples

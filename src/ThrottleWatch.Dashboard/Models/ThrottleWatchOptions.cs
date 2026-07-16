@@ -9,9 +9,6 @@ public sealed class ThrottleWatchOptions
     [Required]
     public string ApiBaseUrl { get; set; } = "http://localhost:5000";
 
-    [Required]
-    public string HubUrl { get; set; } = "http://localhost:5000/hubs/throttle";
-
     [Range(1, 60)]
     public int RefreshIntervalSeconds { get; set; } = 5;
 

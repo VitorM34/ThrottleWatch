@@ -40,11 +40,7 @@
                 <small style="color: var(--tw-text-muted); font-size: 0.8125rem;">Configurado via appsettings.json</small>
             </div>
             <div class="form-group">
-                <label class="form-label">URL do Hub SignalR</label>
-                <input type="url" class="form-control" value="@Options.Value.HubUrl" readonly aria-label="URL do Hub SignalR" />
-            </div>
-            <div class="form-group">
-                <label class="form-label">Intervalo de Atualização</label>
+                <label class="form-label">Intervalo de Atualização (polling HTTP)</label>
                 <input type="text" class="form-control" value="@Options.Value.RefreshIntervalSeconds segundos" readonly aria-label="Intervalo de atualização" />
             </div>
             <AlertBanner Variant="info" Message="As configurações de conexão são definidas via appsettings.json e requerem reinicialização para ter efeito." />
