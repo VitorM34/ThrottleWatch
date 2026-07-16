@@ -1,7 +1,5 @@
 ﻿@inherits LayoutComponentBase
 @inject IThemeService ThemeService
-@inject ISignalRService SignalR
-@inject IToastService ToastService
 @implements IDisposable
 
 <div class="@ThemeClass app-shell">
@@ -23,11 +21,9 @@
 
     private string ThemeClass => ThemeService.IsDarkMode ? "dark" : "light";
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         ThemeService.ThemeChanged += OnThemeChanged;
-        SignalR.AlertReceived += OnAlertReceived;
-        await SignalR.StartAsync();
     }
 
     private void OnSidebarCollapsedChanged(bool collapsed)
@@ -38,23 +34,6 @@
 
     private void OnThemeChanged(object? sender, EventArgs e) =>
         InvokeAsync(StateHasChanged);
-
-    private void OnAlertReceived(object? sender, AlertInfo alert)
-    {
-        var message = $"{alert.Title}: {alert.Message}";
-        switch (alert.Severity)
-        {
-            case AlertSeverity.Critical:
-                ToastService.ShowError(message, "Alerta Crítico");
-                break;
-            case AlertSeverity.Warning:
-                ToastService.ShowWarning(message, "Aviso");
-                break;
-            default:
-                ToastService.ShowInfo(message, "Alerta");
-                break;
-        }
-    }
 
     private string? PageTitle => Navigation?.Uri is { } uri
         ? GetPageTitle(uri)
@@ -84,6 +63,5 @@
     public void Dispose()
     {
         ThemeService.ThemeChanged -= OnThemeChanged;
-        SignalR.AlertReceived -= OnAlertReceived;
     }
 }

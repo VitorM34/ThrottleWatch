@@ -40,7 +40,7 @@ Zero manual instrumentation. Zero boilerplate. Just plug in and observe.
 | ✅ Zero-configuration setup | ✅ Webhook, Slack, Discord & Email alerts |
 | ✅ Real-time dashboard | ✅ Intelligent insights & recommendations |
 | ✅ Native ASP.NET Core integration | ✅ Persistence with EF Core + PostgreSQL |
-| ✅ Live metrics via SignalR | ✅ Multi-tenant support (v1.3) |
+| ✅ Metrics dashboard via HTTP/REST | ✅ Multi-tenant support (v1.3) |
 | ✅ Top IPs, API Keys & Endpoints | ✅ OpenTelemetry export (v1.4) |
 | ✅ Full historical analytics | ✅ Unit & Integration test coverage |
 
@@ -194,7 +194,7 @@ The pipeline is designed for **minimal overhead** on the hot path:
 1. **Middleware** intercepts every request and captures metadata in-process — synchronously and in `O(1)`
 2. **In-Memory Queue** (`System.Threading.Channels`) decouples capture from persistence with no blocking
 3. **Background Worker** (`IHostedService`) drains the queue in configurable batches and commits to storage
-4. **SignalR Hub** broadcasts real-time diffs to all connected dashboard clients
+4. **Dashboard** refreshes metrics via HTTP polling against the REST API
 5. **Blazor Dashboard** renders live charts, tables, and insights with automatic updates
 
 ---
@@ -209,7 +209,6 @@ ThrottleWatch.sln
 │   ├── ThrottleWatch.Application/     # Use cases, CQRS handlers, interfaces
 │   ├── ThrottleWatch.Infrastructure/  # EF Core, repositories, external services
 │   ├── ThrottleWatch.Middleware/      # ASP.NET Core middleware + extensions
-│   ├── ThrottleWatch.SignalR/         # Real-time hub and contracts
 │   └── ThrottleWatch.Dashboard/       # Blazor Server dashboard application
 │
 ├── tests/

@@ -1,15 +1,16 @@
 @page "/"
 @inject IMetricsService MetricsService
-@inject ISignalRService SignalR
-@inject IToastService ToastService
-@implements IDisposable
+@inject IOptions<ThrottleWatchOptions> Options
+@using Microsoft.Extensions.Options
+@using ThrottleWatch.Dashboard.Models
+@implements IAsyncDisposable
 
 <PageTitle>Visão Geral — ThrottleWatch</PageTitle>
 
 <div class="page-header">
     <div>
         <h1 class="page-title">Visão Geral</h1>
-        <p class="page-subtitle">Métricas de rate limiting em tempo real</p>
+        <p class="page-subtitle">Métricas de rate limiting via API REST</p>
     </div>
     <div class="page-actions">
         @if (_lastUpdated.HasValue)
@@ -173,12 +174,39 @@ else
     private bool _isLoadingCharts = true;
     private bool _hasError;
     private DateTimeOffset? _lastUpdated;
-    private CancellationTokenSource _cts = new();
+    private readonly CancellationTokenSource _cts = new();
 
     protected override async Task OnInitializedAsync()
     {
-        SignalR.MetricsUpdated += OnMetricsUpdated;
         await LoadAllAsync();
+        _ = PollMetricsAsync(_cts.Token);
+    }
+
+    private async Task PollMetricsAsync(CancellationToken ct)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(Options.Value.RefreshIntervalSeconds));
+
+        while (await timer.WaitForNextTickAsync(ct))
+        {
+            try
+            {
+                var metrics = await MetricsService.GetDashboardMetricsAsync(ct);
+                if (metrics is null)
+                    continue;
+
+                _metrics = metrics;
+                _lastUpdated = DateTimeOffset.UtcNow;
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch
+            {
+                // Keep last successful snapshot; next poll retries.
+            }
+        }
     }
 
     private async Task LoadAllAsync()
@@ -239,13 +267,6 @@ else
         StateHasChanged();
     }
 
-    private void OnMetricsUpdated(object? sender, DashboardMetrics metrics)
-    {
-        _metrics = metrics;
-        _lastUpdated = DateTimeOffset.UtcNow;
-        InvokeAsync(StateHasChanged);
-    }
-
     private static string FormatNumber(long value) => value switch
     {
         >= 1_000_000_000 => $"{value / 1_000_000_000.0:F1}B",
@@ -292,10 +313,9 @@ else
         return "var(--tw-text-muted)";
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        SignalR.MetricsUpdated -= OnMetricsUpdated;
-        _cts.Cancel();
+        await _cts.CancelAsync();
         _cts.Dispose();
     }
 }

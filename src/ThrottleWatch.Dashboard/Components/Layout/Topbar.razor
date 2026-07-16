@@ -1,7 +1,9 @@
 @inject IThemeService ThemeService
-@inject ISignalRService SignalR
-@inject NavigationManager Navigation
-@implements IDisposable
+@inject IMetricsService MetricsService
+@inject IOptions<ThrottleWatchOptions> Options
+@using Microsoft.Extensions.Options
+@using ThrottleWatch.Dashboard.Models
+@implements IAsyncDisposable
 
 <header class="topbar @(_sidebarCollapsed ? "topbar--collapsed" : "")"
         role="banner"
@@ -19,7 +21,7 @@
 
     <div class="topbar__actions" role="toolbar" aria-label="Ações da barra superior">
         <div class="connection-indicator connection-indicator--@_connectionState.ToString().ToLowerInvariant()"
-             aria-label="Status da conexão: @_connectionState"
+             aria-label="Status da API: @_connectionState"
              role="status"
              aria-live="polite">
             <div class="connection-indicator__dot" aria-hidden="true"></div>
@@ -48,19 +50,49 @@
     [Parameter] public string? PageTitle { get; set; }
     [Parameter] public bool SidebarCollapsed { get; set; }
 
-    private ConnectionState _connectionState = ConnectionState.Disconnected;
+    private ConnectionState _connectionState = ConnectionState.Connecting;
     private bool _sidebarCollapsed;
+    private readonly CancellationTokenSource _cts = new();
 
     protected override void OnParametersSet()
     {
         _sidebarCollapsed = SidebarCollapsed;
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        _connectionState = SignalR.State;
-        SignalR.ConnectionStateChanged += OnConnectionStateChanged;
         ThemeService.ThemeChanged += OnThemeChanged;
+        await RefreshApiStatusAsync();
+        _ = PollApiStatusAsync(_cts.Token);
+    }
+
+    private async Task PollApiStatusAsync(CancellationToken ct)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(Options.Value.RefreshIntervalSeconds));
+
+        while (await timer.WaitForNextTickAsync(ct))
+        {
+            await RefreshApiStatusAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task RefreshApiStatusAsync()
+    {
+        try
+        {
+            var health = await MetricsService.GetHealthAsync(_cts.Token);
+            _connectionState = health is not null
+                ? ConnectionState.Connected
+                : ConnectionState.Failed;
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch
+        {
+            _connectionState = ConnectionState.Failed;
+        }
     }
 
     private void ToggleTheme()
@@ -68,27 +100,21 @@
         ThemeService.ToggleTheme();
     }
 
-    private void OnConnectionStateChanged(object? sender, ConnectionState state)
-    {
-        _connectionState = state;
-        InvokeAsync(StateHasChanged);
-    }
-
     private void OnThemeChanged(object? sender, EventArgs e) =>
         InvokeAsync(StateHasChanged);
 
     private string GetConnectionLabel() => _connectionState switch
     {
-        ConnectionState.Connected => "Ao vivo",
-        ConnectionState.Connecting => "Conectando",
-        ConnectionState.Reconnecting => "Reconectando",
-        ConnectionState.Failed => "Desconectado",
+        ConnectionState.Connected => "API online",
+        ConnectionState.Connecting => "Verificando",
+        ConnectionState.Failed => "API offline",
         _ => "Offline"
     };
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        SignalR.ConnectionStateChanged -= OnConnectionStateChanged;
         ThemeService.ThemeChanged -= OnThemeChanged;
+        await _cts.CancelAsync();
+        _cts.Dispose();
     }
 }
