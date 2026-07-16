@@ -486,7 +486,8 @@ ThrottleWatch.Application/
 │       └── InsightDto.cs
 ├── Interfaces/
 │   ├── IMetricQueue.cs            # Fila de métricas (implementada na Infrastructure)
-│   └── IDomainEventDispatcher.cs  # Dispatcher de eventos de domínio
+│   ├── IDomainEventDispatcher.cs  # Dispatcher de eventos de domínio
+│   └── IDomainEventHandler.cs     # Handler de eventos (registrado via DI, sem MediatR)
 ├── Services/
 │   ├── IMetricsService.cs
 │   ├── MetricsService.cs
