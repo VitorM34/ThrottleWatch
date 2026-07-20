@@ -10,6 +10,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/ThrottleWatch.Api.Tests/ThrottleWatch.Api.Tests.csproj" />
     <Project Path="tests/ThrottleWatch.Application.Tests/ThrottleWatch.Application.Tests.csproj" />
+    <Project Path="tests/ThrottleWatch.Client.Tests/ThrottleWatch.Client.Tests.csproj" />
     <Project Path="tests/ThrottleWatch.Dashboard.Tests/ThrottleWatch.Dashboard.Tests.csproj" />
     <Project Path="tests/ThrottleWatch.Domain.Tests/ThrottleWatch.Domain.Tests.csproj" />
     <Project Path="tests/ThrottleWatch.Infrastructure.Tests/ThrottleWatch.Infrastructure.Tests.csproj" />
