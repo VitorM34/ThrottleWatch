@@ -8,6 +8,8 @@ builder.Services.AddThrottleWatchOpenApi();
 
 var app = builder.Build();
 
+await app.ApplyMigrationsIfConfiguredAsync();
+
 app.UseExceptionHandler();
 app.UseThrottleWatchOpenApi();
 app.UseHttpsRedirection();
