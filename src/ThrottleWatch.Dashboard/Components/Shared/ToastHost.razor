@@ -8,7 +8,7 @@
              role="alert"
              aria-atomic="true">
             <span class="toast__icon toast__icon--@toast.Type.ToString().ToLowerInvariant()" aria-hidden="true">
-                @GetIcon(toast.Type)
+                <Icon Name="@GetIconName(toast.Type)" Size="md" />
             </span>
             <div class="toast__content">
                 @if (!string.IsNullOrEmpty(toast.Title))
@@ -20,7 +20,7 @@
             <button class="toast__close"
                     @onclick="() => DismissToast(toast)"
                     aria-label="Dismiss notification">
-                ✕
+                <Icon Name="x" Size="sm" />
             </button>
         </div>
     }
@@ -70,13 +70,13 @@
         StateHasChanged();
     }
 
-    private static string GetIcon(ToastType type) => type switch
+    private static string GetIconName(ToastType type) => type switch
     {
-        ToastType.Success => "✓",
-        ToastType.Error => "✕",
-        ToastType.Warning => "⚠",
-        ToastType.Info => "ℹ",
-        _ => "ℹ"
+        ToastType.Success => "check",
+        ToastType.Error => "x",
+        ToastType.Warning => "alert-triangle",
+        ToastType.Info => "info",
+        _ => "info"
     };
 
     public void Dispose()

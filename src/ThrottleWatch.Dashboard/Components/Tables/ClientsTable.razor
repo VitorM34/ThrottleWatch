@@ -28,19 +28,19 @@
     }
     else if (!Clients.Any())
     {
-        <EmptyState Icon="◈" Title="No clients recorded" Message="Clients appear once requests are processed." />
+        <EmptyState Icon="users" Title="No clients recorded" Message="Clients appear once requests are processed." />
     }
     else
     {
         <table class="tw-table" aria-label="Client metrics table">
             <thead>
                 <tr>
-                    <th class="sortable" @onclick='() => Sort("ip")' aria-sort='@GetSort("ip")'>IP Address @SortIcon("ip")</th>
-                    <th class="sortable" @onclick='() => Sort("total")' aria-sort='@GetSort("total")'>Total @SortIcon("total")</th>
-                    <th class="sortable" @onclick='() => Sort("blocked")' aria-sort='@GetSort("blocked")'>Blocked @SortIcon("blocked")</th>
-                    <th class="sortable" @onclick='() => Sort("blockrate")' aria-sort='@GetSort("blockrate")'>Block Rate @SortIcon("blockrate")</th>
-                    <th class="sortable" @onclick='() => Sort("risk")' aria-sort='@GetSort("risk")'>Risk @SortIcon("risk")</th>
-                    <th class="sortable" @onclick='() => Sort("lastseen")' aria-sort='@GetSort("lastseen")'>Last Seen @SortIcon("lastseen")</th>
+                    <th class="sortable" @onclick='() => Sort("ip")' aria-sort='@GetSort("ip")'>IP Address <Icon Name="@SortIconName("ip")" Size="sm" Class="tw-icon--inline" /></th>
+                    <th class="sortable" @onclick='() => Sort("total")' aria-sort='@GetSort("total")'>Total <Icon Name="@SortIconName("total")" Size="sm" Class="tw-icon--inline" /></th>
+                    <th class="sortable" @onclick='() => Sort("blocked")' aria-sort='@GetSort("blocked")'>Blocked <Icon Name="@SortIconName("blocked")" Size="sm" Class="tw-icon--inline" /></th>
+                    <th class="sortable" @onclick='() => Sort("blockrate")' aria-sort='@GetSort("blockrate")'>Block Rate <Icon Name="@SortIconName("blockrate")" Size="sm" Class="tw-icon--inline" /></th>
+                    <th class="sortable" @onclick='() => Sort("risk")' aria-sort='@GetSort("risk")'>Risk <Icon Name="@SortIconName("risk")" Size="sm" Class="tw-icon--inline" /></th>
+                    <th class="sortable" @onclick='() => Sort("lastseen")' aria-sort='@GetSort("lastseen")'>Last Seen <Icon Name="@SortIconName("lastseen")" Size="sm" Class="tw-icon--inline" /></th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -103,10 +103,10 @@
         }
     }
 
-    private string SortIcon(string column)
+    private string SortIconName(string column)
     {
-        if (_sortColumn != column) return "⇅";
-        return _sortDescending ? "↓" : "↑";
+        if (_sortColumn != column) return "arrow-up-down";
+        return _sortDescending ? "arrow-down" : "arrow-up";
     }
 
     private string GetSort(string column)

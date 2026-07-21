@@ -50,7 +50,7 @@ else
     }
     else if (!FilteredAlerts.Any())
     {
-        <EmptyState Icon="◬" Title="Nenhum alerta" Message="Os alertas aparecem quando os limites de rate limiting são ultrapassados." />
+        <EmptyState Icon="bell" Title="Nenhum alerta" Message="Os alertas aparecem quando os limites de rate limiting são ultrapassados." />
     }
     else
     {
@@ -61,8 +61,8 @@ else
                     <div class="card__body">
                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
                             <div style="display: flex; align-items: flex-start; gap: 12px; flex: 1; min-width: 0;">
-                                <div style="padding: 6px; border-radius: var(--tw-radius-md); background: @GetAlertBg(alert.Severity); flex-shrink: 0;">
-                                    <span style="font-size: 1rem; color: @GetAlertColor(alert.Severity);" aria-hidden="true">@GetAlertIcon(alert.Severity)</span>
+                                <div style="padding: 6px; border-radius: var(--tw-radius-md); background: @GetAlertBg(alert.Severity); flex-shrink: 0; color: @GetAlertColor(alert.Severity);">
+                                    <Icon Name="@GetAlertIconName(alert.Severity)" Size="md" />
                                 </div>
                                 <div style="flex: 1; min-width: 0;">
                                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
@@ -119,11 +119,11 @@ else
         finally { _isLoading = false; StateHasChanged(); }
     }
 
-    private static string GetAlertIcon(AlertSeverity s) => s switch
+    private static string GetAlertIconName(AlertSeverity s) => s switch
     {
-        AlertSeverity.Critical => "✕",
-        AlertSeverity.Warning => "⚠",
-        _ => "ℹ"
+        AlertSeverity.Critical => "x",
+        AlertSeverity.Warning => "alert-triangle",
+        _ => "info"
     };
 
     private static string GetAlertColor(AlertSeverity s) => s switch

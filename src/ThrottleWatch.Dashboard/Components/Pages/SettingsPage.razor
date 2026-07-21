@@ -21,12 +21,12 @@
                 <button class="btn @(ThemeService.IsDarkMode ? "btn--primary" : "btn--ghost")"
                         @onclick='() => SetTheme(true)'
                         aria-pressed="@ThemeService.IsDarkMode.ToString().ToLowerInvariant()">
-                    ☾ Modo Escuro
+                    <Icon Name="moon" Size="sm" /> Modo Escuro
                 </button>
                 <button class="btn @(!ThemeService.IsDarkMode ? "btn--primary" : "btn--ghost")"
                         @onclick='() => SetTheme(false)'
                         aria-pressed="@(!ThemeService.IsDarkMode).ToString().ToLowerInvariant()">
-                    ☀ Modo Claro
+                    <Icon Name="sun" Size="sm" /> Modo Claro
                 </button>
             </div>
         </div>

@@ -29,7 +29,7 @@
             }
             else
             {
-                <span aria-hidden="true">↺</span>
+                <Icon Name="refresh-cw" Size="sm" />
             }
             Atualizar
         </button>
@@ -48,33 +48,33 @@ else
         <div class="grid grid--5">
             <MetricCard Label="Total de Requisições"
                         Value="@FormatNumber(_metrics?.TotalRequests ?? 0)"
-                        Icon="◎"
+                        Icon="activity"
                         AccentVariant="blue"
                         IsLoading="_isLoading"
                         Subtitle="@($"Desde {GetUptimeLabel()}")" />
 
             <MetricCard Label="Permitidas"
                         Value="@FormatNumber(_metrics?.AllowedRequests ?? 0)"
-                        Icon="✓"
+                        Icon="check"
                         AccentVariant="green"
                         IsLoading="_isLoading" />
 
             <MetricCard Label="Bloqueadas"
                         Value="@FormatNumber(_metrics?.BlockedRequests ?? 0)"
-                        Icon="✕"
+                        Icon="ban"
                         AccentVariant="red"
                         IsLoading="_isLoading"
                         Subtitle="@($"{_metrics?.BlockRatePercent:F1}% de bloqueio")" />
 
             <MetricCard Label="Req/s"
                         Value="@($"{_metrics?.RequestsPerSecond:F1}")"
-                        Icon="⟳"
+                        Icon="gauge"
                         AccentVariant="orange"
                         IsLoading="_isLoading" />
 
             <MetricCard Label="Latência Média"
                         Value="@($"{_metrics?.AverageLatencyMs:F0} ms")"
-                        Icon="◷"
+                        Icon="clock"
                         AccentVariant="purple"
                         IsLoading="_isLoading" />
         </div>
@@ -84,19 +84,19 @@ else
         <div class="grid grid--3">
             <MetricCard Label="Clientes Ativos"
                         Value="@(_metrics?.ActiveClients.ToString("N0") ?? "—")"
-                        Icon="◈"
+                        Icon="users"
                         AccentVariant="blue"
                         IsLoading="_isLoading" />
 
             <MetricCard Label="Taxa de Bloqueio"
                         Value="@($"{_metrics?.BlockRatePercent:F2}%")"
-                        Icon="◉"
+                        Icon="percent"
                         AccentVariant="@(_metrics?.BlockRatePercent > 10 ? "red" : "green")"
                         IsLoading="_isLoading" />
 
             <MetricCard Label="Disponibilidade"
                         Value="@FormatUptime(_metrics?.Uptime)"
-                        Icon="▲"
+                        Icon="trending-up"
                         AccentVariant="green"
                         IsLoading="_isLoading" />
         </div>
@@ -140,7 +140,7 @@ else
                 }
                 else if (!_topClients.Any())
                 {
-                    <EmptyState Icon="◈" Title="Nenhum cliente registrado ainda" />
+                    <EmptyState Icon="users" Title="Nenhum cliente registrado ainda" />
                 }
                 else
                 {
