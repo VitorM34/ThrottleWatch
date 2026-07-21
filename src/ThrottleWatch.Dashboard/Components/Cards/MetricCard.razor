@@ -6,7 +6,7 @@
     @if (!string.IsNullOrEmpty(Icon))
     {
         <div class="metric-card__icon metric-card__icon--@AccentVariant" aria-hidden="true">
-            @Icon
+            <Icon Name="@Icon" Size="lg" />
         </div>
     }
 
@@ -33,7 +33,7 @@
     @if (Delta.HasValue)
     {
         <div class="metric-card__delta metric-card__delta--@GetDeltaClass()" aria-label="Change: @FormatDelta()">
-            @GetDeltaArrow() @FormatDelta()
+            <Icon Name="@(Delta.Value >= 0 ? "arrow-up" : "arrow-down")" Size="sm" /> @FormatDelta()
         </div>
     }
 </div>
@@ -41,6 +41,8 @@
 @code {
     [Parameter] public string Label { get; set; } = string.Empty;
     [Parameter] public string Value { get; set; } = "—";
+
+    /// <summary>Icon file name in wwwroot/icons (without .svg).</summary>
     [Parameter] public string? Icon { get; set; }
 
     /// <summary>Color variant: blue, green, red, orange, purple</summary>
@@ -60,12 +62,6 @@
         var isPositive = Delta.Value >= 0;
         if (DeltaInverted) isPositive = !isPositive;
         return isPositive ? "up" : "down";
-    }
-
-    private string GetDeltaArrow()
-    {
-        if (!Delta.HasValue) return string.Empty;
-        return Delta.Value >= 0 ? "↑" : "↓";
     }
 
     private string FormatDelta()

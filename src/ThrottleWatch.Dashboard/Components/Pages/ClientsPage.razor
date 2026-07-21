@@ -40,10 +40,10 @@
 else
 {
     <div class="grid grid--4" style="margin-bottom: 24px;">
-        <MetricCard Label="Total de Clientes" Value="@_clients.Count.ToString("N0")" Icon="◈" AccentVariant="blue" IsLoading="_isLoading" />
-        <MetricCard Label="Bloqueados Agora" Value="@_clients.Count(c => c.IsBlocked).ToString("N0")" Icon="✕" AccentVariant="red" IsLoading="_isLoading" />
-        <MetricCard Label="Alto Risco" Value="@_clients.Count(c => c.RiskLevel >= ClientRisk.High).ToString("N0")" Icon="◬" AccentVariant="orange" IsLoading="_isLoading" />
-        <MetricCard Label="Ativos Hoje" Value="@_clients.Count(c => (DateTimeOffset.UtcNow - c.LastSeen).TotalHours < 24).ToString("N0")" Icon="◎" AccentVariant="green" IsLoading="_isLoading" />
+        <MetricCard Label="Total de Clientes" Value="@_clients.Count.ToString("N0")" Icon="users" AccentVariant="blue" IsLoading="_isLoading" />
+        <MetricCard Label="Bloqueados Agora" Value="@_clients.Count(c => c.IsBlocked).ToString("N0")" Icon="ban" AccentVariant="red" IsLoading="_isLoading" />
+        <MetricCard Label="Alto Risco" Value="@_clients.Count(c => c.RiskLevel >= ClientRisk.High).ToString("N0")" Icon="alert-triangle" AccentVariant="orange" IsLoading="_isLoading" />
+        <MetricCard Label="Ativos Hoje" Value="@_clients.Count(c => (DateTimeOffset.UtcNow - c.LastSeen).TotalHours < 24).ToString("N0")" Icon="activity" AccentVariant="green" IsLoading="_isLoading" />
     </div>
 
     <ContentCard Title="Todos os Clientes" Subtitle="@($"{FilteredClients.Count()} clientes")">

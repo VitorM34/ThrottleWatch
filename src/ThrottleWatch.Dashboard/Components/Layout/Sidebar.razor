@@ -20,7 +20,7 @@
                      ActiveClass="sidebar__item--active"
                      Match="NavLinkMatch.All"
                      aria-label="Visão Geral do Dashboard">
-                <span class="sidebar__item-icon" aria-hidden="true">⬡</span>
+                <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="layout-dashboard" Size="lg" /></span>
                 <span class="sidebar__item-label">Visão Geral</span>
             </NavLink>
 
@@ -28,7 +28,7 @@
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="Endpoints">
-                <span class="sidebar__item-icon" aria-hidden="true">⤢</span>
+                <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="route" Size="lg" /></span>
                 <span class="sidebar__item-label">Endpoints</span>
             </NavLink>
 
@@ -36,7 +36,7 @@
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="Clientes">
-                <span class="sidebar__item-icon" aria-hidden="true">◈</span>
+                <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="users" Size="lg" /></span>
                 <span class="sidebar__item-label">Clientes</span>
             </NavLink>
         </div>
@@ -48,7 +48,7 @@
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="Políticas">
-                <span class="sidebar__item-icon" aria-hidden="true">◉</span>
+                <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="shield" Size="lg" /></span>
                 <span class="sidebar__item-label">Políticas</span>
             </NavLink>
 
@@ -56,7 +56,7 @@
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="Alertas">
-                <span class="sidebar__item-icon" aria-hidden="true">◬</span>
+                <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="bell" Size="lg" /></span>
                 <span class="sidebar__item-label">Alertas</span>
                 @if (_activeAlertCount > 0)
                 {
@@ -74,7 +74,7 @@
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="Histórico">
-                <span class="sidebar__item-icon" aria-hidden="true">◴</span>
+                <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="history" Size="lg" /></span>
                 <span class="sidebar__item-label">Histórico</span>
             </NavLink>
 
@@ -82,7 +82,7 @@
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="Insights">
-                <span class="sidebar__item-icon" aria-hidden="true">◈</span>
+                <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="lightbulb" Size="lg" /></span>
                 <span class="sidebar__item-label">Insights</span>
             </NavLink>
         </div>
@@ -94,7 +94,7 @@
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="Saúde do Sistema">
-                <span class="sidebar__item-icon" aria-hidden="true">◎</span>
+                <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="heart-pulse" Size="lg" /></span>
                 <span class="sidebar__item-label">Saúde</span>
             </NavLink>
 
@@ -102,7 +102,7 @@
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="Configurações">
-                <span class="sidebar__item-icon" aria-hidden="true">⚙</span>
+                <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="settings" Size="lg" /></span>
                 <span class="sidebar__item-label">Configurações</span>
             </NavLink>
 
@@ -110,7 +110,7 @@
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="Sobre">
-                <span class="sidebar__item-icon" aria-hidden="true">◷</span>
+                <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="info" Size="lg" /></span>
                 <span class="sidebar__item-label">Sobre</span>
             </NavLink>
         </div>
@@ -122,7 +122,9 @@
                 @onclick="ToggleCollapse"
                 aria-label="@(_collapsed ? "Expandir menu" : "Recolher menu")"
                 title="@(_collapsed ? "Expandir" : "Recolher")">
-            <span class="sidebar__item-icon" aria-hidden="true">@(_collapsed ? "▶" : "◀")</span>
+            <span class="sidebar__item-icon" aria-hidden="true">
+                <Icon Name="@(_collapsed ? "chevron-right" : "chevron-left")" Size="lg" />
+            </span>
             <span class="sidebar__item-label">Recolher</span>
         </button>
     </div>

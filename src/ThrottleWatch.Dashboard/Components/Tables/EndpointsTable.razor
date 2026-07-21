@@ -28,19 +28,19 @@
     }
     else if (!Endpoints.Any())
     {
-        <EmptyState Icon="⤢" Title="No endpoints recorded" Message="Endpoints appear once requests are processed." />
+        <EmptyState Icon="route" Title="No endpoints recorded" Message="Endpoints appear once requests are processed." />
     }
     else
     {
         <table class="tw-table" aria-label="Endpoints metrics table">
             <thead>
                 <tr>
-                    <th class="sortable" @onclick='() => Sort("path")' aria-sort="@GetSort("path")">Endpoint @SortIcon("path")</th>
+                    <th class="sortable" @onclick='() => Sort("path")' aria-sort="@GetSort("path")">Endpoint <Icon Name="@SortIconName("path")" Size="sm" Class="tw-icon--inline" /></th>
                     <th>Method</th>
-                    <th class="sortable" @onclick='() => Sort("total")' aria-sort="@GetSort("total")">Total @SortIcon("total")</th>
-                    <th class="sortable" @onclick='() => Sort("blocked")' aria-sort="@GetSort("blocked")">Blocked @SortIcon("blocked")</th>
-                    <th class="sortable" @onclick='() => Sort("blockrate")' aria-sort="@GetSort("blockrate")">Block Rate @SortIcon("blockrate")</th>
-                    <th class="sortable" @onclick='() => Sort("latency")' aria-sort="@GetSort("latency")">Avg Latency @SortIcon("latency")</th>
+                    <th class="sortable" @onclick='() => Sort("total")' aria-sort="@GetSort("total")">Total <Icon Name="@SortIconName("total")" Size="sm" Class="tw-icon--inline" /></th>
+                    <th class="sortable" @onclick='() => Sort("blocked")' aria-sort="@GetSort("blocked")">Blocked <Icon Name="@SortIconName("blocked")" Size="sm" Class="tw-icon--inline" /></th>
+                    <th class="sortable" @onclick='() => Sort("blockrate")' aria-sort="@GetSort("blockrate")">Block Rate <Icon Name="@SortIconName("blockrate")" Size="sm" Class="tw-icon--inline" /></th>
+                    <th class="sortable" @onclick='() => Sort("latency")' aria-sort="@GetSort("latency")">Avg Latency <Icon Name="@SortIconName("latency")" Size="sm" Class="tw-icon--inline" /></th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -99,10 +99,10 @@
         }
     }
 
-    private string SortIcon(string column)
+    private string SortIconName(string column)
     {
-        if (_sortColumn != column) return "⇅";
-        return _sortDescending ? "↓" : "↑";
+        if (_sortColumn != column) return "arrow-up-down";
+        return _sortDescending ? "arrow-down" : "arrow-up";
     }
 
     private string GetSort(string column)

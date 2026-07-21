@@ -3,7 +3,9 @@
 <div class="state-view @Class" role="status" aria-label="@Title">
     @if (!string.IsNullOrEmpty(Icon))
     {
-        <div class="state-view__icon" aria-hidden="true">@Icon</div>
+        <div class="state-view__icon" aria-hidden="true">
+            <Icon Name="@Icon" Size="xl" />
+        </div>
     }
     <div class="state-view__title">@Title</div>
     @if (!string.IsNullOrEmpty(Message))
@@ -17,7 +19,8 @@
 </div>
 
 @code {
-    [Parameter] public string Icon { get; set; } = "◌";
+    /// <summary>Icon file name in wwwroot/icons (without .svg).</summary>
+    [Parameter] public string Icon { get; set; } = "inbox";
     [Parameter] public string Title { get; set; } = "Nenhum dado disponível";
     [Parameter] public string? Message { get; set; }
     [Parameter] public string? Class { get; set; }

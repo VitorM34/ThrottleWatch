@@ -5,7 +5,7 @@
     <div class="alert alert--@Variant.ToLowerInvariant() @Class"
          role="alert"
          aria-live="polite">
-        <span class="alert__icon" aria-hidden="true">@GetIcon()</span>
+        <span class="alert__icon" aria-hidden="true"><Icon Name="@GetIconName()" Size="md" /></span>
         <div class="alert__content">
             @if (!string.IsNullOrEmpty(Title))
             {
@@ -22,7 +22,7 @@
             <button class="btn btn--ghost btn--icon btn--sm"
                     @onclick="Dismiss"
                     aria-label="Dismiss alert">
-                ✕
+                <Icon Name="x" Size="sm" />
             </button>
         }
     </div>
@@ -46,11 +46,11 @@
         await OnDismissed.InvokeAsync();
     }
 
-    private string GetIcon() => Variant.ToLowerInvariant() switch
+    private string GetIconName() => Variant.ToLowerInvariant() switch
     {
-        "success" => "✓",
-        "warning" => "⚠",
-        "error" => "✕",
-        _ => "ℹ"
+        "success" => "check",
+        "warning" => "alert-triangle",
+        "error" => "x",
+        _ => "info"
     };
 }

@@ -1,0 +1,29 @@
+@* Renders a Lucide-style SVG from wwwroot/icons via CSS mask (color inherits currentColor). *@
+
+<span class="tw-icon tw-icon--@SizeClass @Class"
+      style="--tw-icon-url: url('@IconUrl')"
+      aria-hidden="true">
+</span>
+
+@code {
+    /// <summary>Icon file name without extension (e.g. "users" → /icons/users.svg).</summary>
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>Visual size: sm (14), md (16), lg (20), xl (32).</summary>
+    [Parameter]
+    public string Size { get; set; } = "md";
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string IconUrl => $"/icons/{Name}.svg";
+
+    private string SizeClass => Size.ToLowerInvariant() switch
+    {
+        "sm" => "sm",
+        "lg" => "lg",
+        "xl" => "xl",
+        _ => "md"
+    };
+}

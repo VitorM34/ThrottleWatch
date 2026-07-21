@@ -355,7 +355,6 @@ code {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.125rem;
 }
 
 .metric-card__icon--blue   { background: var(--tw-status-info-bg); color: var(--tw-color-brand-blue); }
@@ -634,9 +633,12 @@ code {
 }
 
 .state-view__icon {
-    font-size: 2.5rem;
-    opacity: 0.5;
+    opacity: 0.45;
     margin-bottom: 4px;
+    color: var(--tw-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .state-view__title {
@@ -710,7 +712,7 @@ code {
 .alert--error   { background: var(--tw-status-error-bg);   border-color: var(--tw-status-error);   color: var(--tw-status-error); }
 .alert--info    { background: var(--tw-status-info-bg);    border-color: var(--tw-color-brand-blue); color: var(--tw-color-brand-blue); }
 
-.alert__icon    { flex-shrink: 0; font-size: 1rem; }
+.alert__icon    { flex-shrink: 0; display: flex; align-items: center; }
 .alert__content { flex: 1; }
 .alert__title   { font-weight: 600; margin-bottom: 2px; }
 .alert__message { opacity: 0.85; }
@@ -756,7 +758,8 @@ code {
 
 .toast__icon {
     flex-shrink: 0;
-    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
     margin-top: 1px;
 }
 
@@ -995,7 +998,6 @@ code {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
 }
 
 .sidebar__item-label {
@@ -1215,6 +1217,34 @@ code {
 
 .chart-wrapper .apexcharts-canvas {
     background: transparent !important;
+}
+
+/* ------------------------------------------------------------
+   24b. Icons (CSS mask → wwwroot/icons/*.svg)
+   ------------------------------------------------------------ */
+.tw-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    -webkit-mask: var(--tw-icon-url) no-repeat center / contain;
+    mask: var(--tw-icon-url) no-repeat center / contain;
+    vertical-align: middle;
+}
+
+.tw-icon--sm { width: 14px; height: 14px; }
+.tw-icon--md { width: 16px; height: 16px; }
+.tw-icon--lg { width: 20px; height: 20px; }
+.tw-icon--xl { width: 32px; height: 32px; }
+
+.tw-icon--inline {
+    margin-left: 4px;
+    opacity: 0.7;
+}
+
+.metric-card__delta .tw-icon {
+    margin-right: 2px;
 }
 
 /* ------------------------------------------------------------

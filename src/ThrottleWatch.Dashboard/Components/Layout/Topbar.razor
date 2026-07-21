@@ -36,11 +36,11 @@
                 title="@(ThemeService.IsDarkMode ? "Modo claro" : "Modo escuro")">
             @if (ThemeService.IsDarkMode)
             {
-                <span aria-hidden="true">☀</span>
+                <Icon Name="sun" Size="lg" />
             }
             else
             {
-                <span aria-hidden="true">☾</span>
+                <Icon Name="moon" Size="lg" />
             }
         </button>
     </div>

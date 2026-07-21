@@ -1,7 +1,9 @@
 @* Error state view — shown when a data fetch fails *@
 
 <div class="state-view @Class" role="alert">
-    <div class="state-view__icon" aria-hidden="true">⚠</div>
+    <div class="state-view__icon" aria-hidden="true" style="color: var(--tw-status-error); opacity: 0.85;">
+        <Icon Name="alert-triangle" Size="xl" />
+    </div>
     <div class="state-view__title">@Title</div>
     @if (!string.IsNullOrEmpty(Message))
     {
@@ -10,7 +12,8 @@
     @if (OnRetry.HasDelegate)
     {
         <button class="btn btn--secondary" @onclick="OnRetry">
-            ↺ Retry
+            <Icon Name="refresh-cw" Size="sm" />
+            Retry
         </button>
     }
 </div>

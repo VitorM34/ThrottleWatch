@@ -35,7 +35,7 @@ else if (_isLoading)
 }
 else if (!_insights.Any())
 {
-    <EmptyState Icon="◈"
+    <EmptyState Icon="lightbulb"
                 Title="Nenhum insight disponível"
                 Message="Os insights são gerados após coletar dados de tráfego suficientes. Volte após sua aplicação receber mais requisições." />
 }
@@ -53,8 +53,8 @@ else
             <div class="card">
                 <div class="card__body">
                     <div style="display: flex; align-items: flex-start; gap: 16px;">
-                        <div style="width: 44px; height: 44px; border-radius: var(--tw-radius-md); display: flex; align-items: center; justify-content: center; background: @GetInsightBg(insight.Type); flex-shrink: 0;">
-                            <span style="font-size: 1.25rem;" aria-hidden="true">@GetInsightIcon(insight.Type)</span>
+                        <div style="width: 44px; height: 44px; border-radius: var(--tw-radius-md); display: flex; align-items: center; justify-content: center; background: @GetInsightBg(insight.Type); flex-shrink: 0; color: var(--tw-text-primary);">
+                            <Icon Name="@GetInsightIconName(insight.Type)" Size="lg" />
                         </div>
                         <div style="flex: 1; min-width: 0;">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
@@ -115,15 +115,15 @@ else
         finally { _isLoading = false; StateHasChanged(); }
     }
 
-    private static string GetInsightIcon(InsightType t) => t switch
+    private static string GetInsightIconName(InsightType t) => t switch
     {
-        InsightType.AnomalyDetected => "◬",
-        InsightType.TrafficSpike => "▲",
-        InsightType.SuspiciousClient => "◈",
-        InsightType.PolicyOptimization => "◉",
-        InsightType.CapacityWarning => "⚠",
-        InsightType.PatternDetected => "◎",
-        _ => "ℹ"
+        InsightType.AnomalyDetected => "alert-circle",
+        InsightType.TrafficSpike => "zap",
+        InsightType.SuspiciousClient => "user-x",
+        InsightType.PolicyOptimization => "shield",
+        InsightType.CapacityWarning => "alert-triangle",
+        InsightType.PatternDetected => "radio",
+        _ => "info"
     };
 
     private static string GetInsightBg(InsightType t) => t switch
