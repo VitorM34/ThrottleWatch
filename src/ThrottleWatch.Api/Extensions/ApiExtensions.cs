@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using ThrottleWatch.Api.Middleware;
 using ThrottleWatch.Application.Extensions;
 using ThrottleWatch.Infrastructure.Extensions;
+using ThrottleWatch.Infrastructure.Persistence;
 
 namespace ThrottleWatch.Api.Extensions;
 
@@ -36,5 +38,24 @@ public static class ApiExtensions
         });
 
         return services;
+    }
+
+    /// <summary>
+    /// Applies pending EF Core migrations when
+    /// <c>Database:ApplyMigrationsOnStartup</c> is <c>true</c> (used by Docker Compose).
+    /// </summary>
+    public static async Task ApplyMigrationsIfConfiguredAsync(
+        this WebApplication app,
+        CancellationToken cancellationToken = default)
+    {
+        var applyMigrations = app.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false);
+        if (!applyMigrations)
+        {
+            return;
+        }
+
+        await using var scope = app.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await dbContext.Database.MigrateAsync(cancellationToken);
     }
 }

@@ -255,27 +255,42 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines, code
 
 ## 🧪 Development & Testing
 
-**Prerequisites:** .NET 10 SDK, Docker (for PostgreSQL)
+**Prerequisites:** .NET 10 SDK, Docker
+
+### Local stack (Docker Compose)
+
+Starts PostgreSQL, API and Dashboard. The API waits for a healthy database; the Dashboard waits for a healthy API. Migrations apply on API startup by default (`APPLY_MIGRATIONS=true`).
 
 ```bash
-# Clone the repository
-git clone https://github.com/VitorM34/ThrottleWatch.git
-cd ThrottleWatch
+# Optional: override ports/credentials
+cp .env.example .env
 
-# Start infrastructure (PostgreSQL)
-docker compose up -d
+make up
+make health
+open http://localhost:5100
+```
 
-# Restore dependencies
+| Service | URL / port |
+|---------|------------|
+| API | http://localhost:5080 |
+| Dashboard | http://localhost:5100 |
+| PostgreSQL | localhost:5432 |
+
+> Default API port is **5080** (macOS often reserves `:5000` for AirPlay). Override via `.env`.
+
+| Target | Action |
+|--------|--------|
+| `make up` | Build and start full stack |
+| `make db` | Start PostgreSQL only |
+| `make health` | Wait until API `/health` is ready |
+| `make down` | Stop containers (keeps volume) |
+| `make logs` / `make ps` | Logs / status |
+
+### Run tests locally
+
+```bash
 dotnet restore
-
-# Run all tests
 dotnet test
-
-# Run the sample application
-dotnet run --project samples/WebApiWithPolicies
-
-# Open the dashboard
-open http://localhost:5000/throttlewatch
 ```
 
 ---

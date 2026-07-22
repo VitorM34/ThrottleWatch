@@ -1,0 +1,80 @@
+# ThrottleWatch — local development stack
+# Usage: make up  |  make down  |  make health
+#
+# Defaults work without a .env file. Copy .env.example to override.
+
+name: throttlewatch
+
+x-aspnet-environment: &aspnet-environment
+  ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+  ASPNETCORE_URLS: http://+:8080
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-throttlewatch}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - throttlewatch_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - internal
+
+  api:
+    build:
+      context: .
+      dockerfile: src/ThrottleWatch.Api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      <<: *aspnet-environment
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-throttlewatch};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      Database__ApplyMigrationsOnStartup: ${APPLY_MIGRATIONS:-true}
+    ports:
+      # Host 5080 avoids macOS AirPlay on :5000
+      - "${API_PORT:-5080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 25s
+    networks:
+      - internal
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: src/ThrottleWatch.Dashboard/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *aspnet-environment
+      # Blazor Server calls the API from inside the network
+      ThrottleWatch__ApiBaseUrl: http://api:8080
+      ThrottleWatch__RefreshIntervalSeconds: ${DASHBOARD_REFRESH_SECONDS:-5}
+    ports:
+      - "${DASHBOARD_PORT:-5100}:8080"
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  throttlewatch_pgdata:
