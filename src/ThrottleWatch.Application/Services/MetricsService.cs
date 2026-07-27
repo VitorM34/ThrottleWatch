@@ -10,15 +10,18 @@ public sealed class MetricsService : IMetricsService
 {
     private readonly IMetricsRepository _repository;
     private readonly IMetricQueue _queue;
+    private readonly IOperationalMetrics _operationalMetrics;
     private readonly ILogger<MetricsService> _logger;
 
     public MetricsService(
         IMetricsRepository repository,
         IMetricQueue queue,
+        IOperationalMetrics operationalMetrics,
         ILogger<MetricsService> logger)
     {
         _repository = repository;
         _queue = queue;
+        _operationalMetrics = operationalMetrics;
         _logger = logger;
     }
 
@@ -36,8 +39,11 @@ public sealed class MetricsService : IMetricsService
                 dto.PolicyName,
                 dto.ApiKey);
 
-            if (!_queue.TryEnqueue(entry))
-                _logger.LogWarning("Metric queue is full. Dropping entry for path {Path}.", dto.Path);
+            if (_queue.TryEnqueue(entry))
+                continue;
+
+            _operationalMetrics.RecordDrop();
+            _logger.LogWarning("Metric queue is full. Dropping entry for path {Path}.", dto.Path);
         }
 
         return Task.CompletedTask;

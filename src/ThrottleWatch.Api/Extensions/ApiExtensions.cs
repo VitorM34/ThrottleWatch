@@ -10,7 +10,8 @@ public static class ApiExtensions
 {
     public static IServiceCollection AddApiServices(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException(
@@ -18,6 +19,7 @@ public static class ApiExtensions
 
         services.AddApplication();
         services.AddInfrastructure(connectionString);
+        services.AddThrottleWatchTelemetry(configuration, environment);
 
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -40,10 +42,6 @@ public static class ApiExtensions
         return services;
     }
 
-    /// <summary>
-    /// Applies pending EF Core migrations when
-    /// <c>Database:ApplyMigrationsOnStartup</c> is <c>true</c> (used by Docker Compose).
-    /// </summary>
     public static async Task ApplyMigrationsIfConfiguredAsync(
         this WebApplication app,
         CancellationToken cancellationToken = default)
