@@ -2,19 +2,21 @@
 @inject IThemeService ThemeService
 @implements IDisposable
 
-<div class="@ThemeClass app-shell">
-    <Sidebar OnCollapsedChanged="OnSidebarCollapsedChanged" />
+<div class="@ThemeClass theme-root">
+    <div class="app-shell">
+        <Sidebar OnCollapsedChanged="OnSidebarCollapsedChanged" />
 
-    <div class="app-content @(_sidebarCollapsed ? "app-content--collapsed" : "")">
-        <Topbar PageTitle="@PageTitle" SidebarCollapsed="_sidebarCollapsed" />
+        <div class="app-content @(_sidebarCollapsed ? "app-content--collapsed" : "")">
+            <Topbar PageTitle="@PageTitle" SidebarCollapsed="_sidebarCollapsed" />
 
-        <main class="app-main" id="main-content" role="main" aria-label="Conteúdo principal">
-            @Body
-        </main>
+            <main class="app-main" id="main-content" role="main" aria-label="Conteúdo principal">
+                @Body
+            </main>
+        </div>
     </div>
-</div>
 
-<ToastHost />
+    <ToastHost />
+</div>
 
 @code {
     private bool _sidebarCollapsed;

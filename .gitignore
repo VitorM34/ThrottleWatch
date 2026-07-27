@@ -46,6 +46,9 @@ desktop.ini
 # Docker override
 docker-compose.override.yml
 
+# Logs
+logs/
+
 # Coverage
 coverage/
 *.opencover.xml

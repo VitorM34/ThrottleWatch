@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,15 +12,18 @@ public sealed class MetricProcessorService : BackgroundService
 {
     private readonly IMetricQueue _queue;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IOperationalMetrics _operationalMetrics;
     private readonly ILogger<MetricProcessorService> _logger;
 
     public MetricProcessorService(
         IMetricQueue queue,
         IServiceScopeFactory scopeFactory,
+        IOperationalMetrics operationalMetrics,
         ILogger<MetricProcessorService> logger)
     {
         _queue = queue;
         _scopeFactory = scopeFactory;
+        _operationalMetrics = operationalMetrics;
         _logger = logger;
     }
 
@@ -39,6 +43,8 @@ public sealed class MetricProcessorService : BackgroundService
                     continue;
                 }
 
+                var stopwatch = Stopwatch.StartNew();
+
                 await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
                 var repository = scope.ServiceProvider.GetRequiredService<IMetricsRepository>();
                 var dispatcher = scope.ServiceProvider.GetRequiredService<IDomainEventDispatcher>();
@@ -52,6 +58,8 @@ public sealed class MetricProcessorService : BackgroundService
                         stoppingToken);
                 }
 
+                stopwatch.Stop();
+                _operationalMetrics.RecordBatchProcessed(batch.Count, stopwatch.Elapsed.TotalMilliseconds);
                 _logger.LogDebug("Persisted {Count} metric entries.", batch.Count);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)

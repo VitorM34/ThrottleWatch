@@ -1,25 +1,49 @@
+using OpenTelemetry.Metrics;
+using Serilog;
 using ThrottleWatch.Api.Endpoints;
 using ThrottleWatch.Api.Extensions;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-builder.Services.AddApiServices(builder.Configuration);
-builder.Services.AddThrottleWatchOpenApi();
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+    builder.AddThrottleWatchSerilog();
+    builder.Services.AddApiServices(builder.Configuration, builder.Environment);
+    builder.Services.AddThrottleWatchOpenApi();
 
-await app.ApplyMigrationsIfConfiguredAsync();
+    builder.Services.ConfigureOpenTelemetryMeterProvider(metrics =>
+        metrics.AddPrometheusExporter());
 
-app.UseExceptionHandler();
-app.UseThrottleWatchOpenApi();
-app.UseHttpsRedirection();
-app.UseCors();
+    var app = builder.Build();
 
-app.MapMetricsEndpoints();
-app.MapAlertsEndpoints();
-app.MapInsightsEndpoints();
-app.MapHealthChecks("/health");
+    await app.ApplyMigrationsIfConfiguredAsync();
 
-app.Run();
+    app.UseExceptionHandler();
+    app.UseThrottleWatchSerilogRequestLogging();
+    app.UseThrottleWatchOpenApi();
+    app.UseHttpsRedirection();
+    app.UseCors();
+
+    app.MapMetricsEndpoints();
+    app.MapAlertsEndpoints();
+    app.MapInsightsEndpoints();
+    app.MapHealthChecks("/health");
+    app.MapPrometheusScrapingEndpoint("/metrics");
+
+    await app.RunAsync();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "ThrottleWatch.Api terminated unexpectedly.");
+    throw;
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
+}
 
 public partial class Program;

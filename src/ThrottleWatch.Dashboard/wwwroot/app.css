@@ -133,7 +133,6 @@ html {
 body {
     font-family: var(--tw-font-sans);
     background-color: var(--tw-surface-bg);
-    color: var(--tw-text-primary);
     line-height: 1.5;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -207,9 +206,23 @@ code {
 /* ------------------------------------------------------------
    6. App Shell Layout
    ------------------------------------------------------------ */
+.theme-root {
+    min-height: 100vh;
+    background-color: var(--tw-surface-bg);
+    color: var(--tw-text-primary);
+}
+
 .app-shell {
     display: flex;
     min-height: 100vh;
+    background-color: var(--tw-surface-bg);
+    color: var(--tw-text-primary);
+}
+
+.dark,
+.light {
+    color: var(--tw-text-primary);
+    background-color: var(--tw-surface-bg);
 }
 
 .app-content {
