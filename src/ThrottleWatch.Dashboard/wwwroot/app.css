@@ -590,6 +590,65 @@ code {
     color: var(--tw-text-muted);
 }
 
+.form-control.invalid,
+.invalid .form-control {
+    border-color: var(--tw-status-error);
+}
+
+.validation-message {
+    color: var(--tw-status-error);
+    font-size: 0.8125rem;
+}
+
+.validation-summary {
+    color: var(--tw-status-error);
+    font-size: 0.875rem;
+    margin-bottom: 12px;
+}
+
+.validation-summary ul {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    padding: 4px;
+    width: fit-content;
+    background: var(--tw-surface-raised);
+    border: 1px solid var(--tw-surface-border);
+    border-radius: var(--tw-radius-md);
+}
+
+.tabs__item {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: var(--tw-text-secondary);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: calc(var(--tw-radius-md) - 2px);
+    cursor: pointer;
+}
+
+.tabs__item:hover {
+    color: var(--tw-text-primary);
+}
+
+.tabs__item--active {
+    background: var(--tw-surface-card, var(--tw-surface-base));
+    color: var(--tw-text-primary);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
 /* ------------------------------------------------------------
    13. Page Layout Utilities
    ------------------------------------------------------------ */

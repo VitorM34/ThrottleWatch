@@ -18,7 +18,7 @@ public static class ApiExtensions
                 "Connection string 'DefaultConnection' is not configured.");
 
         services.AddApplication();
-        services.AddInfrastructure(connectionString);
+        services.AddInfrastructure(connectionString, configuration);
         services.AddThrottleWatchTelemetry(configuration, environment);
 
         services.AddProblemDetails();

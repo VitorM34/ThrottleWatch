@@ -138,8 +138,8 @@ public sealed class MetricsService : IMetricsService
     {
         try
         {
-            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<AlertInfoDto>>(
-                "api/throttlewatch/alerts", cancellationToken);
+            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<AlertEventApiDto>>(
+                "api/alerts/events?count=50", cancellationToken);
             return dtos?.Select(d => d.ToModel()).ToList() ?? [];
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
