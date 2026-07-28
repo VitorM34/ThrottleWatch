@@ -1,5 +1,5 @@
 @page "/alerts"
-@inject IMetricsService MetricsService
+@inject IAlertsService AlertsService
 @inject IToastService ToastService
 @implements IDisposable
 
@@ -8,30 +8,49 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Alertas</h1>
-        <p class="page-subtitle">Alertas e notificações de rate limiting</p>
+        <p class="page-subtitle">Regras de alerta e eventos disparados</p>
     </div>
     <div class="page-actions">
-        <select class="form-control" style="width: 140px;" @bind="_statusFilter" aria-label="Filtrar por status">
-            <option value="">Todos os status</option>
-            <option value="Active">Ativo</option>
-            <option value="Acknowledged">Reconhecido</option>
-            <option value="Resolved">Resolvido</option>
-        </select>
-        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">Atualizar</button>
+        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">
+            <Icon Name="refresh-cw" Size="sm" /> Atualizar
+        </button>
+        @if (_activeTab == "rules")
+        {
+            <button class="btn btn--primary btn--sm" @onclick="OpenCreateDialog">
+                Nova regra
+            </button>
+        }
     </div>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Seções de alertas">
+    <button type="button"
+            class="tabs__item @(_activeTab == "events" ? "tabs__item--active" : null)"
+            role="tab"
+            aria-selected="@(_activeTab == "events")"
+            @onclick='() => SwitchTab("events")'>
+        Eventos
+    </button>
+    <button type="button"
+            class="tabs__item @(_activeTab == "rules" ? "tabs__item--active" : null)"
+            role="tab"
+            aria-selected="@(_activeTab == "rules")"
+            @onclick='() => SwitchTab("rules")'>
+        Regras
+    </button>
 </div>
 
 @if (_hasError)
 {
     <ErrorState Title="Erro ao carregar alertas" OnRetry="RefreshAsync" />
 }
-else
+else if (_activeTab == "events")
 {
     <div class="grid grid--4" style="margin-bottom: 24px;">
-        <MetricCard Label="Total" Value="@_alerts.Count.ToString()" AccentVariant="blue" IsLoading="_isLoading" />
-        <MetricCard Label="Críticos" Value="@_alerts.Count(a => a.Severity == AlertSeverity.Critical && a.Status == AlertStatus.Active).ToString()" AccentVariant="red" IsLoading="_isLoading" />
-        <MetricCard Label="Avisos" Value="@_alerts.Count(a => a.Severity == AlertSeverity.Warning && a.Status == AlertStatus.Active).ToString()" AccentVariant="orange" IsLoading="_isLoading" />
-        <MetricCard Label="Resolvidos" Value="@_alerts.Count(a => a.Status == AlertStatus.Resolved).ToString()" AccentVariant="green" IsLoading="_isLoading" />
+        <MetricCard Label="Total" Value="@_events.Count.ToString()" AccentVariant="blue" IsLoading="_isLoading" />
+        <MetricCard Label="Ativos" Value="@_events.Count(a => a.Status == AlertStatus.Active).ToString()" AccentVariant="red" IsLoading="_isLoading" />
+        <MetricCard Label="Críticos" Value="@_events.Count(a => a.Severity == AlertSeverity.Critical && a.Status == AlertStatus.Active).ToString()" AccentVariant="orange" IsLoading="_isLoading" />
+        <MetricCard Label="Reconhecidos" Value="@_events.Count(a => a.Status == AlertStatus.Acknowledged).ToString()" AccentVariant="green" IsLoading="_isLoading" />
     </div>
 
     @if (_isLoading)
@@ -48,14 +67,14 @@ else
             }
         </div>
     }
-    else if (!FilteredAlerts.Any())
+    else if (_events.Count == 0)
     {
-        <EmptyState Icon="bell" Title="Nenhum alerta" Message="Os alertas aparecem quando os limites de rate limiting são ultrapassados." />
+        <EmptyState Icon="bell" Title="Nenhum evento" Message="Os eventos aparecem quando uma regra de alerta é disparada." />
     }
     else
     {
         <div style="display: flex; flex-direction: column; gap: 12px;">
-            @foreach (var alert in FilteredAlerts.OrderByDescending(a => a.CreatedAt))
+            @foreach (var alert in _events.OrderByDescending(a => a.CreatedAt))
             {
                 <div class="card">
                     <div class="card__body">
@@ -71,16 +90,20 @@ else
                                         <Badge Variant="@GetStatusVariant(alert.Status)">@alert.Status</Badge>
                                     </div>
                                     <p style="font-size: 0.875rem; color: var(--tw-text-secondary); margin: 0;">@alert.Message</p>
-                                    @if (!string.IsNullOrEmpty(alert.Source))
-                                    {
-                                        <div style="font-size: 0.8125rem; color: var(--tw-text-muted); margin-top: 4px;">
-                                            Origem: <code>@alert.Source</code>
-                                        </div>
-                                    }
                                 </div>
                             </div>
-                            <div style="font-size: 0.8125rem; color: var(--tw-text-muted); white-space: nowrap; flex-shrink: 0;">
-                                @FormatTimeAgo(alert.CreatedAt)
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0;">
+                                <span style="font-size: 0.8125rem; color: var(--tw-text-muted); white-space: nowrap;">
+                                    @FormatTimeAgo(alert.CreatedAt)
+                                </span>
+                                @if (alert.Status == AlertStatus.Active)
+                                {
+                                    <button class="btn btn--secondary btn--sm"
+                                            @onclick="() => AcknowledgeAsync(alert.Id)"
+                                            disabled="@_isSaving">
+                                        Reconhecer
+                                    </button>
+                                }
                             </div>
                         </div>
                     </div>
@@ -89,34 +112,314 @@ else
         </div>
     }
 }
+else
+{
+    @if (_isLoading)
+    {
+        <div class="card"><div class="card__body"><div class="skeleton skeleton--text" style="width: 60%;"></div></div></div>
+    }
+    else if (_rules.Count == 0)
+    {
+        <EmptyState Icon="shield" Title="Nenhuma regra" Message="Crie uma regra para disparar alertas quando o block rate ultrapassar o threshold." />
+    }
+    else
+    {
+        <ContentCard Title="Regras configuradas" Subtitle="@($"{_rules.Count} regra(s)")">
+            <div class="table-wrap">
+                <table class="tw-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Condição</th>
+                            <th>Threshold</th>
+                            <th>Severidade</th>
+                            <th>Cooldown</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var rule in _rules.OrderBy(r => r.Name))
+                        {
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">@rule.Name</div>
+                                    @if (!string.IsNullOrWhiteSpace(rule.Description))
+                                    {
+                                        <div style="font-size: 0.8125rem; color: var(--tw-text-muted);">@rule.Description</div>
+                                    }
+                                </td>
+                                <td><code>@rule.Condition</code></td>
+                                <td>@rule.Threshold.ToString("0.##")%</td>
+                                <td><Badge Variant="@GetSeverityVariant(rule.Severity)">@rule.Severity</Badge></td>
+                                <td>@rule.CooldownMinutes min</td>
+                                <td>
+                                    <Badge Variant="@(rule.IsEnabled ? "success" : "neutral")">
+                                        @(rule.IsEnabled ? "Ativa" : "Desativada")
+                                    </Badge>
+                                </td>
+                                <td style="text-align: right; white-space: nowrap;">
+                                    <button class="btn btn--ghost btn--sm" @onclick="() => OpenEditDialog(rule)">Editar</button>
+                                    <button class="btn btn--ghost btn--sm" @onclick="() => AskDelete(rule)">Excluir</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </ContentCard>
+    }
+}
+
+@if (_showFormDialog)
+{
+    <div class="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="alert-rule-dialog-title">
+        <div class="dialog dialog--lg">
+            <div class="dialog__header">
+                <h3 id="alert-rule-dialog-title" class="dialog__title">
+                    @(_formModel.Id is null ? "Nova regra" : "Editar regra")
+                </h3>
+                <button class="btn btn--ghost btn--icon btn--sm" @onclick="CloseFormDialog" aria-label="Fechar">
+                    <Icon Name="x" Size="sm" />
+                </button>
+            </div>
+            <div class="dialog__body">
+                <EditForm Model="_formModel" OnValidSubmit="SaveRuleAsync">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="validation-summary" />
+
+                    <div class="form-group">
+                        <label class="form-label" for="rule-name">Nome</label>
+                        <InputText id="rule-name" class="form-control" @bind-Value="_formModel.Name" />
+                        <ValidationMessage For="() => _formModel.Name" class="validation-message" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="rule-description">Descrição</label>
+                        <InputTextArea id="rule-description" class="form-control" rows="2" @bind-Value="_formModel.Description" />
+                        <ValidationMessage For="() => _formModel.Description" class="validation-message" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="rule-condition">Condição</label>
+                        <InputSelect id="rule-condition" class="form-control" @bind-Value="_formModel.Condition">
+                            <option value="block_rate">block_rate</option>
+                        </InputSelect>
+                        <ValidationMessage For="() => _formModel.Condition" class="validation-message" />
+                        <small style="color: var(--tw-text-muted); font-size: 0.8125rem;">
+                            Avaliada a cada minuto sobre a janela dos últimos 5 minutos.
+                        </small>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" for="rule-threshold">Threshold (%)</label>
+                            <InputNumber id="rule-threshold" class="form-control" @bind-Value="_formModel.Threshold" />
+                            <ValidationMessage For="() => _formModel.Threshold" class="validation-message" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="rule-cooldown">Cooldown (minutos)</label>
+                            <InputNumber id="rule-cooldown" class="form-control" @bind-Value="_formModel.CooldownMinutes" />
+                            <ValidationMessage For="() => _formModel.CooldownMinutes" class="validation-message" />
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" for="rule-severity">Severidade</label>
+                            <InputSelect id="rule-severity" class="form-control" @bind-Value="_formModel.Severity">
+                                <option value="@AlertSeverity.Info">Info</option>
+                                <option value="@AlertSeverity.Warning">Warning</option>
+                                <option value="@AlertSeverity.Critical">Critical</option>
+                            </InputSelect>
+                            <ValidationMessage For="() => _formModel.Severity" class="validation-message" />
+                        </div>
+                        @if (_formModel.Id is not null)
+                        {
+                            <div class="form-group">
+                                <label class="form-label" for="rule-enabled">Ativa</label>
+                                <div style="display: flex; align-items: center; gap: 8px; min-height: 38px;">
+                                    <InputCheckbox id="rule-enabled" @bind-Value="_formModel.IsEnabled" />
+                                    <span style="font-size: 0.875rem; color: var(--tw-text-secondary);">
+                                        @(_formModel.IsEnabled ? "Regra habilitada" : "Regra desabilitada")
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="dialog__footer" style="margin: 24px -24px -24px; padding: 16px 24px;">
+                        <button type="button" class="btn btn--ghost" @onclick="CloseFormDialog" disabled="@_isSaving">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn--primary" disabled="@_isSaving">
+                            @(_isSaving ? "Salvando..." : "Salvar")
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+<ConfirmDialog IsOpen="_showDeleteDialog"
+               Title="Excluir regra"
+               Message="@($"Excluir a regra '{_rulePendingDelete?.Name}'? Esta ação não pode ser desfeita.")"
+               ConfirmLabel="Excluir"
+               CancelLabel="Cancelar"
+               IsDangerous="true"
+               OnConfirm="ConfirmDeleteAsync"
+               OnCancel="CancelDelete" />
 
 @code {
-    private IReadOnlyList<AlertInfo> _alerts = [];
-    private string _statusFilter = string.Empty;
+    private string _activeTab = "events";
+    private IReadOnlyList<AlertInfo> _events = [];
+    private IReadOnlyList<AlertRuleInfo> _rules = [];
+    private AlertRuleFormModel _formModel = AlertRuleFormModel.CreateNew();
+    private AlertRuleInfo? _rulePendingDelete;
     private bool _isLoading = true;
+    private bool _isSaving;
     private bool _hasError;
+    private bool _showFormDialog;
+    private bool _showDeleteDialog;
     private CancellationTokenSource _cts = new();
 
-    private IEnumerable<AlertInfo> FilteredAlerts =>
-        string.IsNullOrWhiteSpace(_statusFilter)
-            ? _alerts
-            : _alerts.Where(a => a.Status.ToString() == _statusFilter);
-
     protected override async Task OnInitializedAsync() => await RefreshAsync();
+
+    private async Task SwitchTab(string tab)
+    {
+        _activeTab = tab;
+        await RefreshAsync();
+    }
 
     private async Task RefreshAsync()
     {
         _isLoading = true;
         _hasError = false;
         StateHasChanged();
+
         try
         {
-            _alerts = await MetricsService.GetAlertsAsync(_cts.Token);
-            if (_alerts is null) { _hasError = true; _alerts = []; }
+            if (_activeTab == "events")
+            {
+                _events = await AlertsService.GetEventsAsync(cancellationToken: _cts.Token);
+            }
+            else
+            {
+                _rules = await AlertsService.GetRulesAsync(_cts.Token);
+            }
         }
-        catch (OperationCanceledException) { }
-        catch { _hasError = true; }
-        finally { _isLoading = false; StateHasChanged(); }
+        catch (OperationCanceledException)
+        {
+        }
+        catch
+        {
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OpenCreateDialog()
+    {
+        _formModel = AlertRuleFormModel.CreateNew();
+        _showFormDialog = true;
+    }
+
+    private void OpenEditDialog(AlertRuleInfo rule)
+    {
+        _formModel = AlertRuleFormModel.FromRule(rule);
+        _showFormDialog = true;
+    }
+
+    private void CloseFormDialog()
+    {
+        if (_isSaving)
+            return;
+
+        _showFormDialog = false;
+    }
+
+    private async Task SaveRuleAsync()
+    {
+        _isSaving = true;
+        try
+        {
+            AlertRuleInfo? saved;
+            if (_formModel.Id is null)
+                saved = await AlertsService.CreateRuleAsync(_formModel, _cts.Token);
+            else
+                saved = await AlertsService.UpdateRuleAsync(_formModel, _cts.Token);
+
+            if (saved is null)
+            {
+                ToastService.ShowError("Não foi possível salvar a regra. Verifique a API e tente novamente.");
+                return;
+            }
+
+            ToastService.ShowSuccess(_formModel.Id is null ? "Regra criada." : "Regra atualizada.");
+            _showFormDialog = false;
+            await RefreshAsync();
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private void AskDelete(AlertRuleInfo rule)
+    {
+        _rulePendingDelete = rule;
+        _showDeleteDialog = true;
+    }
+
+    private void CancelDelete()
+    {
+        _showDeleteDialog = false;
+        _rulePendingDelete = null;
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        if (_rulePendingDelete is null)
+            return;
+
+        var id = _rulePendingDelete.Id;
+        _showDeleteDialog = false;
+        _rulePendingDelete = null;
+
+        var ok = await AlertsService.DeleteRuleAsync(id, _cts.Token);
+        if (!ok)
+        {
+            ToastService.ShowError("Não foi possível excluir a regra.");
+            return;
+        }
+
+        ToastService.ShowSuccess("Regra excluída.");
+        await RefreshAsync();
+    }
+
+    private async Task AcknowledgeAsync(Guid eventId)
+    {
+        _isSaving = true;
+        try
+        {
+            var ok = await AlertsService.AcknowledgeEventAsync(eventId, _cts.Token);
+            if (!ok)
+            {
+                ToastService.ShowError("Não foi possível reconhecer o evento.");
+                return;
+            }
+
+            ToastService.ShowSuccess("Evento reconhecido.");
+            await RefreshAsync();
+        }
+        finally
+        {
+            _isSaving = false;
+        }
     }
 
     private static string GetAlertIconName(AlertSeverity s) => s switch
@@ -137,7 +440,7 @@ else
     {
         AlertSeverity.Critical => "var(--tw-status-error-bg)",
         AlertSeverity.Warning => "var(--tw-status-warning-bg)",
-        _ => "var(--tw-status-info-bg)"
+        _ => "var(--tw-color-brand-blue-bg, rgba(79, 142, 247, 0.12))"
     };
 
     private static string GetSeverityVariant(AlertSeverity s) => s switch
@@ -155,13 +458,13 @@ else
         _ => "neutral"
     };
 
-    private static string FormatTimeAgo(DateTimeOffset time)
+    private static string FormatTimeAgo(DateTimeOffset dt)
     {
-        var diff = DateTimeOffset.UtcNow - time;
-        if (diff.TotalSeconds < 60) return $"{(int)diff.TotalSeconds}s atrás";
-        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}m atrás";
-        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h atrás";
-        return $"{(int)diff.TotalDays}d atrás";
+        var span = DateTimeOffset.UtcNow - dt;
+        if (span.TotalMinutes < 1) return "agora";
+        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes}m atrás";
+        if (span.TotalHours < 24) return $"{(int)span.TotalHours}h atrás";
+        return $"{(int)span.TotalDays}d atrás";
     }
 
     public void Dispose()

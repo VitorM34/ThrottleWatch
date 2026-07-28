@@ -19,12 +19,15 @@ public static class ServiceCollectionExtensions
             .GetSection(ThrottleWatchOptions.SectionName)
             .Get<ThrottleWatchOptions>() ?? new ThrottleWatchOptions();
 
-        services.AddHttpClient<IMetricsService, MetricsService>(client =>
+        void ConfigureApiClient(HttpClient client)
         {
             client.BaseAddress = new Uri(options.ApiBaseUrl.TrimEnd('/') + "/");
             client.Timeout = TimeSpan.FromSeconds(10);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
-        });
+        }
+
+        services.AddHttpClient<IMetricsService, MetricsService>(ConfigureApiClient);
+        services.AddHttpClient<IAlertsService, AlertsService>(ConfigureApiClient);
 
         services.AddScoped<IThemeService, ThemeService>();
         services.AddScoped<IToastService, ToastService>();

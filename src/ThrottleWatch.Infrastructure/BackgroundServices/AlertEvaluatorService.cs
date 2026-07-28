@@ -1,10 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ThrottleWatch.Application.Interfaces;
 using ThrottleWatch.Domain.Entities;
 using ThrottleWatch.Domain.Events;
 using ThrottleWatch.Domain.Interfaces;
-using ThrottleWatch.Application.Interfaces;
+using ThrottleWatch.Infrastructure.Alerting;
 
 namespace ThrottleWatch.Infrastructure.BackgroundServices;
 
@@ -53,6 +54,7 @@ public sealed class AlertEvaluatorService : BackgroundService
         var alertRepository = scope.ServiceProvider.GetRequiredService<IAlertRepository>();
         var metricsRepository = scope.ServiceProvider.GetRequiredService<IMetricsRepository>();
         var dispatcher = scope.ServiceProvider.GetRequiredService<IDomainEventDispatcher>();
+        var notificationService = scope.ServiceProvider.GetRequiredService<AlertNotificationService>();
 
         var rules = await alertRepository.GetActiveRulesAsync(ct);
         var now = DateTimeOffset.UtcNow;
@@ -81,13 +83,20 @@ public sealed class AlertEvaluatorService : BackgroundService
                 new AlertTriggeredEvent(rule.Id, rule.Name, rule.Severity, message),
                 ct);
 
+            await notificationService.NotifyAllAsync(
+                new AlertNotification(
+                    rule.Name,
+                    message,
+                    rule.Severity,
+                    alertEvent.TriggeredAt),
+                ct);
+
             _logger.LogWarning("Alert triggered: {RuleName}", rule.Name);
         }
     }
 
     private static bool IsConditionMet(string condition, double blockRate, double threshold)
     {
-        // Supported condition key used by the domain factory and API DTOs.
         if (condition.Contains("block_rate", StringComparison.OrdinalIgnoreCase))
             return blockRate >= threshold;
 
