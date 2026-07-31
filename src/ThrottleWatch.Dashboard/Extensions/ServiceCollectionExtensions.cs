@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpClient<IMetricsService, MetricsService>(ConfigureApiClient);
         services.AddHttpClient<IAlertsService, AlertsService>(ConfigureApiClient);
+        services.AddHttpClient<IInsightsService, InsightsService>(ConfigureApiClient);
 
         services.AddScoped<IThemeService, ThemeService>();
         services.AddScoped<IToastService, ToastService>();

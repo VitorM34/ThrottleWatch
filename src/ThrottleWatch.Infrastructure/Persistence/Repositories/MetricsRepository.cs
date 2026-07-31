@@ -42,18 +42,24 @@ public sealed class MetricsRepository : IMetricsRepository
         DateTimeOffset from,
         CancellationToken ct)
     {
-        return await _db.MetricEntries
+        var rows = await _db.MetricEntries
             .AsNoTracking()
             .Where(x => x.Timestamp >= from)
             .GroupBy(x => new { x.Path, x.Method })
-            .Select(g => new EndpointSummary(
+            .Select(g => new
+            {
                 g.Key.Path,
                 g.Key.Method,
-                g.LongCount(),
-                g.LongCount(x => x.IsBlocked)))
+                RequestCount = g.Count(),
+                BlockedCount = g.Sum(x => x.IsBlocked ? 1 : 0)
+            })
             .OrderByDescending(x => x.RequestCount)
             .Take(top)
             .ToListAsync(ct);
+
+        return rows
+            .Select(x => new EndpointSummary(x.Path, x.Method, x.RequestCount, x.BlockedCount))
+            .ToList();
     }
 
     public async Task<IReadOnlyList<ClientSummary>> GetTopClientsAsync(
@@ -61,17 +67,23 @@ public sealed class MetricsRepository : IMetricsRepository
         DateTimeOffset from,
         CancellationToken ct)
     {
-        return await _db.MetricEntries
+        var rows = await _db.MetricEntries
             .AsNoTracking()
             .Where(x => x.Timestamp >= from && (x.ClientIp != null || x.ApiKey != null))
             .GroupBy(x => x.ClientIp ?? x.ApiKey!)
-            .Select(g => new ClientSummary(
-                g.Key,
-                g.LongCount(),
-                g.LongCount(x => x.IsBlocked)))
+            .Select(g => new
+            {
+                ClientIdentifier = g.Key,
+                RequestCount = g.Count(),
+                BlockedCount = g.Sum(x => x.IsBlocked ? 1 : 0)
+            })
             .OrderByDescending(x => x.RequestCount)
             .Take(top)
             .ToListAsync(ct);
+
+        return rows
+            .Select(x => new ClientSummary(x.ClientIdentifier, x.RequestCount, x.BlockedCount))
+            .ToList();
     }
 
     public async Task<IReadOnlyList<TimeSeriesPoint>> GetTimeSeriesAsync(

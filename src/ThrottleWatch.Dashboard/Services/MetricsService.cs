@@ -25,8 +25,8 @@ public sealed class MetricsService : IMetricsService
     {
         try
         {
-            var dto = await _httpClient.GetFromJsonAsync<DashboardMetricsDto>(
-                "api/throttlewatch/metrics/summary", cancellationToken);
+            var dto = await _httpClient.GetFromJsonAsync<MetricsSummaryApiDto>(
+                "api/metrics/summary", cancellationToken);
             return dto?.ToModel();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -41,8 +41,8 @@ public sealed class MetricsService : IMetricsService
     {
         try
         {
-            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<EndpointMetricsDto>>(
-                $"api/throttlewatch/metrics/endpoints/top?count={count}", cancellationToken);
+            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<TopEndpointApiDto>>(
+                $"api/metrics/top-endpoints?top={count}", cancellationToken);
             return dtos?.Select(d => d.ToModel()).ToList() ?? [];
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -57,8 +57,8 @@ public sealed class MetricsService : IMetricsService
     {
         try
         {
-            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<ClientMetricsDto>>(
-                $"api/throttlewatch/metrics/clients/top?count={count}", cancellationToken);
+            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<TopClientApiDto>>(
+                $"api/metrics/top-clients?top={count}", cancellationToken);
             return dtos?.Select(d => d.ToModel()).ToList() ?? [];
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -73,10 +73,34 @@ public sealed class MetricsService : IMetricsService
     {
         try
         {
-            var minutes = (int)window.TotalMinutes;
-            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<TimeSeriesDataDto>>(
-                $"api/throttlewatch/metrics/timeseries?windowMinutes={minutes}", cancellationToken);
-            return dtos?.Select(d => d.ToModel()).ToList() ?? [];
+            var to = DateTimeOffset.UtcNow;
+            var from = to - window;
+            var path =
+                $"api/metrics/timeseries?from={Uri.EscapeDataString(from.ToString("o"))}&to={Uri.EscapeDataString(to.ToString("o"))}";
+
+            var points = await _httpClient.GetFromJsonAsync<IReadOnlyList<TimeSeriesPointApiDto>>(
+                path, cancellationToken);
+
+            if (points is null || points.Count == 0)
+                return [];
+
+            return
+            [
+                new TimeSeriesData
+                {
+                    Name = "Total",
+                    Points = points
+                        .Select(p => new TimeSeriesPoint { Timestamp = p.Timestamp, Value = p.TotalRequests })
+                        .ToList()
+                },
+                new TimeSeriesData
+                {
+                    Name = "Bloqueadas",
+                    Points = points
+                        .Select(p => new TimeSeriesPoint { Timestamp = p.Timestamp, Value = p.BlockedRequests })
+                        .ToList()
+                }
+            ];
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -88,49 +112,19 @@ public sealed class MetricsService : IMetricsService
     public async Task<IReadOnlyList<EndpointMetrics>> GetAllEndpointsAsync(
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<EndpointMetricsDto>>(
-                "api/throttlewatch/metrics/endpoints", cancellationToken);
-            return dtos?.Select(d => d.ToModel()).ToList() ?? [];
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "Failed to fetch all endpoints");
-            return [];
-        }
+        return await GetTopEndpointsAsync(50, cancellationToken);
     }
 
     public async Task<IReadOnlyList<ClientMetrics>> GetAllClientsAsync(
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<ClientMetricsDto>>(
-                "api/throttlewatch/metrics/clients", cancellationToken);
-            return dtos?.Select(d => d.ToModel()).ToList() ?? [];
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "Failed to fetch all clients");
-            return [];
-        }
+        return await GetTopClientsAsync(50, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<PolicyInfo>> GetPoliciesAsync(
+    public Task<IReadOnlyList<PolicyInfo>> GetPoliciesAsync(
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<PolicyInfoDto>>(
-                "api/throttlewatch/policies", cancellationToken);
-            return dtos?.Select(d => d.ToModel()).ToList() ?? [];
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "Failed to fetch policies");
-            return [];
-        }
+        return Task.FromResult<IReadOnlyList<PolicyInfo>>([]);
     }
 
     public async Task<IReadOnlyList<AlertInfo>> GetAlertsAsync(
@@ -154,9 +148,9 @@ public sealed class MetricsService : IMetricsService
     {
         try
         {
-            var insights = await _httpClient.GetFromJsonAsync<IReadOnlyList<InsightInfo>>(
-                "api/throttlewatch/insights", cancellationToken);
-            return insights ?? [];
+            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<InsightApiDto>>(
+                "api/insights", cancellationToken);
+            return dtos?.Where(d => !d.IsDismissed).Select(d => d.ToModel()).ToList() ?? [];
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -169,8 +163,15 @@ public sealed class MetricsService : IMetricsService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<HealthStatus>(
-                "health", cancellationToken);
+            using var response = await _httpClient.GetAsync("health", cancellationToken);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var body = (await response.Content.ReadAsStringAsync(cancellationToken)).Trim();
+            return new HealthStatus
+            {
+                Status = string.IsNullOrWhiteSpace(body) ? "Healthy" : body
+            };
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

@@ -6,25 +6,16 @@ public sealed class InsightInfo
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public InsightType Type { get; set; }
-    public InsightPriority Priority { get; set; }
-    public string? Recommendation { get; set; }
-    public DateTimeOffset DetectedAt { get; set; }
-    public IReadOnlyDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();
+    public AlertSeverity Severity { get; set; }
+    public string? AffectedResource { get; set; }
+    public DateTimeOffset GeneratedAt { get; set; }
 }
 
 public enum InsightType
 {
-    AnomalyDetected,
-    TrafficSpike,
-    SuspiciousClient,
-    PolicyOptimization,
-    CapacityWarning,
-    PatternDetected
-}
-
-public enum InsightPriority
-{
-    Low,
-    Medium,
-    High
+    HighBlockRate = 0,
+    SuspiciousClient = 1,
+    MisconfiguredPolicy = 2,
+    PeakHours = 3,
+    UnusualPattern = 4
 }

@@ -8,6 +8,8 @@ using ThrottleWatch.Infrastructure.Alerting.Notifiers;
 using ThrottleWatch.Infrastructure.BackgroundServices;
 using ThrottleWatch.Infrastructure.Configuration;
 using ThrottleWatch.Infrastructure.Events;
+using ThrottleWatch.Infrastructure.Insights;
+using ThrottleWatch.Infrastructure.Insights.Analyzers;
 using ThrottleWatch.Infrastructure.Persistence;
 using ThrottleWatch.Infrastructure.Persistence.Repositories;
 using ThrottleWatch.Infrastructure.Queue;
@@ -46,6 +48,12 @@ public static class InfrastructureExtensions
         services.AddSingleton<IAlertNotifier, DiscordNotifier>();
         services.AddSingleton<IAlertNotifier, EmailNotifier>();
         services.AddScoped<AlertNotificationService>();
+
+        services.AddScoped<IInsightAnalyzer, HighBlockRateAnalyzer>();
+        services.AddScoped<IInsightAnalyzer, SuspiciousClientAnalyzer>();
+        services.AddScoped<IInsightAnalyzer, MisconfiguredPolicyAnalyzer>();
+        services.AddScoped<IInsightAnalyzer, PeakHoursAnalyzer>();
+        services.AddScoped<IInsightGenerator, InsightGenerator>();
 
         services.AddHostedService<MetricProcessorService>();
         services.AddHostedService<AlertEvaluatorService>();
