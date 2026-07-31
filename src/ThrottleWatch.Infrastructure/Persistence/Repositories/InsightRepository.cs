@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ThrottleWatch.Domain.Entities;
+using ThrottleWatch.Domain.Enums;
 using ThrottleWatch.Domain.Interfaces;
 using ThrottleWatch.Infrastructure.Persistence;
 
@@ -38,5 +39,25 @@ public sealed class InsightRepository : IInsightRepository
     {
         _db.Insights.Update(insight);
         await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task<bool> ExistsRecentAsync(
+        InsightType type,
+        string? affectedResource,
+        TimeSpan window,
+        CancellationToken ct)
+    {
+        var cutoff = DateTimeOffset.UtcNow.Subtract(window);
+        var resource = string.IsNullOrWhiteSpace(affectedResource) ? null : affectedResource.Trim();
+
+        return await _db.Insights
+            .AsNoTracking()
+            .AnyAsync(
+                x => x.Type == type
+                     && !x.IsDismissed
+                     && x.GeneratedAt >= cutoff
+                     && ((resource == null && x.AffectedResource == null)
+                         || x.AffectedResource == resource),
+                ct);
     }
 }

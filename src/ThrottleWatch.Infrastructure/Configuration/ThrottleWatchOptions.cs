@@ -5,6 +5,15 @@ public sealed class ThrottleWatchOptions
     public const string SectionName = "ThrottleWatch";
 
     public AlertsOptions Alerts { get; set; } = new();
+
+    public InsightsOptions Insights { get; set; } = new();
+}
+
+public sealed class InsightsOptions
+{
+    public int IntervalMinutes { get; set; } = 5;
+
+    public int DedupWindowMinutes { get; set; } = 60;
 }
 
 public sealed class AlertsOptions
