@@ -12,7 +12,7 @@ public sealed class MetricQueue : IMetricQueue
     {
         var options = new BoundedChannelOptions(capacity)
         {
-            FullMode = BoundedChannelFullMode.DropWrite,
+            FullMode = BoundedChannelFullMode.Wait,
             SingleReader = false,
             SingleWriter = false
         };
