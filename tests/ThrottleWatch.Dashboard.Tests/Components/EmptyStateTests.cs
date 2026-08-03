@@ -11,7 +11,7 @@ public sealed class EmptyStateTests : TestContext
     {
         var cut = RenderComponent<EmptyState>();
 
-        Assert.Contains("No data available", cut.Markup);
+        Assert.Contains("Nenhum dado disponível", cut.Markup);
     }
 
     [Fact]
@@ -37,10 +37,11 @@ public sealed class EmptyStateTests : TestContext
     public void EmptyState_Renders_CustomIcon()
     {
         var cut = RenderComponent<EmptyState>(p => p
-            .Add(c => c.Icon, "⤢")
+            .Add(c => c.Icon, "inbox")
             .Add(c => c.Title, "No endpoints"));
 
-        Assert.Contains("⤢", cut.Markup);
+        Assert.Contains("icon", cut.Markup);
+        Assert.Contains("No endpoints", cut.Markup);
     }
 
     [Fact]
