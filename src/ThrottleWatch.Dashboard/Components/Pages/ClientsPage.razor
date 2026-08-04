@@ -2,51 +2,51 @@
 @inject IMetricsService MetricsService
 @implements IDisposable
 
-<PageTitle>Clientes - ThrottleWatch</PageTitle>
+<PageTitle>@L["Clients_PageTitle"]</PageTitle>
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Clientes</h1>
-        <p class="page-subtitle">Endereços IP e suas métricas de atividade</p>
+        <h1 class="page-title">@L["Clients_Title"]</h1>
+        <p class="page-subtitle">@L["Clients_Subtitle"]</p>
     </div>
     <div class="page-actions">
         <input type="search"
                class="form-control"
                style="width: 220px;"
-               placeholder="Buscar por IP..."
+               placeholder="@L["Clients_SearchPlaceholder"]"
                @bind="_searchQuery"
                @bind:event="oninput"
-               aria-label="Buscar clientes por IP" />
-        <select class="form-control" style="width: 140px;" @bind="_riskFilter" aria-label="Filtrar por nível de risco">
-            <option value="">Todos os riscos</option>
-            <option value="Low">Baixo</option>
-            <option value="Medium">Médio</option>
-            <option value="High">Alto</option>
-            <option value="Critical">Crítico</option>
+               aria-label="@L["Clients_SearchAria"]" />
+        <select class="form-control" style="width: 140px;" @bind="_riskFilter" aria-label="@L["Clients_RiskFilterAria"]">
+            <option value="">@L["Clients_AllRisks"]</option>
+            <option value="Low">@L["Common_RiskLow"]</option>
+            <option value="Medium">@L["Common_RiskMedium"]</option>
+            <option value="High">@L["Common_RiskHigh"]</option>
+            <option value="Critical">@L["Common_RiskCritical"]</option>
         </select>
         <button class="btn btn--secondary btn--sm"
                 @onclick="RefreshAsync"
                 disabled="@_isLoading"
-                aria-label="Atualizar clientes">
-            Atualizar
+                aria-label="@L["Clients_RefreshAria"]">
+            @L["Common_Refresh"]
         </button>
     </div>
 </div>
 
 @if (_hasError)
 {
-    <ErrorState Title="Erro ao carregar clientes" OnRetry="RefreshAsync" />
+    <ErrorState Title="@L["Clients_ErrorLoad"]" OnRetry="RefreshAsync" />
 }
 else
 {
     <div class="grid grid--4" style="margin-bottom: 24px;">
-        <MetricCard Label="Total de Clientes" Value="@_clients.Count.ToString("N0")" Icon="users" AccentVariant="blue" IsLoading="_isLoading" />
-        <MetricCard Label="Bloqueados Agora" Value="@_clients.Count(c => c.IsBlocked).ToString("N0")" Icon="ban" AccentVariant="red" IsLoading="_isLoading" />
-        <MetricCard Label="Alto Risco" Value="@_clients.Count(c => c.RiskLevel >= ClientRisk.High).ToString("N0")" Icon="alert-triangle" AccentVariant="orange" IsLoading="_isLoading" />
-        <MetricCard Label="Ativos Hoje" Value="@_clients.Count(c => (DateTimeOffset.UtcNow - c.LastSeen).TotalHours < 24).ToString("N0")" Icon="activity" AccentVariant="green" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Clients_Total"]" Value="@_clients.Count.ToString("N0")" Icon="users" AccentVariant="blue" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Clients_BlockedNow"]" Value="@_clients.Count(c => c.IsBlocked).ToString("N0")" Icon="ban" AccentVariant="red" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Clients_HighRisk"]" Value="@_clients.Count(c => c.RiskLevel >= ClientRisk.High).ToString("N0")" Icon="alert-triangle" AccentVariant="orange" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Clients_ActiveToday"]" Value="@_clients.Count(c => (DateTimeOffset.UtcNow - c.LastSeen).TotalHours < 24).ToString("N0")" Icon="activity" AccentVariant="green" IsLoading="_isLoading" />
     </div>
 
-    <ContentCard Title="Todos os Clientes" Subtitle="@($"{FilteredClients.Count()} clientes")">
+    <ContentCard Title="@L["Clients_AllTitle"]" Subtitle="@string.Format(L["Clients_CountSubtitle"].Value, FilteredClients.Count())">
         <ClientsTable Clients="FilteredClients.ToList()" IsLoading="_isLoading" />
     </ContentCard>
 }

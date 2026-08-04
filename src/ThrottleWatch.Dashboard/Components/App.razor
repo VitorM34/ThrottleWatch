@@ -1,18 +1,65 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Localization
+
+<!DOCTYPE html>
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <title>ThrottleWatch</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="ThrottleWatch.Dashboard.styles.css" />
+    @* Apply stored theme before CSS paint to avoid flash / desync with Blazor circuit. *@
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('tw-theme');
+                document.documentElement.classList.add(t === 'light' ? 'light' : 'dark');
+            } catch {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["ThrottleWatch.Dashboard.styles.css"]" />
+    <ImportMap />
     <HeadOutlet />
 </head>
 <body>
-    <Routes @rendermode="InteractiveServer" />
-    <script src="_framework/blazor.web.js"></script>
+    @* prerender:false avoids duplicate scoped services (theme toggle desync). *@
+    <Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
+    <script src="js/theme.js"></script>
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="_content/Blazor-ApexCharts/js/blazor-apexcharts.js"></script>
 </body>
 </html>
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (HttpContext is null)
+            return;
+
+        // Persist culture for the Blazor circuit. Do not overwrite an existing user cookie.
+        if (HttpContext.Request.Cookies.ContainsKey(CookieRequestCultureProvider.DefaultCookieName))
+            return;
+
+        HttpContext.Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(
+                new RequestCulture(
+                    CultureInfo.CurrentCulture,
+                    CultureInfo.CurrentUICulture)),
+            new CookieOptions
+            {
+                Path = "/",
+                IsEssential = true,
+                SameSite = SameSiteMode.Lax,
+                MaxAge = TimeSpan.FromDays(365)
+            });
+    }
+}

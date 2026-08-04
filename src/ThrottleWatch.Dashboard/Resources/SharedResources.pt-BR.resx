@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Nav_SectionOverview" xml:space="preserve"><value>Visão Geral</value></data>
+  <data name="Nav_Overview" xml:space="preserve"><value>Visão Geral</value></data>
+  <data name="Nav_Endpoints" xml:space="preserve"><value>Endpoints</value></data>
+  <data name="Nav_Clients" xml:space="preserve"><value>Clientes</value></data>
+  <data name="Nav_SectionConfig" xml:space="preserve"><value>Configuração</value></data>
+  <data name="Nav_Policies" xml:space="preserve"><value>Políticas</value></data>
+  <data name="Nav_Alerts" xml:space="preserve"><value>Alertas</value></data>
+  <data name="Nav_SectionAnalytics" xml:space="preserve"><value>Análises</value></data>
+  <data name="Nav_History" xml:space="preserve"><value>Histórico</value></data>
+  <data name="Nav_Insights" xml:space="preserve"><value>Insights</value></data>
+  <data name="Nav_SectionSystem" xml:space="preserve"><value>Sistema</value></data>
+  <data name="Nav_Health" xml:space="preserve"><value>Saúde</value></data>
+  <data name="Nav_Settings" xml:space="preserve"><value>Configurações</value></data>
+  <data name="Nav_About" xml:space="preserve"><value>Sobre</value></data>
+  <data name="Nav_Collapse" xml:space="preserve"><value>Recolher</value></data>
+  <data name="Nav_Expand" xml:space="preserve"><value>Expandir</value></data>
+  <data name="Nav_CollapseMenu" xml:space="preserve"><value>Recolher menu</value></data>
+  <data name="Nav_ExpandMenu" xml:space="preserve"><value>Expandir menu</value></data>
+  <data name="Nav_MainAria" xml:space="preserve"><value>Navegação principal</value></data>
+  <data name="Nav_AlertsActive" xml:space="preserve"><value>{0} alertas ativos</value></data>
+  <data name="Topbar_Aria" xml:space="preserve"><value>Barra superior</value></data>
+  <data name="Topbar_ActionsAria" xml:space="preserve"><value>Ações da barra superior</value></data>
+  <data name="Topbar_ApiOnline" xml:space="preserve"><value>API online</value></data>
+  <data name="Topbar_ApiChecking" xml:space="preserve"><value>Verificando</value></data>
+  <data name="Topbar_ApiOffline" xml:space="preserve"><value>API offline</value></data>
+  <data name="Topbar_Offline" xml:space="preserve"><value>Offline</value></data>
+  <data name="Topbar_SwitchLight" xml:space="preserve"><value>Mudar para modo claro</value></data>
+  <data name="Topbar_SwitchDark" xml:space="preserve"><value>Mudar para modo escuro</value></data>
+  <data name="Topbar_LightMode" xml:space="preserve"><value>Modo claro</value></data>
+  <data name="Topbar_DarkMode" xml:space="preserve"><value>Modo escuro</value></data>
+  <data name="Layout_MainContentAria" xml:space="preserve"><value>Conteúdo principal</value></data>
+  <data name="Common_Retry" xml:space="preserve"><value>Tentar novamente</value></data>
+  <data name="Common_Refresh" xml:space="preserve"><value>Atualizar</value></data>
+  <data name="Common_Updated" xml:space="preserve"><value>Atualizado {0}</value></data>
+  <data name="Common_Since" xml:space="preserve"><value>Desde {0}</value></data>
+  <data name="Common_Startup" xml:space="preserve"><value>inicialização</value></data>
+  <data name="Common_BlockRateOf" xml:space="preserve"><value>{0}% de bloqueio</value></data>
+  <data name="Common_ViewAll" xml:space="preserve"><value>Ver todos →</value></data>
+  <data name="Settings_PageTitle" xml:space="preserve"><value>Configurações - ThrottleWatch</value></data>
+  <data name="Settings_Title" xml:space="preserve"><value>Configurações</value></data>
+  <data name="Settings_Subtitle" xml:space="preserve"><value>Configurações e preferências do dashboard</value></data>
+  <data name="Settings_Appearance" xml:space="preserve"><value>Aparência</value></data>
+  <data name="Settings_Theme" xml:space="preserve"><value>Tema</value></data>
+  <data name="Settings_DarkMode" xml:space="preserve"><value>Modo Escuro</value></data>
+  <data name="Settings_LightMode" xml:space="preserve"><value>Modo Claro</value></data>
+  <data name="Settings_Language" xml:space="preserve"><value>Idioma</value></data>
+  <data name="Settings_LanguageLabel" xml:space="preserve"><value>Idioma de exibição</value></data>
+  <data name="Settings_LanguageHint" xml:space="preserve"><value>A preferência é salva em cookie e aplicada no próximo carregamento completo (cookie de cultura do ASP.NET Core).</value></data>
+  <data name="Settings_LanguagePt" xml:space="preserve"><value>Português (Brasil)</value></data>
+  <data name="Settings_LanguageEn" xml:space="preserve"><value>English</value></data>
+  <data name="Settings_LanguageChanged" xml:space="preserve"><value>Idioma atualizado</value></data>
+  <data name="Settings_ApiConnection" xml:space="preserve"><value>Conexão com a API</value></data>
+  <data name="Settings_ApiBaseUrl" xml:space="preserve"><value>URL Base da API</value></data>
+  <data name="Settings_ApiBaseUrlHint" xml:space="preserve"><value>Configurado via appsettings.json</value></data>
+  <data name="Settings_RefreshInterval" xml:space="preserve"><value>Intervalo de Atualização (polling HTTP)</value></data>
+  <data name="Settings_Seconds" xml:space="preserve"><value>{0} segundos</value></data>
+  <data name="Settings_ConnectionBanner" xml:space="preserve"><value>As configurações de conexão são definidas via appsettings.json e requerem reinicialização para ter efeito.</value></data>
+  <data name="Settings_AboutDashboard" xml:space="preserve"><value>Sobre o Dashboard</value></data>
+  <data name="Settings_Version" xml:space="preserve"><value>Versão</value></data>
+  <data name="Settings_Framework" xml:space="preserve"><value>Framework</value></data>
+  <data name="Settings_RenderMode" xml:space="preserve"><value>Modo de Renderização</value></data>
+  <data name="Settings_Charts" xml:space="preserve"><value>Gráficos</value></data>
+  <data name="Settings_ThemeDarkToast" xml:space="preserve"><value>Modo escuro ativado</value></data>
+  <data name="Settings_ThemeLightToast" xml:space="preserve"><value>Modo claro ativado</value></data>
+  <data name="Overview_PageTitle" xml:space="preserve"><value>Visão Geral — ThrottleWatch</value></data>
+  <data name="Overview_Title" xml:space="preserve"><value>Visão Geral</value></data>
+  <data name="Overview_Subtitle" xml:space="preserve"><value>Métricas de rate limiting via API REST</value></data>
+  <data name="Overview_RefreshAria" xml:space="preserve"><value>Atualizar dados do dashboard</value></data>
+  <data name="Overview_ErrorTitle" xml:space="preserve"><value>Erro ao carregar o dashboard</value></data>
+  <data name="Overview_ErrorMessage" xml:space="preserve"><value>Verifique se a API do ThrottleWatch está em execução e acessível.</value></data>
+  <data name="Overview_MetricsPrimaryAria" xml:space="preserve"><value>Métricas principais</value></data>
+  <data name="Overview_MetricsSecondaryAria" xml:space="preserve"><value>Métricas secundárias</value></data>
+  <data name="Overview_TotalRequests" xml:space="preserve"><value>Total de Requisições</value></data>
+  <data name="Overview_Allowed" xml:space="preserve"><value>Permitidas</value></data>
+  <data name="Overview_Blocked" xml:space="preserve"><value>Bloqueadas</value></data>
+  <data name="Overview_ReqPerSec" xml:space="preserve"><value>Req/s</value></data>
+  <data name="Overview_AvgLatency" xml:space="preserve"><value>Latência Média</value></data>
+  <data name="Overview_ActiveClients" xml:space="preserve"><value>Clientes Ativos</value></data>
+  <data name="Overview_BlockRate" xml:space="preserve"><value>Taxa de Bloqueio</value></data>
+  <data name="Overview_Availability" xml:space="preserve"><value>Disponibilidade</value></data>
+  <data name="Overview_RequestsOverTime" xml:space="preserve"><value>Requisições ao Longo do Tempo</value></data>
+  <data name="Overview_Last60Min" xml:space="preserve"><value>Últimos 60 minutos</value></data>
+  <data name="Overview_TrafficDistribution" xml:space="preserve"><value>Distribuição de Tráfego</value></data>
+  <data name="Overview_AllowedVsBlocked" xml:space="preserve"><value>Permitidas vs Bloqueadas</value></data>
+  <data name="Overview_TopEndpoints" xml:space="preserve"><value>Top Endpoints</value></data>
+  <data name="Overview_TopClients" xml:space="preserve"><value>Top Clientes</value></data>
+  <data name="Endpoints_PageTitle" xml:space="preserve"><value>Endpoints - ThrottleWatch</value></data>
+  <data name="Endpoints_Title" xml:space="preserve"><value>Endpoints</value></data>
+  <data name="Endpoints_Subtitle" xml:space="preserve"><value>Métricas de rate limiting por endpoint</value></data>
+  <data name="Clients_PageTitle" xml:space="preserve"><value>Clientes - ThrottleWatch</value></data>
+  <data name="Clients_Title" xml:space="preserve"><value>Clientes</value></data>
+  <data name="Clients_Subtitle" xml:space="preserve"><value>Clientes e atividade de bloqueio</value></data>
+  <data name="Policies_PageTitle" xml:space="preserve"><value>Políticas - ThrottleWatch</value></data>
+  <data name="Policies_Title" xml:space="preserve"><value>Políticas</value></data>
+  <data name="Policies_Subtitle" xml:space="preserve"><value>Políticas de rate limiting configuradas</value></data>
+  <data name="Alerts_PageTitle" xml:space="preserve"><value>Alertas - ThrottleWatch</value></data>
+  <data name="Alerts_Title" xml:space="preserve"><value>Alertas</value></data>
+  <data name="Alerts_Subtitle" xml:space="preserve"><value>Regras e eventos de alerta</value></data>
+  <data name="History_PageTitle" xml:space="preserve"><value>Histórico - ThrottleWatch</value></data>
+  <data name="History_Title" xml:space="preserve"><value>Histórico</value></data>
+  <data name="History_Subtitle" xml:space="preserve"><value>Tendências históricas de requisições e rate limiting</value></data>
+  <data name="Insights_PageTitle" xml:space="preserve"><value>Insights - ThrottleWatch</value></data>
+  <data name="Insights_Title" xml:space="preserve"><value>Insights</value></data>
+  <data name="Insights_Subtitle" xml:space="preserve"><value>Recomendações inteligentes a partir do tráfego</value></data>
+  <data name="Health_PageTitle" xml:space="preserve"><value>Saúde - ThrottleWatch</value></data>
+  <data name="Health_Title" xml:space="preserve"><value>Saúde</value></data>
+  <data name="Health_Subtitle" xml:space="preserve"><value>Health checks da API e dependências</value></data>
+  <data name="About_PageTitle" xml:space="preserve"><value>Sobre - ThrottleWatch</value></data>
+  <data name="About_Title" xml:space="preserve"><value>Sobre</value></data>
+  <data name="About_Subtitle" xml:space="preserve"><value>Sobre o ThrottleWatch</value></data>
+  <data name="Time_JustNow" xml:space="preserve"><value>agora</value></data>
+  <data name="Time_SecondsAgo" xml:space="preserve"><value>há {0}s</value></data>
+  <data name="Time_MinutesAgo" xml:space="preserve"><value>há {0}m</value></data>
+  <data name="Time_HoursAgo" xml:space="preserve"><value>há {0}h</value></data>
+  <data name="Time_DaysAgo" xml:space="preserve"><value>há {0}d</value></data>
+  <data name="Overview_ByVolume" xml:space="preserve"><value>Por volume de requisições</value></data>
+  <data name="Common_Ago" xml:space="preserve"><value>{0} atrás</value></data>
+  <data name="History_SelectWindow" xml:space="preserve"><value>Selecionar período</value></data>
+  <data name="History_Last30Min" xml:space="preserve"><value>Últimos 30 min</value></data>
+  <data name="History_Last1Hour" xml:space="preserve"><value>Última 1 hora</value></data>
+  <data name="History_Last3Hours" xml:space="preserve"><value>Últimas 3 horas</value></data>
+  <data name="History_Last6Hours" xml:space="preserve"><value>Últimas 6 horas</value></data>
+  <data name="History_Last24Hours" xml:space="preserve"><value>Últimas 24 horas</value></data>
+  <data name="History_RequestVolume" xml:space="preserve"><value>Volume de Requisições</value></data>
+  <data name="History_LastPrefix" xml:space="preserve"><value>Últimos {0}</value></data>
+  <data name="History_TopEndpointsPeriod" xml:space="preserve"><value>Top Endpoints no Período</value></data>
+  <data name="History_ByTotalRequests" xml:space="preserve"><value>Por total de requisições</value></data>
+  <data name="History_ErrorLoad" xml:space="preserve"><value>Erro ao carregar histórico</value></data>
+  <data name="History_Window30Min" xml:space="preserve"><value>30 minutos</value></data>
+  <data name="History_Window1Hour" xml:space="preserve"><value>1 hora</value></data>
+  <data name="History_Window3Hours" xml:space="preserve"><value>3 horas</value></data>
+  <data name="History_Window6Hours" xml:space="preserve"><value>6 horas</value></data>
+  <data name="History_Window24Hours" xml:space="preserve"><value>24 horas</value></data>
+  <data name="History_WindowMinutes" xml:space="preserve"><value>{0} minutos</value></data>
+  <data name="Endpoints_SearchPlaceholder" xml:space="preserve"><value>Buscar endpoints...</value></data>
+  <data name="Endpoints_SearchAria" xml:space="preserve"><value>Buscar endpoints</value></data>
+  <data name="Endpoints_RefreshAria" xml:space="preserve"><value>Atualizar endpoints</value></data>
+  <data name="Endpoints_ErrorLoad" xml:space="preserve"><value>Erro ao carregar endpoints</value></data>
+  <data name="Endpoints_AllTitle" xml:space="preserve"><value>Todos os Endpoints</value></data>
+  <data name="Endpoints_CountSubtitle" xml:space="preserve"><value>{0} endpoints</value></data>
+  <data name="Clients_SearchPlaceholder" xml:space="preserve"><value>Buscar por IP...</value></data>
+  <data name="Clients_SearchAria" xml:space="preserve"><value>Buscar clientes por IP</value></data>
+  <data name="Clients_RiskFilterAria" xml:space="preserve"><value>Filtrar por nível de risco</value></data>
+  <data name="Clients_AllRisks" xml:space="preserve"><value>Todos os riscos</value></data>
+  <data name="Clients_RefreshAria" xml:space="preserve"><value>Atualizar clientes</value></data>
+  <data name="Clients_ErrorLoad" xml:space="preserve"><value>Erro ao carregar clientes</value></data>
+  <data name="Clients_Total" xml:space="preserve"><value>Total de Clientes</value></data>
+  <data name="Clients_BlockedNow" xml:space="preserve"><value>Bloqueados Agora</value></data>
+  <data name="Clients_HighRisk" xml:space="preserve"><value>Alto risco</value></data>
+  <data name="Clients_ActiveToday" xml:space="preserve"><value>Ativos hoje</value></data>
+  <data name="Clients_AllTitle" xml:space="preserve"><value>Todos os Clientes</value></data>
+  <data name="Clients_CountSubtitle" xml:space="preserve"><value>{0} clientes</value></data>
+  <data name="Insights_ErrorLoad" xml:space="preserve"><value>Erro ao carregar insights</value></data>
+  <data name="Insights_EmptyTitle" xml:space="preserve"><value>Nenhum insight disponível</value></data>
+  <data name="Insights_Dismiss" xml:space="preserve"><value>Dispensar</value></data>
+  <data name="Insights_DismissError" xml:space="preserve"><value>Não foi possível dispensar o insight.</value></data>
+  <data name="Insights_TypeSuspicious" xml:space="preserve"><value>Cliente suspeito</value></data>
+  <data name="Insights_TypeMisconfigured" xml:space="preserve"><value>Política mal configurada</value></data>
+  <data name="Insights_Critical" xml:space="preserve"><value>Críticos</value></data>
+  <data name="Insights_Warnings" xml:space="preserve"><value>Avisos</value></data>
+  <data name="Insights_Info" xml:space="preserve"><value>Info</value></data>
+  <data name="Policies_ErrorLoad" xml:space="preserve"><value>Erro ao carregar políticas</value></data>
+  <data name="Policies_EmptyTitle" xml:space="preserve"><value>Nenhuma política configurada</value></data>
+  <data name="Policies_EmptyMessage" xml:space="preserve"><value>As políticas aparecem quando o rate limiting é configurado na sua aplicação ASP.NET Core.</value></data>
+  <data name="Health_ErrorLoad" xml:space="preserve"><value>Erro ao carregar saúde</value></data>
+  <data name="Health_EmptyTitle" xml:space="preserve"><value>Nenhum health check registrado</value></data>
+  <data name="Health_EmptyMessage" xml:space="preserve"><value>Adicione health checks à sua aplicação ASP.NET Core para vê-los aqui.</value></data>
+  <data name="Overview_NoClients" xml:space="preserve"><value>Nenhum cliente registrado ainda</value></data>
+  <data name="Alerts_ErrorLoad" xml:space="preserve"><value>Erro ao carregar alertas</value></data>
+  <data name="Alerts_NoEvents" xml:space="preserve"><value>Nenhum evento</value></data>
+  <data name="Alerts_NoEventsMessage" xml:space="preserve"><value>Os eventos aparecem quando uma regra de alerta é disparada.</value></data>
+  <data name="Alerts_NoRules" xml:space="preserve"><value>Nenhuma regra</value></data>
+  <data name="Alerts_NoRulesMessage" xml:space="preserve"><value>Crie uma regra para disparar alertas quando o block rate ultrapassar o threshold.</value></data>
+  <data name="Alerts_Cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="Alerts_Save" xml:space="preserve"><value>Salvar</value></data>
+  <data name="Alerts_Saving" xml:space="preserve"><value>Salvando...</value></data>
+  <data name="Common_RiskLow" xml:space="preserve"><value>Baixo</value></data>
+  <data name="Common_RiskMedium" xml:space="preserve"><value>Médio</value></data>
+  <data name="Common_RiskHigh" xml:space="preserve"><value>Alto</value></data>
+  <data name="Common_RiskCritical" xml:space="preserve"><value>Crítico</value></data>
+  <data name="Insights_EmptyMessage" xml:space="preserve"><value>Os insights são gerados após coletar dados de tráfego suficientes. Volte após sua aplicação receber mais requisições.</value></data>
+  <data name="Insights_Dismissed" xml:space="preserve"><value>Insight dispensado.</value></data>
+  <data name="Insights_Resource" xml:space="preserve"><value>Recurso:</value></data>
+  <data name="Insights_TypeHighBlockRate" xml:space="preserve"><value>Alta taxa de bloqueio</value></data>
+  <data name="Insights_TypePeakHours" xml:space="preserve"><value>Horário de pico</value></data>
+  <data name="Insights_TypeUnusual" xml:space="preserve"><value>Padrão incomum</value></data>
+  <data name="Health_ApiUnreachable" xml:space="preserve"><value>API Inacessível</value></data>
+  <data name="Health_ApiUnreachableMessage" xml:space="preserve"><value>Não foi possível conectar à API do ThrottleWatch. Verifique se a aplicação está em execução.</value></data>
+  <data name="Health_OverallStatus" xml:space="preserve"><value>Status Geral: {0}</value></data>
+  <data name="Health_TotalDuration" xml:space="preserve"><value>Duração total das verificações: {0} ms</value></data>
+  <data name="Alerts_Subtitle_Events" xml:space="preserve"><value>Regras e eventos disparados</value></data>
+  <data name="Alerts_TabsAria" xml:space="preserve"><value>Seções de alertas</value></data>
+  <data name="Alerts_TabEvents" xml:space="preserve"><value>Eventos</value></data>
+  <data name="Alerts_TabRules" xml:space="preserve"><value>Regras</value></data>
+  <data name="Alerts_NewRule" xml:space="preserve"><value>Nova regra</value></data>
+  <data name="Alerts_EditRule" xml:space="preserve"><value>Editar regra</value></data>
+  <data name="Alerts_MetricTotal" xml:space="preserve"><value>Total</value></data>
+  <data name="Alerts_MetricActive" xml:space="preserve"><value>Ativos</value></data>
+  <data name="Alerts_MetricCritical" xml:space="preserve"><value>Críticos</value></data>
+  <data name="Alerts_MetricAcknowledged" xml:space="preserve"><value>Reconhecidos</value></data>
+  <data name="Alerts_Acknowledge" xml:space="preserve"><value>Reconhecer</value></data>
+  <data name="Alerts_ConfiguredRules" xml:space="preserve"><value>Regras configuradas</value></data>
+  <data name="Alerts_RulesCount" xml:space="preserve"><value>{0} regra(s)</value></data>
+  <data name="Alerts_ColName" xml:space="preserve"><value>Nome</value></data>
+  <data name="Alerts_ColCondition" xml:space="preserve"><value>Condição</value></data>
+  <data name="Alerts_ColThreshold" xml:space="preserve"><value>Threshold</value></data>
+  <data name="Alerts_ColSeverity" xml:space="preserve"><value>Severidade</value></data>
+  <data name="Alerts_ColCooldown" xml:space="preserve"><value>Cooldown</value></data>
+  <data name="Alerts_ColStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="Alerts_Enabled" xml:space="preserve"><value>Ativa</value></data>
+  <data name="Alerts_Disabled" xml:space="preserve"><value>Desativada</value></data>
+  <data name="Alerts_Edit" xml:space="preserve"><value>Editar</value></data>
+  <data name="Alerts_Delete" xml:space="preserve"><value>Excluir</value></data>
+  <data name="Alerts_Close" xml:space="preserve"><value>Fechar</value></data>
+  <data name="Alerts_Name" xml:space="preserve"><value>Nome</value></data>
+  <data name="Alerts_Description" xml:space="preserve"><value>Descrição</value></data>
+  <data name="Alerts_Condition" xml:space="preserve"><value>Condição</value></data>
+  <data name="Alerts_ConditionHint" xml:space="preserve"><value>Avaliada a cada minuto sobre a janela dos últimos 5 minutos.</value></data>
+  <data name="Alerts_ThresholdPercent" xml:space="preserve"><value>Threshold (%)</value></data>
+  <data name="Alerts_CooldownMinutes" xml:space="preserve"><value>Cooldown (minutos)</value></data>
+  <data name="Alerts_Severity" xml:space="preserve"><value>Severidade</value></data>
+  <data name="Alerts_RuleEnabled" xml:space="preserve"><value>Regra habilitada</value></data>
+  <data name="Alerts_RuleDisabled" xml:space="preserve"><value>Regra desabilitada</value></data>
+  <data name="Alerts_DeleteTitle" xml:space="preserve"><value>Excluir regra</value></data>
+  <data name="Alerts_DeleteMessage" xml:space="preserve"><value>Excluir a regra '{0}'? Esta ação não pode ser desfeita.</value></data>
+  <data name="Alerts_SaveError" xml:space="preserve"><value>Não foi possível salvar a regra. Verifique a API e tente novamente.</value></data>
+  <data name="Alerts_DeleteError" xml:space="preserve"><value>Não foi possível excluir a regra.</value></data>
+  <data name="Alerts_AckError" xml:space="preserve"><value>Não foi possível reconhecer o evento.</value></data>
+  <data name="Alerts_Saved" xml:space="preserve"><value>Regra salva.</value></data>
+  <data name="Alerts_Deleted" xml:space="preserve"><value>Regra excluída.</value></data>
+  <data name="Alerts_Acknowledged" xml:space="preserve"><value>Evento reconhecido.</value></data>
+  <data name="Common_EmptyDefault" xml:space="preserve"><value>Nenhum dado disponível</value></data>
+  <data name="NotFound_Title" xml:space="preserve"><value>Página não encontrada — ThrottleWatch</value></data>
+  <data name="NotFound_Heading" xml:space="preserve"><value>Página não encontrada</value></data>
+  <data name="NotFound_Message" xml:space="preserve"><value>A página que você está procurando não existe.</value></data>
+  <data name="NotFound_Back" xml:space="preserve"><value>Voltar ao Dashboard</value></data>
+  <data name="Alerts_Created" xml:space="preserve"><value>Regra criada.</value></data>
+  <data name="Alerts_Updated" xml:space="preserve"><value>Regra atualizada.</value></data>
+  <data name="Policies_Active" xml:space="preserve"><value>Ativa</value></data>
+  <data name="Policies_Inactive" xml:space="preserve"><value>Inativa</value></data>
+  <data name="Policies_Limit" xml:space="preserve"><value>Limite</value></data>
+  <data name="Policies_Window" xml:space="preserve"><value>Janela</value></data>
+  <data name="Policies_TotalReq" xml:space="preserve"><value>Total de Req.</value></data>
+  <data name="Policies_Rejected" xml:space="preserve"><value>Rejeitadas</value></data>
+  <data name="Policies_RejectionRate" xml:space="preserve"><value>Taxa de Rejeição</value></data>
+  <data name="Policies_ActiveConnections" xml:space="preserve"><value>{0} conexões ativas</value></data>
+  <data name="About_WhatTitle" xml:space="preserve"><value>O que é o ThrottleWatch?</value></data>
+  <data name="About_WhatBody" xml:space="preserve"><value>ThrottleWatch é uma camada de observabilidade open source para o Rate Limiting do ASP.NET Core. Oferece monitoramento em tempo real, análises históricas, alertas inteligentes e insights para ajudá-lo a entender o desempenho das suas políticas de rate limiting e como os clientes interagem com suas APIs.</value></data>
+  <data name="About_Architecture" xml:space="preserve"><value>Arquitetura</value></data>
+  <data name="About_TechStack" xml:space="preserve"><value>Stack de Tecnologia</value></data>
+  <data name="About_OpenSource" xml:space="preserve"><value>Open Source</value></data>
+  <data name="About_OpenSourceBody" xml:space="preserve"><value>ThrottleWatch é distribuído sob a Licença MIT. Contribuições são bem-vindas!</value></data>
+  <data name="About_GitHub" xml:space="preserve"><value>Repositório GitHub</value></data>
+  <data name="About_Comp_Middleware" xml:space="preserve"><value>ThrottleWatch Middleware</value></data>
+  <data name="About_Comp_MiddlewareDesc" xml:space="preserve"><value>Intercepta requisições HTTP, registra métricas e avalia políticas de rate limiting em O(1)</value></data>
+  <data name="About_Comp_Queue" xml:space="preserve"><value>Fila em Memória</value></data>
+  <data name="About_Comp_QueueDesc" xml:space="preserve"><value>Buffer thread-safe via System.Threading.Channels para coleta de métricas de alta vazão</value></data>
+  <data name="About_Comp_Worker" xml:space="preserve"><value>Background Worker</value></data>
+  <data name="About_Comp_WorkerDesc" xml:space="preserve"><value>IHostedService que persiste métricas em lote no PostgreSQL sem bloquear as requisições</value></data>
+  <data name="About_Comp_Api" xml:space="preserve"><value>API REST</value></data>
+  <data name="About_Comp_ApiDesc" xml:space="preserve"><value>Minimal APIs para ingestão e consulta de métricas, alertas e insights</value></data>
+  <data name="About_Comp_Dashboard" xml:space="preserve"><value>Blazor Dashboard</value></data>
+  <data name="About_Comp_DashboardDesc" xml:space="preserve"><value>Dashboard com Interactive Server Rendering, gráficos e atualização via polling HTTP</value></data>
+  <data name="About_Comp_Db" xml:space="preserve"><value>PostgreSQL + EF Core</value></data>
+  <data name="About_Comp_DbDesc" xml:space="preserve"><value>Armazenamento de séries temporais para análises históricas e tendências de longo prazo</value></data>
+  <data name="About_Tech_Communication" xml:space="preserve"><value>Comunicação</value></data>
+  <data name="About_Tech_Charts" xml:space="preserve"><value>Gráficos</value></data>
+  <data name="About_Tech_Database" xml:space="preserve"><value>Banco de Dados</value></data>
+  <data name="About_Tech_License" xml:space="preserve"><value>Licença</value></data>
+  <data name="Validation_NameRequired" xml:space="preserve"><value>Nome é obrigatório.</value></data>
+  <data name="Validation_NameMax" xml:space="preserve"><value>Nome deve ter no máximo 100 caracteres.</value></data>
+  <data name="Validation_DescriptionMax" xml:space="preserve"><value>Descrição deve ter no máximo 500 caracteres.</value></data>
+  <data name="Validation_ConditionRequired" xml:space="preserve"><value>Condição é obrigatória.</value></data>
+  <data name="Validation_ConditionMax" xml:space="preserve"><value>Condição deve ter no máximo 500 caracteres.</value></data>
+  <data name="Validation_ThresholdMin" xml:space="preserve"><value>Threshold deve ser maior ou igual a 0.</value></data>
+  <data name="Validation_CooldownMin" xml:space="preserve"><value>Cooldown deve ser maior ou igual a 0.</value></data>
+</root>

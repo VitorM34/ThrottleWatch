@@ -2,67 +2,97 @@
 @inject IThemeService ThemeService
 @inject IToastService ToastService
 @inject IOptions<ThrottleWatchOptions> Options
+@inject NavigationManager Navigation
+@using System.Globalization
 @using Microsoft.Extensions.Options
+@using ThrottleWatch.Dashboard.Localization
 
-<PageTitle>Configurações - ThrottleWatch</PageTitle>
+<PageTitle>@L["Settings_PageTitle"]</PageTitle>
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Configurações</h1>
-        <p class="page-subtitle">Configurações e preferências do dashboard</p>
+        <h1 class="page-title">@L["Settings_Title"]</h1>
+        <p class="page-subtitle">@L["Settings_Subtitle"]</p>
     </div>
 </div>
 
 <div style="max-width: 640px; display: flex; flex-direction: column; gap: 24px;">
-    <ContentCard Title="Aparência">
+    <ContentCard Title="@L["Settings_Appearance"]">
         <div class="form-group">
-            <label class="form-label">Tema</label>
+            <label class="form-label">@L["Settings_Theme"]</label>
             <div style="display: flex; gap: 12px; margin-top: 4px;">
                 <button class="btn @(ThemeService.IsDarkMode ? "btn--primary" : "btn--ghost")"
                         @onclick='() => SetTheme(true)'
-                        aria-pressed="@ThemeService.IsDarkMode.ToString().ToLowerInvariant()">
-                    <Icon Name="moon" Size="sm" /> Modo Escuro
+                        aria-pressed="@(ThemeService.IsDarkMode.ToString().ToLowerInvariant())">
+                    <Icon Name="moon" Size="sm" /> @L["Settings_DarkMode"]
                 </button>
                 <button class="btn @(!ThemeService.IsDarkMode ? "btn--primary" : "btn--ghost")"
                         @onclick='() => SetTheme(false)'
-                        aria-pressed="@(!ThemeService.IsDarkMode).ToString().ToLowerInvariant()">
-                    <Icon Name="sun" Size="sm" /> Modo Claro
+                        aria-pressed="@((!ThemeService.IsDarkMode).ToString().ToLowerInvariant())">
+                    <Icon Name="sun" Size="sm" /> @L["Settings_LightMode"]
                 </button>
             </div>
         </div>
     </ContentCard>
 
-    <ContentCard Title="Conexão com a API">
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-            <div class="form-group">
-                <label class="form-label">URL Base da API</label>
-                <input type="url" class="form-control" value="@Options.Value.ApiBaseUrl" readonly aria-label="URL Base da API" />
-                <small style="color: var(--tw-text-muted); font-size: 0.8125rem;">Configurado via appsettings.json</small>
+    <ContentCard Title="@L["Settings_Language"]">
+        <div class="form-group">
+            <label class="form-label">@L["Settings_LanguageLabel"]</label>
+            <div style="display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap;">
+                @* Plain links (not @onclick): culture cookie must be set via full HTTP navigation. *@
+                <a class="btn @(_currentCulture == "pt-BR" ? "btn--primary" : "btn--ghost")"
+                   href="@GetCultureUrl("pt-BR")"
+                   data-enhance-nav="false"
+                   aria-pressed="@(_currentCulture == "pt-BR").ToString().ToLowerInvariant()">
+                    @L["Settings_LanguagePt"]
+                </a>
+                <a class="btn @(_currentCulture == "en" ? "btn--primary" : "btn--ghost")"
+                   href="@GetCultureUrl("en")"
+                   data-enhance-nav="false"
+                   aria-pressed="@(_currentCulture == "en").ToString().ToLowerInvariant()">
+                    @L["Settings_LanguageEn"]
+                </a>
             </div>
-            <div class="form-group">
-                <label class="form-label">Intervalo de Atualização (polling HTTP)</label>
-                <input type="text" class="form-control" value="@Options.Value.RefreshIntervalSeconds segundos" readonly aria-label="Intervalo de atualização" />
-            </div>
-            <AlertBanner Variant="info" Message="As configurações de conexão são definidas via appsettings.json e requerem reinicialização para ter efeito." />
+            <small style="color: var(--tw-text-muted); font-size: 0.8125rem; display: block; margin-top: 8px;">
+                @L["Settings_LanguageHint"]
+            </small>
         </div>
     </ContentCard>
 
-    <ContentCard Title="Sobre o Dashboard">
+    <ContentCard Title="@L["Settings_ApiConnection"]">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="form-group">
+                <label class="form-label">@L["Settings_ApiBaseUrl"]</label>
+                <input type="url" class="form-control" value="@Options.Value.ApiBaseUrl" readonly aria-label="@L["Settings_ApiBaseUrl"]" />
+                <small style="color: var(--tw-text-muted); font-size: 0.8125rem;">@L["Settings_ApiBaseUrlHint"]</small>
+            </div>
+            <div class="form-group">
+                <label class="form-label">@L["Settings_RefreshInterval"]</label>
+                <input type="text" class="form-control"
+                       value="@string.Format(L["Settings_Seconds"].Value, Options.Value.RefreshIntervalSeconds)"
+                       readonly
+                       aria-label="@L["Settings_RefreshInterval"]" />
+            </div>
+            <AlertBanner Variant="info" Message="@L["Settings_ConnectionBanner"]" />
+        </div>
+    </ContentCard>
+
+    <ContentCard Title="@L["Settings_AboutDashboard"]">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div style="display: flex; flex-direction: column; gap: 2px;">
-                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Versão</span>
+                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">@L["Settings_Version"]</span>
                 <span style="font-size: 0.9375rem; font-weight: 600; color: var(--tw-text-primary);">1.0.0</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 2px;">
-                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Framework</span>
+                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">@L["Settings_Framework"]</span>
                 <span style="font-size: 0.9375rem; font-weight: 600; color: var(--tw-text-primary);">.NET 10 / Blazor Web App</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 2px;">
-                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Modo de Renderização</span>
+                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">@L["Settings_RenderMode"]</span>
                 <span style="font-size: 0.9375rem; font-weight: 600; color: var(--tw-text-primary);">Interactive Server</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 2px;">
-                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Gráficos</span>
+                <span style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">@L["Settings_Charts"]</span>
                 <span style="font-size: 0.9375rem; font-weight: 600; color: var(--tw-text-primary);">Blazor-ApexCharts 6.1</span>
             </div>
         </div>
@@ -70,9 +100,26 @@
 </div>
 
 @code {
+    private string _currentCulture = LocalizationConstants.DefaultCulture;
+
+    protected override void OnInitialized()
+    {
+        var name = CultureInfo.CurrentUICulture.Name;
+        _currentCulture = LocalizationConstants.SupportedCultures.Contains(name, StringComparer.OrdinalIgnoreCase)
+            ? name
+            : LocalizationConstants.DefaultCulture;
+    }
+
     private void SetTheme(bool isDark)
     {
         ThemeService.SetDarkMode(isDark);
-        ToastService.ShowSuccess(isDark ? "Modo escuro ativado" : "Modo claro ativado");
+        ToastService.ShowSuccess(isDark ? L["Settings_ThemeDarkToast"] : L["Settings_ThemeLightToast"]);
+    }
+
+    private string GetCultureUrl(string culture)
+    {
+        var uri = new Uri(Navigation.Uri)
+            .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+        return $"/Culture/Set?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
     }
 }

@@ -2,37 +2,37 @@
 @inject IMetricsService MetricsService
 @implements IDisposable
 
-<PageTitle>Histórico - ThrottleWatch</PageTitle>
+<PageTitle>@L["History_PageTitle"]</PageTitle>
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Histórico</h1>
-        <p class="page-subtitle">Tendências históricas de requisições e rate limiting</p>
+        <h1 class="page-title">@L["History_Title"]</h1>
+        <p class="page-subtitle">@L["History_Subtitle"]</p>
     </div>
     <div class="page-actions">
-        <select class="form-control" style="width: 160px;" @bind="_window" @bind:after="LoadDataAsync" aria-label="Selecionar período">
-            <option value="30">Últimos 30 min</option>
-            <option value="60">Última 1 hora</option>
-            <option value="180">Últimas 3 horas</option>
-            <option value="360">Últimas 6 horas</option>
-            <option value="1440">Últimas 24 horas</option>
+        <select class="form-control" style="width: 160px;" @bind="_window" @bind:after="LoadDataAsync" aria-label="@L["History_SelectWindow"]">
+            <option value="30">@L["History_Last30Min"]</option>
+            <option value="60">@L["History_Last1Hour"]</option>
+            <option value="180">@L["History_Last3Hours"]</option>
+            <option value="360">@L["History_Last6Hours"]</option>
+            <option value="1440">@L["History_Last24Hours"]</option>
         </select>
-        <button class="btn btn--secondary btn--sm" @onclick="LoadDataAsync" disabled="@_isLoading">Atualizar</button>
+        <button class="btn btn--secondary btn--sm" @onclick="LoadDataAsync" disabled="@_isLoading">@L["Common_Refresh"]</button>
     </div>
 </div>
 
 @if (_hasError)
 {
-    <ErrorState Title="Erro ao carregar histórico" OnRetry="LoadDataAsync" />
+    <ErrorState Title="@L["History_ErrorLoad"]" OnRetry="LoadDataAsync" />
 }
 else
 {
-    <ContentCard Title="Volume de Requisições" Subtitle="@($"Últimos {GetWindowLabel()}")">
+    <ContentCard Title="@L["History_RequestVolume"]" Subtitle="@string.Format(L["History_LastPrefix"].Value, GetWindowLabel())">
         <RequestsLineChart SeriesData="_timeSeries" IsLoading="_isLoading" />
     </ContentCard>
 
     <div style="margin-top: 24px;">
-        <ContentCard Title="Top Endpoints no Período" Subtitle="Por total de requisições">
+        <ContentCard Title="@L["History_TopEndpointsPeriod"]" Subtitle="@L["History_ByTotalRequests"]">
             <TopEndpointsBarChart Endpoints="_endpoints" IsLoading="_isLoading" />
         </ContentCard>
     </div>
@@ -68,12 +68,12 @@ else
 
     private string GetWindowLabel() => _window switch
     {
-        30 => "30 minutos",
-        60 => "1 hora",
-        180 => "3 horas",
-        360 => "6 horas",
-        1440 => "24 horas",
-        _ => $"{_window} minutos"
+        30 => L["History_Window30Min"],
+        60 => L["History_Window1Hour"],
+        180 => L["History_Window3Hours"],
+        360 => L["History_Window6Hours"],
+        1440 => L["History_Window24Hours"],
+        _ => string.Format(L["History_WindowMinutes"].Value, _window)
     };
 
     public void Dispose()

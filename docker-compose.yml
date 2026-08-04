@@ -69,8 +69,12 @@ services:
       # Blazor Server calls the API from inside the network
       ThrottleWatch__ApiBaseUrl: http://api:8080
       ThrottleWatch__RefreshIntervalSeconds: ${DASHBOARD_REFRESH_SECONDS:-5}
+      DataProtection__KeysPath: /keys
     ports:
       - "${DASHBOARD_PORT:-5100}:8080"
+    volumes:
+      # Keep DataProtection keys so culture/antiforgery cookies survive recreates
+      - throttlewatch_dpkeys:/keys
     networks:
       - internal
 
@@ -105,3 +109,4 @@ networks:
 
 volumes:
   throttlewatch_pgdata:
+  throttlewatch_dpkeys:

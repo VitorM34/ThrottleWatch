@@ -7,9 +7,9 @@
 
 <header class="topbar @(_sidebarCollapsed ? "topbar--collapsed" : "")"
         role="banner"
-        aria-label="Barra superior">
+        aria-label="@L["Topbar_Aria"]">
 
-    <div class="topbar__breadcrumb" aria-label="Navegação">
+    <div class="topbar__breadcrumb" aria-label="@L["Nav_MainAria"]">
         <span class="topbar__breadcrumb-item">ThrottleWatch</span>
         @if (!string.IsNullOrEmpty(PageTitle))
         {
@@ -19,9 +19,9 @@
         }
     </div>
 
-    <div class="topbar__actions" role="toolbar" aria-label="Ações da barra superior">
+    <div class="topbar__actions" role="toolbar" aria-label="@L["Topbar_ActionsAria"]">
         <div class="connection-indicator connection-indicator--@_connectionState.ToString().ToLowerInvariant()"
-             aria-label="Status da API: @_connectionState"
+             aria-label="@GetConnectionLabel()"
              role="status"
              aria-live="polite">
             <div class="connection-indicator__dot" aria-hidden="true"></div>
@@ -32,8 +32,8 @@
 
         <button class="btn btn--ghost btn--icon"
                 @onclick="ToggleTheme"
-                aria-label="@(ThemeService.IsDarkMode ? "Mudar para modo claro" : "Mudar para modo escuro")"
-                title="@(ThemeService.IsDarkMode ? "Modo claro" : "Modo escuro")">
+                aria-label="@(ThemeService.IsDarkMode ? L["Topbar_SwitchLight"] : L["Topbar_SwitchDark"])"
+                title="@(ThemeService.IsDarkMode ? L["Topbar_LightMode"] : L["Topbar_DarkMode"])">
             @if (ThemeService.IsDarkMode)
             {
                 <Icon Name="sun" Size="lg" />
@@ -105,10 +105,10 @@
 
     private string GetConnectionLabel() => _connectionState switch
     {
-        ConnectionState.Connected => "API online",
-        ConnectionState.Connecting => "Verificando",
-        ConnectionState.Failed => "API offline",
-        _ => "Offline"
+        ConnectionState.Connected => L["Topbar_ApiOnline"],
+        ConnectionState.Connecting => L["Topbar_ApiChecking"],
+        ConnectionState.Failed => L["Topbar_ApiOffline"],
+        _ => L["Topbar_Offline"]
     };
 
     public async ValueTask DisposeAsync()
