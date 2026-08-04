@@ -1,7 +1,9 @@
 # ThrottleWatch — local development stack
-# Usage: make up  |  make down  |  make health
+# Usage: make up  |  make demo  |  make demo-rebuild  |  make down  |  make health
 #
 # Defaults work without a .env file. Copy .env.example to override.
+# Profile "demo" adds the sample API (rate-limited traffic → metrics).
+# make demo is fast (no image rebuild); use make demo-rebuild after code changes.
 
 name: throttlewatch
 
@@ -69,6 +71,31 @@ services:
       ThrottleWatch__RefreshIntervalSeconds: ${DASHBOARD_REFRESH_SECONDS:-5}
     ports:
       - "${DASHBOARD_PORT:-5100}:8080"
+    networks:
+      - internal
+
+  # Opt-in via: docker compose --profile demo up  |  make demo
+  sample:
+    profiles: ["demo"]
+    build:
+      context: .
+      dockerfile: samples/WebApiWithPolicies/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *aspnet-environment
+      # Container → API hostname on the compose network
+      ThrottleWatch__ApiBaseUrl: http://api:8080
+    ports:
+      - "${SAMPLE_PORT:-5299}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 25s
     networks:
       - internal
 

@@ -15,7 +15,7 @@
     {
         <ApexChart TItem="DonutSlice"
                    Options="_options"
-                   @ref="_chart">
+                   @key="_chartKey">
             <ApexPointSeries TItem="DonutSlice"
                              Items="_slices"
                              SeriesType="SeriesType.Donut"
@@ -31,9 +31,9 @@
     [Parameter] public long Blocked { get; set; }
     [Parameter] public bool IsLoading { get; set; }
 
-    private ApexChart<DonutSlice>? _chart;
     private ApexChartOptions<DonutSlice> _options = null!;
     private List<DonutSlice> _slices = [];
+    private string _chartKey = "empty";
 
     private long Total => Allowed + Blocked;
 
@@ -42,7 +42,7 @@
         _options = BuildOptions();
     }
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         _slices =
         [
@@ -50,8 +50,9 @@
             new("Blocked", Blocked)
         ];
 
-        if (_chart is not null)
-            await _chart.RenderAsync();
+        _chartKey = IsLoading || Total == 0
+            ? "empty"
+            : $"{Allowed}:{Blocked}";
     }
 
     private static ApexChartOptions<DonutSlice> BuildOptions() => new()

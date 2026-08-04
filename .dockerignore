@@ -18,7 +18,7 @@
 **/*.user
 **/*.suo
 docs/
-samples/
+# samples/ must remain in context — samples/WebApiWithPolicies/Dockerfile needs it
 tests/
 *.md
 LICENSE
