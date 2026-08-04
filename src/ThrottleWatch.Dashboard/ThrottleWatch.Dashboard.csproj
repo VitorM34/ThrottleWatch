@@ -8,6 +8,8 @@
     <AssemblyName>ThrottleWatch.Dashboard</AssemblyName>
     <UserSecretsId>throttlewatch-dashboard-dev</UserSecretsId>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- .NET 10: ensure blazor.web.js is published (required for Docker / cross-build). -->
+    <RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
   </PropertyGroup>
 
   <ItemGroup>

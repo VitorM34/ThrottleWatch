@@ -1,15 +1,17 @@
 ﻿@inherits LayoutComponentBase
 @inject IThemeService ThemeService
+@inject IJSRuntime Js
+@inject NavigationManager Navigation
 @implements IDisposable
 
 <div class="@ThemeClass theme-root">
     <div class="app-shell">
         <Sidebar OnCollapsedChanged="OnSidebarCollapsedChanged" />
 
-        <div class="app-content @(_sidebarCollapsed ? "app-content--collapsed" : "")">
+        <div class="app-content @(_sidebarCollapsed ? "app-content--collapsed" : null)">
             <Topbar PageTitle="@PageTitle" SidebarCollapsed="_sidebarCollapsed" />
 
-            <main class="app-main" id="main-content" role="main" aria-label="Conteúdo principal">
+            <main class="app-main" id="main-content" role="main" aria-label="@L["Layout_MainContentAria"]">
                 @Body
             </main>
         </div>
@@ -20,50 +22,63 @@
 
 @code {
     private bool _sidebarCollapsed;
+    private bool _themeInitialized;
 
     private string ThemeClass => ThemeService.IsDarkMode ? "dark" : "light";
+
+    private string? PageTitle
+    {
+        get
+        {
+            var path = new Uri(Navigation.Uri).AbsolutePath.TrimStart('/').ToLowerInvariant();
+            return path switch
+            {
+                "" => L["Nav_Overview"].Value,
+                "endpoints" => L["Nav_Endpoints"].Value,
+                "clients" => L["Nav_Clients"].Value,
+                "policies" => L["Nav_Policies"].Value,
+                "alerts" => L["Nav_Alerts"].Value,
+                "history" => L["Nav_History"].Value,
+                "insights" => L["Nav_Insights"].Value,
+                "settings" => L["Nav_Settings"].Value,
+                "about" => L["Nav_About"].Value,
+                "health" => L["Nav_Health"].Value,
+                _ => null
+            };
+        }
+    }
 
     protected override void OnInitialized()
     {
         ThemeService.ThemeChanged += OnThemeChanged;
     }
 
-    private void OnSidebarCollapsedChanged(bool collapsed)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _sidebarCollapsed = collapsed;
-        StateHasChanged();
-    }
+        if (!firstRender || _themeInitialized)
+            return;
 
-    private void OnThemeChanged(object? sender, EventArgs e) =>
-        InvokeAsync(StateHasChanged);
+        _themeInitialized = true;
 
-    private string? PageTitle => Navigation?.Uri is { } uri
-        ? GetPageTitle(uri)
-        : null;
-
-    [Inject] private NavigationManager? Navigation { get; set; }
-
-    private static string? GetPageTitle(string uri)
-    {
-        var path = new Uri(uri).AbsolutePath.TrimStart('/').ToLowerInvariant();
-        return path switch
+        try
         {
-            "" => "Visão Geral",
-            "endpoints" => "Endpoints",
-            "clients" => "Clientes",
-            "policies" => "Políticas",
-            "alerts" => "Alertas",
-            "history" => "Histórico",
-            "insights" => "Insights",
-            "settings" => "Configurações",
-            "about" => "Sobre",
-            "health" => "Saúde",
-            _ => null
-        };
+            var stored = await Js.InvokeAsync<string?>("twTheme.get");
+            var isDark = !string.Equals(stored, "light", StringComparison.OrdinalIgnoreCase);
+            ThemeService.SetDarkMode(isDark);
+        }
+        catch (JSException)
+        {
+            // theme.js not ready; keep default.
+        }
+        catch (InvalidOperationException)
+        {
+            // JS runtime unavailable during early circuit lifecycle.
+        }
     }
 
-    public void Dispose()
-    {
-        ThemeService.ThemeChanged -= OnThemeChanged;
-    }
+    private void OnSidebarCollapsedChanged(bool collapsed) => _sidebarCollapsed = collapsed;
+
+    private void OnThemeChanged(object? sender, EventArgs e) => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => ThemeService.ThemeChanged -= OnThemeChanged;
 }

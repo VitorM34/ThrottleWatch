@@ -17,9 +17,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseDashboardRequestLocalization();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.MapCultureEndpoints();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

@@ -1,26 +1,24 @@
 @page "/about"
 
-<PageTitle>Sobre - ThrottleWatch</PageTitle>
+<PageTitle>@L["About_PageTitle"]</PageTitle>
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Sobre</h1>
-        <p class="page-subtitle">ThrottleWatch — Observabilidade Open Source de Rate Limiting para ASP.NET Core</p>
+        <h1 class="page-title">@L["About_Title"]</h1>
+        <p class="page-subtitle">@L["About_Subtitle"]</p>
     </div>
 </div>
 
 <div style="max-width: 720px; display: flex; flex-direction: column; gap: 24px;">
-    <ContentCard Title="O que é o ThrottleWatch?">
+    <ContentCard Title="@L["About_WhatTitle"]">
         <p style="font-size: 0.9375rem; color: var(--tw-text-secondary); line-height: 1.7;">
-            ThrottleWatch é uma camada de observabilidade open source para o Rate Limiting do ASP.NET Core.
-            Oferece monitoramento em tempo real, análises históricas, alertas inteligentes e insights
-            para ajudá-lo a entender o desempenho das suas políticas de rate limiting e como os clientes interagem com suas APIs.
+            @L["About_WhatBody"]
         </p>
     </ContentCard>
 
-    <ContentCard Title="Arquitetura">
+    <ContentCard Title="@L["About_Architecture"]">
         <div style="display: flex; flex-direction: column; gap: 12px;">
-            @foreach (var component in _components)
+            @foreach (var component in Components)
             {
                 <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--tw-surface-raised); border-radius: var(--tw-radius-md);">
                     <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--tw-color-brand-blue); margin-top: 6px; flex-shrink: 0;"></div>
@@ -33,9 +31,9 @@
         </div>
     </ContentCard>
 
-    <ContentCard Title="Stack de Tecnologia">
+    <ContentCard Title="@L["About_TechStack"]">
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
-            @foreach (var tech in _techStack)
+            @foreach (var tech in TechStack)
             {
                 <div style="padding: 12px 16px; background: var(--tw-surface-raised); border-radius: var(--tw-radius-md); border: 1px solid var(--tw-surface-border);">
                     <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">@tech.Category</div>
@@ -45,17 +43,17 @@
         </div>
     </ContentCard>
 
-    <ContentCard Title="Open Source">
+    <ContentCard Title="@L["About_OpenSource"]">
         <p style="font-size: 0.9375rem; color: var(--tw-text-secondary); margin-bottom: 16px;">
-            ThrottleWatch é distribuído sob a Licença MIT. Contribuições são bem-vindas!
+            @L["About_OpenSourceBody"]
         </p>
         <div style="display: flex; gap: 12px;">
             <a href="https://github.com/VitorM34/ThrottleWatch"
                target="_blank"
                rel="noopener noreferrer"
                class="btn btn--secondary"
-               aria-label="View ThrottleWatch on GitHub (opens in new tab)">
-                <Icon Name="github" Size="sm" /> GitHub Repository
+               aria-label="@L["About_GitHub"]">
+                <Icon Name="github" Size="sm" /> @L["About_GitHub"]
             </a>
         </div>
     </ContentCard>
@@ -65,27 +63,27 @@
     private sealed record ArchComponent(string Name, string Description);
     private sealed record TechItem(string Category, string Name);
 
-    private readonly ArchComponent[] _components =
+    private ArchComponent[] Components =>
     [
-        new("ThrottleWatch Middleware", "Intercepta requisições HTTP, registra métricas e avalia políticas de rate limiting em O(1)"),
-        new("Fila em Memória", "Buffer thread-safe via System.Threading.Channels para coleta de métricas de alta vazão"),
-        new("Background Worker", "IHostedService que persiste métricas em lote no PostgreSQL sem bloquear as requisições"),
-        new("API REST", "Minimal APIs para ingestão e consulta de métricas, alertas e insights"),
-        new("Blazor Dashboard", "Dashboard com Interactive Server Rendering, gráficos e atualização via polling HTTP"),
-        new("PostgreSQL + EF Core", "Armazenamento de séries temporais para análises históricas e tendências de longo prazo")
+        new(L["About_Comp_Middleware"], L["About_Comp_MiddlewareDesc"]),
+        new(L["About_Comp_Queue"], L["About_Comp_QueueDesc"]),
+        new(L["About_Comp_Worker"], L["About_Comp_WorkerDesc"]),
+        new(L["About_Comp_Api"], L["About_Comp_ApiDesc"]),
+        new(L["About_Comp_Dashboard"], L["About_Comp_DashboardDesc"]),
+        new(L["About_Comp_Db"], L["About_Comp_DbDesc"])
     ];
 
-    private readonly TechItem[] _techStack =
+    private TechItem[] TechStack =>
     [
         new("Runtime", ".NET 10"),
         new("Web", "ASP.NET Core"),
         new("UI", "Blazor Web App"),
-        new("Comunicação", "HTTP / REST"),
-        new("Gráficos", "Blazor-ApexCharts"),
-        new("Banco de Dados", "PostgreSQL"),
+        new(L["About_Tech_Communication"], "HTTP / REST"),
+        new(L["About_Tech_Charts"], "Blazor-ApexCharts"),
+        new(L["About_Tech_Database"], "PostgreSQL"),
         new("ORM", "EF Core"),
         new("Hosting", "ASP.NET Core Kestrel"),
         new("Auth", "ASP.NET Core"),
-        new("Licença", "MIT")
+        new(L["About_Tech_License"], "MIT")
     ];
 }

@@ -3,11 +3,16 @@
 <div class="tw-table-wrapper">
     @if (IsLoading)
     {
-        <table class="tw-table" aria-busy="true" aria-label="Loading endpoints">
+        <table class="tw-table tw-table--fit" aria-busy="true" aria-label="Loading endpoints">
             <thead>
                 <tr>
-                    <th>Endpoint</th><th>Method</th><th>Total</th>
-                    <th>Blocked</th><th>Block Rate</th><th>Avg Latency</th><th>Status</th>
+                    <th class="col-path">Endpoint</th>
+                    <th class="col-method">Method</th>
+                    <th class="col-num">Total</th>
+                    <th class="col-num">Blocked</th>
+                    <th class="col-rate">Block Rate</th>
+                    <th class="col-latency">Avg Latency</th>
+                    <th class="col-status">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,33 +37,33 @@
     }
     else
     {
-        <table class="tw-table" aria-label="Endpoints metrics table">
+        <table class="tw-table tw-table--fit" aria-label="Endpoints metrics table">
             <thead>
                 <tr>
-                    <th class="sortable" @onclick='() => Sort("path")' aria-sort="@GetSort("path")">Endpoint <Icon Name="@SortIconName("path")" Size="sm" Class="tw-icon--inline" /></th>
-                    <th>Method</th>
-                    <th class="sortable" @onclick='() => Sort("total")' aria-sort="@GetSort("total")">Total <Icon Name="@SortIconName("total")" Size="sm" Class="tw-icon--inline" /></th>
-                    <th class="sortable" @onclick='() => Sort("blocked")' aria-sort="@GetSort("blocked")">Blocked <Icon Name="@SortIconName("blocked")" Size="sm" Class="tw-icon--inline" /></th>
-                    <th class="sortable" @onclick='() => Sort("blockrate")' aria-sort="@GetSort("blockrate")">Block Rate <Icon Name="@SortIconName("blockrate")" Size="sm" Class="tw-icon--inline" /></th>
-                    <th class="sortable" @onclick='() => Sort("latency")' aria-sort="@GetSort("latency")">Avg Latency <Icon Name="@SortIconName("latency")" Size="sm" Class="tw-icon--inline" /></th>
-                    <th>Status</th>
+                    <th class="col-path sortable" @onclick='() => Sort("path")' aria-sort="@GetSort("path")">Endpoint</th>
+                    <th class="col-method">Method</th>
+                    <th class="col-num sortable" @onclick='() => Sort("total")' aria-sort="@GetSort("total")">Total</th>
+                    <th class="col-num sortable" @onclick='() => Sort("blocked")' aria-sort="@GetSort("blocked")">Blocked</th>
+                    <th class="col-rate sortable" @onclick='() => Sort("blockrate")' aria-sort="@GetSort("blockrate")">Block Rate</th>
+                    <th class="col-latency sortable" @onclick='() => Sort("latency")' aria-sort="@GetSort("latency")">Avg Latency</th>
+                    <th class="col-status">Status</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var endpoint in GetSortedEndpoints())
                 {
                     <tr>
-                        <td><code>@endpoint.Path</code></td>
-                        <td><Badge Variant="@GetMethodVariant(endpoint.Method)">@endpoint.Method</Badge></td>
-                        <td style="font-variant-numeric: tabular-nums;">@endpoint.TotalRequests.ToString("N0")</td>
-                        <td style="font-variant-numeric: tabular-nums;">@endpoint.BlockedRequests.ToString("N0")</td>
-                        <td>
+                        <td class="col-path"><code class="cell-truncate" title="@endpoint.Path">@endpoint.Path</code></td>
+                        <td class="col-method"><Badge Variant="@GetMethodVariant(endpoint.Method)">@endpoint.Method</Badge></td>
+                        <td class="col-num">@endpoint.TotalRequests.ToString("N0")</td>
+                        <td class="col-num">@endpoint.BlockedRequests.ToString("N0")</td>
+                        <td class="col-rate">
                             <span style="color: @GetRateColor(endpoint.BlockRatePercent)">
                                 @endpoint.BlockRatePercent.ToString("F1")%
                             </span>
                         </td>
-                        <td style="font-variant-numeric: tabular-nums;">@endpoint.AverageLatencyMs.ToString("F0") ms</td>
-                        <td>
+                        <td class="col-latency">@endpoint.AverageLatencyMs.ToString("F0") ms</td>
+                        <td class="col-status">
                             <Badge Variant="@GetStatusVariant(endpoint.Status)" ShowDot="true">@endpoint.Status</Badge>
                         </td>
                     </tr>
@@ -97,12 +102,6 @@
             _sortColumn = column;
             _sortDescending = true;
         }
-    }
-
-    private string SortIconName(string column)
-    {
-        if (_sortColumn != column) return "arrow-up-down";
-        return _sortDescending ? "arrow-down" : "arrow-up";
     }
 
     private string GetSort(string column)

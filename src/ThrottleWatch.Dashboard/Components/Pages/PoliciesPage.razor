@@ -2,21 +2,21 @@
 @inject IMetricsService MetricsService
 @implements IDisposable
 
-<PageTitle>Políticas - ThrottleWatch</PageTitle>
+<PageTitle>@L["Policies_PageTitle"]</PageTitle>
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Políticas</h1>
-        <p class="page-subtitle">Políticas de rate limiting ativas e suas estatísticas</p>
+        <h1 class="page-title">@L["Policies_Title"]</h1>
+        <p class="page-subtitle">@L["Policies_Subtitle"]</p>
     </div>
     <div class="page-actions">
-        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">Atualizar</button>
+        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">@L["Common_Refresh"]</button>
     </div>
 </div>
 
 @if (_hasError)
 {
-    <ErrorState Title="Erro ao carregar políticas" OnRetry="RefreshAsync" />
+    <ErrorState Title="@L["Policies_ErrorLoad"]" OnRetry="RefreshAsync" />
 }
 else if (_isLoading)
 {
@@ -26,7 +26,7 @@ else if (_isLoading)
 }
 else if (!_policies.Any())
 {
-    <EmptyState Icon="shield" Title="Nenhuma política configurada" Message="As políticas aparecem quando o rate limiting é configurado na sua aplicação ASP.NET Core." />
+    <EmptyState Icon="shield" Title="@L["Policies_EmptyTitle"]" Message="@L["Policies_EmptyMessage"]" />
 }
 else
 {
@@ -40,25 +40,25 @@ else
                         <div class="card__subtitle">@policy.Algorithm</div>
                     </div>
                     <Badge Variant="@(policy.IsActive ? "success" : "neutral")" ShowDot="true" Pulse="policy.IsActive">
-                        @(policy.IsActive ? "Ativa" : "Inativa")
+                        @(policy.IsActive ? L["Policies_Active"] : L["Policies_Inactive"])
                     </Badge>
                 </div>
                 <div class="card__body">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                         <div>
-                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Limite</div>
+                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">@L["Policies_Limit"]</div>
                             <div style="font-size: 1.25rem; font-weight: 700;">@policy.PermitLimit.ToString("N0")</div>
                         </div>
                         <div>
-                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Janela</div>
+                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">@L["Policies_Window"]</div>
                             <div style="font-size: 1.25rem; font-weight: 700;">@FormatWindow(policy.Window)</div>
                         </div>
                         <div>
-                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Total de Req.</div>
+                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">@L["Policies_TotalReq"]</div>
                             <div style="font-size: 1.25rem; font-weight: 700;">@FormatNumber(policy.TotalRequests)</div>
                         </div>
                         <div>
-                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Rejeitadas</div>
+                            <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">@L["Policies_Rejected"]</div>
                             <div style="font-size: 1.25rem; font-weight: 700; color: @(policy.RejectionRatePercent > 10 ? "var(--tw-status-error)" : "inherit")">
                                 @policy.RejectedRequests.ToString("N0")
                             </div>
@@ -66,13 +66,13 @@ else
                     </div>
                     <div style="margin-bottom: 8px;">
                         <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 4px;">
-                            <span style="color: var(--tw-text-muted)">Taxa de Rejeição</span>
+                            <span style="color: var(--tw-text-muted)">@L["Policies_RejectionRate"]</span>
                             <span style="color: @GetRejectionColor(policy.RejectionRatePercent)">@policy.RejectionRatePercent.ToString("F1")%</span>
                         </div>
-                        <ProgressBar Value="policy.RejectionRatePercent" Variant="@GetProgressVariant(policy.RejectionRatePercent)" Label="Taxa de rejeição" />
+                        <ProgressBar Value="policy.RejectionRatePercent" Variant="@GetProgressVariant(policy.RejectionRatePercent)" Label="@L["Policies_RejectionRate"]" />
                     </div>
                     <div style="font-size: 0.8125rem; color: var(--tw-text-muted);">
-                        @policy.ActiveConnections conexões ativas
+                        @string.Format(L["Policies_ActiveConnections"].Value, policy.ActiveConnections)
                     </div>
                 </div>
             </div>

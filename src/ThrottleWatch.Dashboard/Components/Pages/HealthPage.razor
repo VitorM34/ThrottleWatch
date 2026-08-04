@@ -2,15 +2,15 @@
 @inject IMetricsService MetricsService
 @implements IDisposable
 
-<PageTitle>Saúde - ThrottleWatch</PageTitle>
+<PageTitle>@L["Health_PageTitle"]</PageTitle>
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Saúde do Sistema</h1>
-        <p class="page-subtitle">Health checks e status dos componentes</p>
+        <h1 class="page-title">@L["Health_Title"]</h1>
+        <p class="page-subtitle">@L["Health_Subtitle"]</p>
     </div>
     <div class="page-actions">
-        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">Atualizar</button>
+        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">@L["Common_Refresh"]</button>
     </div>
 </div>
 
@@ -26,12 +26,12 @@ else if (_hasError || _health is null)
         <div class="card__body">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--tw-status-error); box-shadow: 0 0 8px var(--tw-status-error);"></div>
-                <span style="font-size: 1.125rem; font-weight: 600;">API Inacessível</span>
+                <span style="font-size: 1.125rem; font-weight: 600;">@L["Health_ApiUnreachable"]</span>
             </div>
-            <p style="margin-top: 8px; color: var(--tw-text-muted); font-size: 0.875rem;">Não foi possível conectar à API do ThrottleWatch. Verifique se a aplicação está em execução.</p>
+            <p style="margin-top: 8px; color: var(--tw-text-muted); font-size: 0.875rem;">@L["Health_ApiUnreachableMessage"]</p>
         </div>
     </div>
-    <button class="btn btn--primary" @onclick="RefreshAsync">Tentar novamente</button>
+    <button class="btn btn--primary" @onclick="RefreshAsync">@L["Common_Retry"]</button>
 }
 else
 {
@@ -40,8 +40,8 @@ else
             <div style="display: flex; align-items: center; gap: 16px;">
                 <div style="width: 16px; height: 16px; border-radius: 50%; background: @GetOverallColor(_health.Status); box-shadow: 0 0 10px @GetOverallColor(_health.Status);"></div>
                 <div>
-                    <div style="font-size: 1.25rem; font-weight: 700;">Status Geral: @_health.Status</div>
-                    <div style="font-size: 0.875rem; color: var(--tw-text-muted);">Duração total das verificações: @_health.TotalDuration.TotalMilliseconds.ToString("F0") ms</div>
+                    <div style="font-size: 1.25rem; font-weight: 700;">@string.Format(L["Health_OverallStatus"].Value, _health.Status)</div>
+                    <div style="font-size: 0.875rem; color: var(--tw-text-muted);">@string.Format(L["Health_TotalDuration"].Value, _health.TotalDuration.TotalMilliseconds.ToString("F0"))</div>
                 </div>
             </div>
         </div>
@@ -86,7 +86,7 @@ else
     }
     else
     {
-        <EmptyState Icon="heart-pulse" Title="Nenhum health check registrado" Message="Adicione health checks à sua aplicação ASP.NET Core para vê-los aqui." />
+        <EmptyState Icon="heart-pulse" Title="@L["Health_EmptyTitle"]" Message="@L["Health_EmptyMessage"]" />
     }
 }
 

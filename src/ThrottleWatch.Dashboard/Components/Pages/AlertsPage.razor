@@ -3,54 +3,54 @@
 @inject IToastService ToastService
 @implements IDisposable
 
-<PageTitle>Alertas - ThrottleWatch</PageTitle>
+<PageTitle>@L["Alerts_PageTitle"]</PageTitle>
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Alertas</h1>
-        <p class="page-subtitle">Regras de alerta e eventos disparados</p>
+        <h1 class="page-title">@L["Alerts_Title"]</h1>
+        <p class="page-subtitle">@L["Alerts_Subtitle"]</p>
     </div>
     <div class="page-actions">
         <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">
-            <Icon Name="refresh-cw" Size="sm" /> Atualizar
+            <Icon Name="refresh-cw" Size="sm" /> @L["Common_Refresh"]
         </button>
         @if (_activeTab == "rules")
         {
             <button class="btn btn--primary btn--sm" @onclick="OpenCreateDialog">
-                Nova regra
+                @L["Alerts_NewRule"]
             </button>
         }
     </div>
 </div>
 
-<div class="tabs" role="tablist" aria-label="Seções de alertas">
+<div class="tabs" role="tablist" aria-label="@L["Alerts_TabsAria"]">
     <button type="button"
             class="tabs__item @(_activeTab == "events" ? "tabs__item--active" : null)"
             role="tab"
             aria-selected="@(_activeTab == "events")"
             @onclick='() => SwitchTab("events")'>
-        Eventos
+        @L["Alerts_TabEvents"]
     </button>
     <button type="button"
             class="tabs__item @(_activeTab == "rules" ? "tabs__item--active" : null)"
             role="tab"
             aria-selected="@(_activeTab == "rules")"
             @onclick='() => SwitchTab("rules")'>
-        Regras
+        @L["Alerts_TabRules"]
     </button>
 </div>
 
 @if (_hasError)
 {
-    <ErrorState Title="Erro ao carregar alertas" OnRetry="RefreshAsync" />
+    <ErrorState Title="@L["Alerts_ErrorLoad"]" OnRetry="RefreshAsync" />
 }
 else if (_activeTab == "events")
 {
     <div class="grid grid--4" style="margin-bottom: 24px;">
-        <MetricCard Label="Total" Value="@_events.Count.ToString()" AccentVariant="blue" IsLoading="_isLoading" />
-        <MetricCard Label="Ativos" Value="@_events.Count(a => a.Status == AlertStatus.Active).ToString()" AccentVariant="red" IsLoading="_isLoading" />
-        <MetricCard Label="Críticos" Value="@_events.Count(a => a.Severity == AlertSeverity.Critical && a.Status == AlertStatus.Active).ToString()" AccentVariant="orange" IsLoading="_isLoading" />
-        <MetricCard Label="Reconhecidos" Value="@_events.Count(a => a.Status == AlertStatus.Acknowledged).ToString()" AccentVariant="green" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Alerts_MetricTotal"]" Value="@_events.Count.ToString()" AccentVariant="blue" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Alerts_MetricActive"]" Value="@_events.Count(a => a.Status == AlertStatus.Active).ToString()" AccentVariant="red" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Alerts_MetricCritical"]" Value="@_events.Count(a => a.Severity == AlertSeverity.Critical && a.Status == AlertStatus.Active).ToString()" AccentVariant="orange" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Alerts_MetricAcknowledged"]" Value="@_events.Count(a => a.Status == AlertStatus.Acknowledged).ToString()" AccentVariant="green" IsLoading="_isLoading" />
     </div>
 
     @if (_isLoading)
@@ -69,7 +69,7 @@ else if (_activeTab == "events")
     }
     else if (_events.Count == 0)
     {
-        <EmptyState Icon="bell" Title="Nenhum evento" Message="Os eventos aparecem quando uma regra de alerta é disparada." />
+        <EmptyState Icon="bell" Title="@L["Alerts_NoEvents"]" Message="@L["Alerts_NoEventsMessage"]" />
     }
     else
     {
@@ -101,7 +101,7 @@ else if (_activeTab == "events")
                                     <button class="btn btn--secondary btn--sm"
                                             @onclick="() => AcknowledgeAsync(alert.Id)"
                                             disabled="@_isSaving">
-                                        Reconhecer
+                                        @L["Alerts_Acknowledge"]
                                     </button>
                                 }
                             </div>
@@ -120,21 +120,21 @@ else
     }
     else if (_rules.Count == 0)
     {
-        <EmptyState Icon="shield" Title="Nenhuma regra" Message="Crie uma regra para disparar alertas quando o block rate ultrapassar o threshold." />
+        <EmptyState Icon="shield" Title="@L["Alerts_NoRules"]" Message="@L["Alerts_NoRulesMessage"]" />
     }
     else
     {
-        <ContentCard Title="Regras configuradas" Subtitle="@($"{_rules.Count} regra(s)")">
+        <ContentCard Title="@L["Alerts_ConfiguredRules"]" Subtitle="@string.Format(L["Alerts_RulesCount"].Value, _rules.Count)">
             <div class="table-wrap">
                 <table class="tw-table">
                     <thead>
                         <tr>
-                            <th>Nome</th>
-                            <th>Condição</th>
-                            <th>Threshold</th>
-                            <th>Severidade</th>
-                            <th>Cooldown</th>
-                            <th>Status</th>
+                            <th>@L["Alerts_ColName"]</th>
+                            <th>@L["Alerts_ColCondition"]</th>
+                            <th>@L["Alerts_ColThreshold"]</th>
+                            <th>@L["Alerts_ColSeverity"]</th>
+                            <th>@L["Alerts_ColCooldown"]</th>
+                            <th>@L["Alerts_ColStatus"]</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -155,12 +155,12 @@ else
                                 <td>@rule.CooldownMinutes min</td>
                                 <td>
                                     <Badge Variant="@(rule.IsEnabled ? "success" : "neutral")">
-                                        @(rule.IsEnabled ? "Ativa" : "Desativada")
+                                        @(rule.IsEnabled ? L["Alerts_Enabled"] : L["Alerts_Disabled"])
                                     </Badge>
                                 </td>
                                 <td style="text-align: right; white-space: nowrap;">
-                                    <button class="btn btn--ghost btn--sm" @onclick="() => OpenEditDialog(rule)">Editar</button>
-                                    <button class="btn btn--ghost btn--sm" @onclick="() => AskDelete(rule)">Excluir</button>
+                                    <button class="btn btn--ghost btn--sm" @onclick="() => OpenEditDialog(rule)">@L["Alerts_Edit"]</button>
+                                    <button class="btn btn--ghost btn--sm" @onclick="() => AskDelete(rule)">@L["Alerts_Delete"]</button>
                                 </td>
                             </tr>
                         }
@@ -177,9 +177,9 @@ else
         <div class="dialog dialog--lg">
             <div class="dialog__header">
                 <h3 id="alert-rule-dialog-title" class="dialog__title">
-                    @(_formModel.Id is null ? "Nova regra" : "Editar regra")
+                    @(_formModel.Id is null ? L["Alerts_NewRule"] : L["Alerts_EditRule"])
                 </h3>
-                <button class="btn btn--ghost btn--icon btn--sm" @onclick="CloseFormDialog" aria-label="Fechar">
+                <button class="btn btn--ghost btn--icon btn--sm" @onclick="CloseFormDialog" aria-label="@L["Alerts_Close"]">
                     <Icon Name="x" Size="sm" />
                 </button>
             </div>
@@ -189,36 +189,36 @@ else
                     <ValidationSummary class="validation-summary" />
 
                     <div class="form-group">
-                        <label class="form-label" for="rule-name">Nome</label>
+                        <label class="form-label" for="rule-name">@L["Alerts_Name"]</label>
                         <InputText id="rule-name" class="form-control" @bind-Value="_formModel.Name" />
                         <ValidationMessage For="() => _formModel.Name" class="validation-message" />
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="rule-description">Descrição</label>
+                        <label class="form-label" for="rule-description">@L["Alerts_Description"]</label>
                         <InputTextArea id="rule-description" class="form-control" rows="2" @bind-Value="_formModel.Description" />
                         <ValidationMessage For="() => _formModel.Description" class="validation-message" />
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="rule-condition">Condição</label>
+                        <label class="form-label" for="rule-condition">@L["Alerts_Condition"]</label>
                         <InputSelect id="rule-condition" class="form-control" @bind-Value="_formModel.Condition">
                             <option value="block_rate">block_rate</option>
                         </InputSelect>
                         <ValidationMessage For="() => _formModel.Condition" class="validation-message" />
                         <small style="color: var(--tw-text-muted); font-size: 0.8125rem;">
-                            Avaliada a cada minuto sobre a janela dos últimos 5 minutos.
+                            @L["Alerts_ConditionHint"]
                         </small>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div class="form-group">
-                            <label class="form-label" for="rule-threshold">Threshold (%)</label>
+                            <label class="form-label" for="rule-threshold">@L["Alerts_ThresholdPercent"]</label>
                             <InputNumber id="rule-threshold" class="form-control" @bind-Value="_formModel.Threshold" />
                             <ValidationMessage For="() => _formModel.Threshold" class="validation-message" />
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="rule-cooldown">Cooldown (minutos)</label>
+                            <label class="form-label" for="rule-cooldown">@L["Alerts_CooldownMinutes"]</label>
                             <InputNumber id="rule-cooldown" class="form-control" @bind-Value="_formModel.CooldownMinutes" />
                             <ValidationMessage For="() => _formModel.CooldownMinutes" class="validation-message" />
                         </div>
@@ -226,7 +226,7 @@ else
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div class="form-group">
-                            <label class="form-label" for="rule-severity">Severidade</label>
+                            <label class="form-label" for="rule-severity">@L["Alerts_Severity"]</label>
                             <InputSelect id="rule-severity" class="form-control" @bind-Value="_formModel.Severity">
                                 <option value="@AlertSeverity.Info">Info</option>
                                 <option value="@AlertSeverity.Warning">Warning</option>
@@ -237,11 +237,11 @@ else
                         @if (_formModel.Id is not null)
                         {
                             <div class="form-group">
-                                <label class="form-label" for="rule-enabled">Ativa</label>
+                                <label class="form-label" for="rule-enabled">@L["Alerts_Enabled"]</label>
                                 <div style="display: flex; align-items: center; gap: 8px; min-height: 38px;">
                                     <InputCheckbox id="rule-enabled" @bind-Value="_formModel.IsEnabled" />
                                     <span style="font-size: 0.875rem; color: var(--tw-text-secondary);">
-                                        @(_formModel.IsEnabled ? "Regra habilitada" : "Regra desabilitada")
+                                        @(_formModel.IsEnabled ? L["Alerts_RuleEnabled"] : L["Alerts_RuleDisabled"])
                                     </span>
                                 </div>
                             </div>
@@ -250,10 +250,10 @@ else
 
                     <div class="dialog__footer" style="margin: 24px -24px -24px; padding: 16px 24px;">
                         <button type="button" class="btn btn--ghost" @onclick="CloseFormDialog" disabled="@_isSaving">
-                            Cancelar
+                            @L["Alerts_Cancel"]
                         </button>
                         <button type="submit" class="btn btn--primary" disabled="@_isSaving">
-                            @(_isSaving ? "Salvando..." : "Salvar")
+                            @(_isSaving ? L["Alerts_Saving"] : L["Alerts_Save"])
                         </button>
                     </div>
                 </EditForm>
@@ -263,10 +263,10 @@ else
 }
 
 <ConfirmDialog IsOpen="_showDeleteDialog"
-               Title="Excluir regra"
-               Message="@($"Excluir a regra '{_rulePendingDelete?.Name}'? Esta ação não pode ser desfeita.")"
-               ConfirmLabel="Excluir"
-               CancelLabel="Cancelar"
+               Title="@L["Alerts_DeleteTitle"]"
+               Message="@string.Format(L["Alerts_DeleteMessage"].Value, _rulePendingDelete?.Name)"
+               ConfirmLabel="@L["Alerts_Delete"]"
+               CancelLabel="@L["Alerts_Cancel"]"
                IsDangerous="true"
                OnConfirm="ConfirmDeleteAsync"
                OnCancel="CancelDelete" />
@@ -355,11 +355,11 @@ else
 
             if (saved is null)
             {
-                ToastService.ShowError("Não foi possível salvar a regra. Verifique a API e tente novamente.");
+                ToastService.ShowError(L["Alerts_SaveError"]);
                 return;
             }
 
-            ToastService.ShowSuccess(_formModel.Id is null ? "Regra criada." : "Regra atualizada.");
+            ToastService.ShowSuccess(_formModel.Id is null ? L["Alerts_Created"] : L["Alerts_Updated"]);
             _showFormDialog = false;
             await RefreshAsync();
         }
@@ -393,11 +393,11 @@ else
         var ok = await AlertsService.DeleteRuleAsync(id, _cts.Token);
         if (!ok)
         {
-            ToastService.ShowError("Não foi possível excluir a regra.");
+            ToastService.ShowError(L["Alerts_DeleteError"]);
             return;
         }
 
-        ToastService.ShowSuccess("Regra excluída.");
+        ToastService.ShowSuccess(L["Alerts_Deleted"]);
         await RefreshAsync();
     }
 
@@ -409,11 +409,11 @@ else
             var ok = await AlertsService.AcknowledgeEventAsync(eventId, _cts.Token);
             if (!ok)
             {
-                ToastService.ShowError("Não foi possível reconhecer o evento.");
+                ToastService.ShowError(L["Alerts_AckError"]);
                 return;
             }
 
-            ToastService.ShowSuccess("Evento reconhecido.");
+            ToastService.ShowSuccess(L["Alerts_Acknowledged"]);
             await RefreshAsync();
         }
         finally
@@ -458,13 +458,13 @@ else
         _ => "neutral"
     };
 
-    private static string FormatTimeAgo(DateTimeOffset dt)
+    private string FormatTimeAgo(DateTimeOffset dt)
     {
         var span = DateTimeOffset.UtcNow - dt;
-        if (span.TotalMinutes < 1) return "agora";
-        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes}m atrás";
-        if (span.TotalHours < 24) return $"{(int)span.TotalHours}h atrás";
-        return $"{(int)span.TotalDays}d atrás";
+        if (span.TotalMinutes < 1) return L["Time_JustNow"];
+        if (span.TotalMinutes < 60) return string.Format(L["Time_MinutesAgo"].Value, (int)span.TotalMinutes);
+        if (span.TotalHours < 24) return string.Format(L["Time_HoursAgo"].Value, (int)span.TotalHours);
+        return string.Format(L["Time_DaysAgo"].Value, (int)span.TotalDays);
     }
 
     public void Dispose()

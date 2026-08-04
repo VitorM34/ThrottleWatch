@@ -7,6 +7,7 @@
    1. Design Tokens — Dark Mode (default)
    ------------------------------------------------------------ */
 :root,
+html.dark,
 .dark {
     /* Brand Colors */
     --tw-color-brand-blue:          #4f8ef7;
@@ -88,6 +89,7 @@
 /* ------------------------------------------------------------
    2. Design Tokens — Light Mode
    ------------------------------------------------------------ */
+html.light,
 .light {
     --tw-surface-bg:        #f0f2f8;
     --tw-surface-base:      #ffffff;
@@ -219,6 +221,8 @@ code {
     color: var(--tw-text-primary);
 }
 
+html.dark,
+html.light,
 .dark,
 .light {
     color: var(--tw-text-primary);
@@ -501,12 +505,75 @@ code {
 .tw-table-wrapper {
     overflow-x: auto;
     border-radius: var(--tw-radius-lg);
+    width: 100%;
 }
 
 .tw-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.875rem;
+}
+
+/* Compact table that keeps header labels + status visible without sort icons */
+.tw-table--fit {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.tw-table--fit th,
+.tw-table--fit td {
+    padding: 10px 10px;
+}
+
+.tw-table--fit th {
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    font-size: 0.6875rem;
+    overflow: visible;
+}
+
+.tw-table--fit .col-ip,
+.tw-table--fit .col-path {
+    width: 24%;
+}
+
+.tw-table--fit .col-num {
+    width: 10%;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tw-table--fit .col-rate,
+.tw-table--fit .col-method {
+    width: 11%;
+    white-space: nowrap;
+}
+
+.tw-table--fit .col-risk,
+.tw-table--fit .col-latency {
+    width: 10%;
+    white-space: nowrap;
+}
+
+.tw-table--fit .col-seen {
+    width: 12%;
+    white-space: nowrap;
+    color: var(--tw-text-muted);
+}
+
+.tw-table--fit .col-status {
+    width: 12%;
+    white-space: nowrap;
+}
+
+.tw-table--fit .cell-truncate {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .tw-table thead {

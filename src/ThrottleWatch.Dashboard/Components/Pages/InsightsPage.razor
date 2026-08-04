@@ -3,21 +3,21 @@
 @inject IToastService ToastService
 @implements IDisposable
 
-<PageTitle>Insights - ThrottleWatch</PageTitle>
+<PageTitle>@L["Insights_PageTitle"]</PageTitle>
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Insights</h1>
-        <p class="page-subtitle">Recomendações inteligentes baseadas nos padrões de tráfego observados</p>
+        <h1 class="page-title">@L["Insights_Title"]</h1>
+        <p class="page-subtitle">@L["Insights_Subtitle"]</p>
     </div>
     <div class="page-actions">
-        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">Atualizar</button>
+        <button class="btn btn--secondary btn--sm" @onclick="RefreshAsync" disabled="@_isLoading">@L["Common_Refresh"]</button>
     </div>
 </div>
 
 @if (_hasError)
 {
-    <ErrorState Title="Erro ao carregar insights" OnRetry="RefreshAsync" />
+    <ErrorState Title="@L["Insights_ErrorLoad"]" OnRetry="RefreshAsync" />
 }
 else if (_isLoading)
 {
@@ -37,15 +37,15 @@ else if (_isLoading)
 else if (_insights.Count == 0)
 {
     <EmptyState Icon="lightbulb"
-                Title="Nenhum insight disponível"
-                Message="Os insights são gerados após coletar dados de tráfego suficientes. Volte após sua aplicação receber mais requisições." />
+                Title="@L["Insights_EmptyTitle"]"
+                Message="@L["Insights_EmptyMessage"]" />
 }
 else
 {
     <div class="grid grid--3" style="margin-bottom: 24px;">
-        <MetricCard Label="Críticos" Value="@_insights.Count(i => i.Severity == AlertSeverity.Critical).ToString()" AccentVariant="red" IsLoading="_isLoading" />
-        <MetricCard Label="Avisos" Value="@_insights.Count(i => i.Severity == AlertSeverity.Warning).ToString()" AccentVariant="orange" IsLoading="_isLoading" />
-        <MetricCard Label="Info" Value="@_insights.Count(i => i.Severity == AlertSeverity.Info).ToString()" AccentVariant="blue" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Insights_Critical"]" Value="@_insights.Count(i => i.Severity == AlertSeverity.Critical).ToString()" AccentVariant="red" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Insights_Warnings"]" Value="@_insights.Count(i => i.Severity == AlertSeverity.Warning).ToString()" AccentVariant="orange" IsLoading="_isLoading" />
+        <MetricCard Label="@L["Insights_Info"]" Value="@_insights.Count(i => i.Severity == AlertSeverity.Info).ToString()" AccentVariant="blue" IsLoading="_isLoading" />
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 16px;">
@@ -67,7 +67,7 @@ else
                             @if (!string.IsNullOrWhiteSpace(insight.AffectedResource))
                             {
                                 <div style="font-size: 0.8125rem; color: var(--tw-text-muted);">
-                                    Recurso: <code>@insight.AffectedResource</code>
+                                    @L["Insights_Resource"] <code>@insight.AffectedResource</code>
                                 </div>
                             }
                         </div>
@@ -78,7 +78,7 @@ else
                             <button class="btn btn--secondary btn--sm"
                                     @onclick="() => DismissAsync(insight.Id)"
                                     disabled="@_isSaving">
-                                Dispensar
+                                @L["Insights_Dismiss"]
                             </button>
                         </div>
                     </div>
@@ -119,11 +119,11 @@ else
             var ok = await InsightsService.DismissInsightAsync(id, _cts.Token);
             if (!ok)
             {
-                ToastService.ShowError("Não foi possível dispensar o insight.");
+                ToastService.ShowError(L["Insights_DismissError"]);
                 return;
             }
 
-            ToastService.ShowSuccess("Insight dispensado.");
+            ToastService.ShowSuccess(L["Insights_Dismissed"]);
             await RefreshAsync();
         }
         finally
@@ -158,13 +158,13 @@ else
         _ => "info"
     };
 
-    private static string FormatInsightType(InsightType t) => t switch
+    private string FormatInsightType(InsightType t) => t switch
     {
-        InsightType.HighBlockRate => "Alta taxa de bloqueio",
-        InsightType.SuspiciousClient => "Cliente suspeito",
-        InsightType.MisconfiguredPolicy => "Política mal configurada",
-        InsightType.PeakHours => "Horário de pico",
-        InsightType.UnusualPattern => "Padrão incomum",
+        InsightType.HighBlockRate => L["Insights_TypeHighBlockRate"],
+        InsightType.SuspiciousClient => L["Insights_TypeSuspicious"],
+        InsightType.MisconfiguredPolicy => L["Insights_TypeMisconfigured"],
+        InsightType.PeakHours => L["Insights_TypePeakHours"],
+        InsightType.UnusualPattern => L["Insights_TypeUnusual"],
         _ => t.ToString()
     };
 

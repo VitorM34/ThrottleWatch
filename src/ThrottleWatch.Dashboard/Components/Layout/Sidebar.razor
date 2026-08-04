@@ -4,63 +4,63 @@
 
 <aside class="sidebar @(_collapsed ? "sidebar--collapsed" : "") @(_mobileOpen ? "sidebar--mobile-open" : "")"
        role="navigation"
-       aria-label="Navegação principal">
+       aria-label="@L["Nav_MainAria"]">
 
-    <a href="/" class="sidebar__logo" aria-label="ThrottleWatch Dashboard — Início">
+    <a href="/" class="sidebar__logo" aria-label="ThrottleWatch Dashboard">
         <img src="/favicon.svg" alt="ThrottleWatch logo" class="sidebar__logo-icon" />
         <span class="sidebar__logo-text">ThrottleWatch</span>
     </a>
 
     <nav class="sidebar__nav">
         <div class="sidebar__section">
-            <div class="sidebar__section-label" aria-hidden="true">Visão Geral</div>
+            <div class="sidebar__section-label" aria-hidden="true">@L["Nav_SectionOverview"]</div>
 
             <NavLink href="/"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      Match="NavLinkMatch.All"
-                     aria-label="Visão Geral do Dashboard">
+                     aria-label="@L["Nav_Overview"]">
                 <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="layout-dashboard" Size="lg" /></span>
-                <span class="sidebar__item-label">Visão Geral</span>
+                <span class="sidebar__item-label">@L["Nav_Overview"]</span>
             </NavLink>
 
             <NavLink href="/endpoints"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
-                     aria-label="Endpoints">
+                     aria-label="@L["Nav_Endpoints"]">
                 <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="route" Size="lg" /></span>
-                <span class="sidebar__item-label">Endpoints</span>
+                <span class="sidebar__item-label">@L["Nav_Endpoints"]</span>
             </NavLink>
 
             <NavLink href="/clients"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
-                     aria-label="Clientes">
+                     aria-label="@L["Nav_Clients"]">
                 <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="users" Size="lg" /></span>
-                <span class="sidebar__item-label">Clientes</span>
+                <span class="sidebar__item-label">@L["Nav_Clients"]</span>
             </NavLink>
         </div>
 
         <div class="sidebar__section">
-            <div class="sidebar__section-label" aria-hidden="true">Configuração</div>
+            <div class="sidebar__section-label" aria-hidden="true">@L["Nav_SectionConfig"]</div>
 
             <NavLink href="/policies"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
-                     aria-label="Políticas">
+                     aria-label="@L["Nav_Policies"]">
                 <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="shield" Size="lg" /></span>
-                <span class="sidebar__item-label">Políticas</span>
+                <span class="sidebar__item-label">@L["Nav_Policies"]</span>
             </NavLink>
 
             <NavLink href="/alerts"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
-                     aria-label="Alertas">
+                     aria-label="@L["Nav_Alerts"]">
                 <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="bell" Size="lg" /></span>
-                <span class="sidebar__item-label">Alertas</span>
+                <span class="sidebar__item-label">@L["Nav_Alerts"]</span>
                 @if (_activeAlertCount > 0)
                 {
-                    <span class="sidebar__item-badge badge badge--error" aria-label="@_activeAlertCount alertas ativos">
+                    <span class="sidebar__item-badge badge badge--error" aria-label="@string.Format(L["Nav_AlertsActive"].Value, _activeAlertCount)">
                         @(_activeAlertCount > 99 ? "99+" : _activeAlertCount.ToString())
                     </span>
                 }
@@ -68,50 +68,50 @@
         </div>
 
         <div class="sidebar__section">
-            <div class="sidebar__section-label" aria-hidden="true">Análises</div>
+            <div class="sidebar__section-label" aria-hidden="true">@L["Nav_SectionAnalytics"]</div>
 
             <NavLink href="/history"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
-                     aria-label="Histórico">
+                     aria-label="@L["Nav_History"]">
                 <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="history" Size="lg" /></span>
-                <span class="sidebar__item-label">Histórico</span>
+                <span class="sidebar__item-label">@L["Nav_History"]</span>
             </NavLink>
 
             <NavLink href="/insights"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
-                     aria-label="Insights">
+                     aria-label="@L["Nav_Insights"]">
                 <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="lightbulb" Size="lg" /></span>
-                <span class="sidebar__item-label">Insights</span>
+                <span class="sidebar__item-label">@L["Nav_Insights"]</span>
             </NavLink>
         </div>
 
         <div class="sidebar__section">
-            <div class="sidebar__section-label" aria-hidden="true">Sistema</div>
+            <div class="sidebar__section-label" aria-hidden="true">@L["Nav_SectionSystem"]</div>
 
             <NavLink href="/health"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
-                     aria-label="Saúde do Sistema">
+                     aria-label="@L["Nav_Health"]">
                 <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="heart-pulse" Size="lg" /></span>
-                <span class="sidebar__item-label">Saúde</span>
+                <span class="sidebar__item-label">@L["Nav_Health"]</span>
             </NavLink>
 
             <NavLink href="/settings"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
-                     aria-label="Configurações">
+                     aria-label="@L["Nav_Settings"]">
                 <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="settings" Size="lg" /></span>
-                <span class="sidebar__item-label">Configurações</span>
+                <span class="sidebar__item-label">@L["Nav_Settings"]</span>
             </NavLink>
 
             <NavLink href="/about"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
-                     aria-label="Sobre">
+                     aria-label="@L["Nav_About"]">
                 <span class="sidebar__item-icon" aria-hidden="true"><Icon Name="info" Size="lg" /></span>
-                <span class="sidebar__item-label">Sobre</span>
+                <span class="sidebar__item-label">@L["Nav_About"]</span>
             </NavLink>
         </div>
     </nav>
@@ -120,12 +120,12 @@
         <button class="sidebar__item btn--ghost"
                 style="width: 100%; border: none; text-align: left;"
                 @onclick="ToggleCollapse"
-                aria-label="@(_collapsed ? "Expandir menu" : "Recolher menu")"
-                title="@(_collapsed ? "Expandir" : "Recolher")">
+                aria-label="@(_collapsed ? L["Nav_ExpandMenu"] : L["Nav_CollapseMenu"])"
+                title="@(_collapsed ? L["Nav_Expand"] : L["Nav_Collapse"])">
             <span class="sidebar__item-icon" aria-hidden="true">
                 <Icon Name="@(_collapsed ? "chevron-right" : "chevron-left")" Size="lg" />
             </span>
-            <span class="sidebar__item-label">Recolher</span>
+            <span class="sidebar__item-label">@L["Nav_Collapse"]</span>
         </button>
     </div>
 </aside>

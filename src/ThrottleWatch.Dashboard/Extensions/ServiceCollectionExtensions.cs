@@ -1,4 +1,7 @@
 using ApexCharts;
+using Microsoft.AspNetCore.Components.Server.Circuits;
+using Microsoft.AspNetCore.DataProtection;
+using ThrottleWatch.Dashboard.Localization;
 using ThrottleWatch.Dashboard.Models;
 using ThrottleWatch.Dashboard.Services;
 
@@ -32,6 +35,17 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IThemeService, ThemeService>();
         services.AddScoped<IToastService, ToastService>();
+
+        services.AddLocalization(localization => localization.ResourcesPath = "Resources");
+        services.AddHttpContextAccessor();
+        services.AddScoped<CircuitHandler, CultureCircuitHandler>();
+
+        // Persist keys across container recreates so Blazor antiforgery/circuits keep working.
+        var keysPath = configuration["DataProtection:KeysPath"] ?? "/keys";
+        Directory.CreateDirectory(keysPath);
+        services.AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+            .SetApplicationName("ThrottleWatch.Dashboard");
 
         services.AddApexCharts();
 

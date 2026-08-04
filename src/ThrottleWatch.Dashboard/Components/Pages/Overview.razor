@@ -5,24 +5,24 @@
 @using ThrottleWatch.Dashboard.Models
 @implements IAsyncDisposable
 
-<PageTitle>Visão Geral — ThrottleWatch</PageTitle>
+<PageTitle>@L["Overview_PageTitle"]</PageTitle>
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Visão Geral</h1>
-        <p class="page-subtitle">Métricas de rate limiting via API REST</p>
+        <h1 class="page-title">@L["Overview_Title"]</h1>
+        <p class="page-subtitle">@L["Overview_Subtitle"]</p>
     </div>
     <div class="page-actions">
         @if (_lastUpdated.HasValue)
         {
             <span style="font-size: 0.8125rem; color: var(--tw-text-muted);">
-                Atualizado @FormatTimeAgo(_lastUpdated.Value)
+                @string.Format(L["Common_Updated"].Value, FormatTimeAgo(_lastUpdated.Value))
             </span>
         }
         <button class="btn btn--secondary btn--sm"
                 @onclick="RefreshAsync"
                 disabled="@_isLoading"
-                aria-label="Atualizar dados do dashboard">
+                aria-label="@L["Overview_RefreshAria"]">
             @if (_isLoading)
             {
                 <span class="spinner spinner--sm" aria-hidden="true"></span>
@@ -31,48 +31,48 @@
             {
                 <Icon Name="refresh-cw" Size="sm" />
             }
-            Atualizar
+            @L["Common_Refresh"]
         </button>
     </div>
 </div>
 
 @if (_hasError)
 {
-    <ErrorState Title="Erro ao carregar o dashboard"
-                Message="Verifique se a API do ThrottleWatch está em execução e acessível."
+    <ErrorState Title="@L["Overview_ErrorTitle"]"
+                Message="@L["Overview_ErrorMessage"]"
                 OnRetry="RefreshAsync" />
 }
 else
 {
-    <section aria-label="Métricas principais" style="margin-bottom: 24px;">
+    <section aria-label="@L["Overview_MetricsPrimaryAria"]" style="margin-bottom: 24px;">
         <div class="grid grid--5">
-            <MetricCard Label="Total de Requisições"
+            <MetricCard Label="@L["Overview_TotalRequests"]"
                         Value="@FormatNumber(_metrics?.TotalRequests ?? 0)"
                         Icon="activity"
                         AccentVariant="blue"
                         IsLoading="_isLoading"
-                        Subtitle="@($"Desde {GetUptimeLabel()}")" />
+                        Subtitle="@string.Format(L["Common_Since"].Value, GetUptimeLabel())" />
 
-            <MetricCard Label="Permitidas"
+            <MetricCard Label="@L["Overview_Allowed"]"
                         Value="@FormatNumber(_metrics?.AllowedRequests ?? 0)"
                         Icon="check"
                         AccentVariant="green"
                         IsLoading="_isLoading" />
 
-            <MetricCard Label="Bloqueadas"
+            <MetricCard Label="@L["Overview_Blocked"]"
                         Value="@FormatNumber(_metrics?.BlockedRequests ?? 0)"
                         Icon="ban"
                         AccentVariant="red"
                         IsLoading="_isLoading"
-                        Subtitle="@($"{_metrics?.BlockRatePercent:F1}% de bloqueio")" />
+                        Subtitle="@string.Format(L["Common_BlockRateOf"].Value, (_metrics?.BlockRatePercent ?? 0).ToString("F1"))" />
 
-            <MetricCard Label="Req/s"
+            <MetricCard Label="@L["Overview_ReqPerSec"]"
                         Value="@($"{_metrics?.RequestsPerSecond:F1}")"
                         Icon="gauge"
                         AccentVariant="orange"
                         IsLoading="_isLoading" />
 
-            <MetricCard Label="Latência Média"
+            <MetricCard Label="@L["Overview_AvgLatency"]"
                         Value="@($"{_metrics?.AverageLatencyMs:F0} ms")"
                         Icon="clock"
                         AccentVariant="purple"
@@ -80,21 +80,21 @@ else
         </div>
     </section>
 
-    <section aria-label="Métricas secundárias" style="margin-bottom: 24px;">
+    <section aria-label="@L["Overview_MetricsSecondaryAria"]" style="margin-bottom: 24px;">
         <div class="grid grid--3">
-            <MetricCard Label="Clientes Ativos"
+            <MetricCard Label="@L["Overview_ActiveClients"]"
                         Value="@(_metrics?.ActiveClients.ToString("N0") ?? "—")"
                         Icon="users"
                         AccentVariant="blue"
                         IsLoading="_isLoading" />
 
-            <MetricCard Label="Taxa de Bloqueio"
+            <MetricCard Label="@L["Overview_BlockRate"]"
                         Value="@($"{_metrics?.BlockRatePercent:F2}%")"
                         Icon="percent"
                         AccentVariant="@(_metrics?.BlockRatePercent > 10 ? "red" : "green")"
                         IsLoading="_isLoading" />
 
-            <MetricCard Label="Disponibilidade"
+            <MetricCard Label="@L["Overview_Availability"]"
                         Value="@FormatUptime(_metrics?.Uptime)"
                         Icon="trending-up"
                         AccentVariant="green"
@@ -103,11 +103,11 @@ else
     </section>
 
     <div class="grid grid--2" style="margin-bottom: 24px;">
-        <ContentCard Title="Requisições ao Longo do Tempo" Subtitle="Últimos 60 minutos">
+        <ContentCard Title="@L["Overview_RequestsOverTime"]" Subtitle="@L["Overview_Last60Min"]">
             <RequestsLineChart SeriesData="_timeSeries" IsLoading="_isLoadingCharts" />
         </ContentCard>
 
-        <ContentCard Title="Distribuição de Tráfego" Subtitle="Permitidas vs Bloqueadas">
+        <ContentCard Title="@L["Overview_TrafficDistribution"]" Subtitle="@L["Overview_AllowedVsBlocked"]">
             <BlockRateDonutChart Allowed="_metrics?.AllowedRequests ?? 0"
                                  Blocked="_metrics?.BlockedRequests ?? 0"
                                  IsLoading="_isLoading" />
@@ -115,18 +115,18 @@ else
     </div>
 
     <div class="grid grid--2" style="margin-bottom: 24px;">
-        <ContentCard Title="Top Endpoints" Subtitle="Por volume de requisições">
+        <ContentCard Title="@L["Overview_TopEndpoints"]" Subtitle="@L["Overview_ByVolume"]">
             <HeaderActions>
-                <a href="/endpoints" class="btn btn--ghost btn--sm">Ver todos →</a>
+                <a href="/endpoints" class="btn btn--ghost btn--sm">@L["Common_ViewAll"]</a>
             </HeaderActions>
             <ChildContent>
                 <TopEndpointsBarChart Endpoints="_topEndpoints" IsLoading="_isLoadingCharts" />
             </ChildContent>
         </ContentCard>
 
-        <ContentCard Title="Top Clientes" Subtitle="Por volume de requisições">
+        <ContentCard Title="@L["Overview_TopClients"]" Subtitle="@L["Overview_ByVolume"]">
             <HeaderActions>
-                <a href="/clients" class="btn btn--ghost btn--sm">Ver todos →</a>
+                <a href="/clients" class="btn btn--ghost btn--sm">@L["Common_ViewAll"]</a>
             </HeaderActions>
             <ChildContent>
                 @if (_isLoadingCharts)
@@ -140,7 +140,7 @@ else
                 }
                 else if (!_topClients.Any())
                 {
-                    <EmptyState Icon="users" Title="Nenhum cliente registrado ainda" />
+                    <EmptyState Icon="users" Title="@L["Overview_NoClients"]" />
                 }
                 else
                 {
@@ -285,16 +285,17 @@ else
 
     private string GetUptimeLabel()
     {
-        if (_metrics?.Uptime is null) return "inicialização";
-        return FormatUptime(_metrics.Uptime) + " atrás";
+        if (_metrics?.Uptime is null) return L["Common_Startup"];
+        return string.Format(L["Common_Ago"].Value, FormatUptime(_metrics.Uptime));
     }
 
-    private static string FormatTimeAgo(DateTimeOffset time)
+    private string FormatTimeAgo(DateTimeOffset time)
     {
         var diff = DateTimeOffset.UtcNow - time;
-        if (diff.TotalSeconds < 5) return "agora mesmo";
-        if (diff.TotalSeconds < 60) return $"{(int)diff.TotalSeconds}s atrás";
-        return $"{(int)diff.TotalMinutes}m atrás";
+        if (diff.TotalSeconds < 5) return L["Time_JustNow"];
+        if (diff.TotalSeconds < 60)
+            return string.Format(L["Time_SecondsAgo"].Value, (int)diff.TotalSeconds);
+        return string.Format(L["Time_MinutesAgo"].Value, (int)diff.TotalMinutes);
     }
 
     private static string GetRiskVariant(ClientRisk risk) => risk switch
