@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/WebApiWithPolicies/WebApiWithPolicies.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/ThrottleWatch.Api/ThrottleWatch.Api.csproj" />
     <Project Path="src/ThrottleWatch.Application/ThrottleWatch.Application.csproj" />

@@ -217,8 +217,7 @@ ThrottleWatch.sln
 │   └── ThrottleWatch.E2ETests/        # Playwright end-to-end tests
 │
 ├── samples/
-│   ├── BasicApi/                      # Minimal API example
-│   └── WebApiWithPolicies/            # Full configuration example
+│   └── WebApiWithPolicies/            # Rate-limited API + Client SDK (real metrics)
 │
 └── docs/
     └── images/                        # Logos, banners, screenshots
@@ -265,26 +264,43 @@ Starts PostgreSQL, API and Dashboard. The API waits for a healthy database; the 
 # Optional: override ports/credentials
 cp .env.example .env
 
+# Stack only (Postgres + Api + Dashboard) — uses cached images
 make up
 make health
 open http://localhost:5100
+
+# One-shot demo with real metrics (sample + load, no rebuild)
+make demo
+open http://localhost:5100
+
+# After changing app/sample code, rebuild images once:
+make demo-rebuild
 ```
 
 | Service | URL / port |
 |---------|------------|
 | API | http://localhost:5080 |
 | Dashboard | http://localhost:5100 |
+| Sample (profile `demo`) | http://localhost:5299 |
 | PostgreSQL | localhost:5432 |
 
-> Default API port is **5080** (macOS often reserves `:5000` for AirPlay). Override via `.env`.
+> Default API port is **5080** (macOS often reserves `:5000` for AirPlay). Override via `.env`.  
+> `make up` / `make demo` are fast (no `--build`). Use `make up-rebuild` / `make demo-rebuild` when images are stale.
 
 | Target | Action |
 |--------|--------|
-| `make up` | Build and start full stack |
+| `make up` | Start Postgres + Api + Dashboard (cached images) |
+| `make up-rebuild` | Rebuild images, then start stack |
+| `make demo` | Fast: stack + sample + load (no rebuild) |
+| `make demo-rebuild` | Rebuild images, then demo |
 | `make db` | Start PostgreSQL only |
 | `make health` | Wait until API `/health` is ready |
 | `make down` | Stop containers (keeps volume) |
 | `make logs` / `make ps` | Logs / status |
+| `make sample` | Run sample locally with `dotnet run` (no Docker) |
+| `make load` | Hammer the sample (`SAMPLE_URL`, default `:5299`) |
+
+See [`samples/WebApiWithPolicies/README.md`](samples/WebApiWithPolicies/README.md).
 
 ### Run tests locally
 

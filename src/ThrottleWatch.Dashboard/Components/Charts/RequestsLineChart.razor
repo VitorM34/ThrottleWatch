@@ -16,7 +16,7 @@
         <ApexChart TItem="TimeSeriesPoint"
                    Title=""
                    Options="_options"
-                   @ref="_chart">
+                   @key="_chartKey">
             @foreach (var series in SeriesData)
             {
                 <ApexPointSeries TItem="TimeSeriesPoint"
@@ -34,18 +34,31 @@
     [Parameter] public IReadOnlyList<TimeSeriesData> SeriesData { get; set; } = [];
     [Parameter] public bool IsLoading { get; set; }
 
-    private ApexChart<TimeSeriesPoint>? _chart;
     private ApexChartOptions<TimeSeriesPoint> _options = null!;
+    private string _chartKey = "empty";
 
     protected override void OnInitialized()
     {
         _options = BuildOptions();
     }
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        if (_chart is not null && !IsLoading)
-            await _chart.RenderAsync();
+        // Remount instead of RenderAsync — ApexCharts NREs if JS chart is not ready yet.
+        if (IsLoading || SeriesData.Count == 0)
+        {
+            _chartKey = "empty";
+            return;
+        }
+
+        var points = SeriesData.Sum(s => s.Points.Count);
+        var first = SeriesData[0].Points.Count > 0
+            ? SeriesData[0].Points[0].Timestamp.ToUnixTimeSeconds()
+            : 0L;
+        var last = SeriesData[0].Points.Count > 0
+            ? SeriesData[0].Points[^1].Timestamp.ToUnixTimeSeconds()
+            : 0L;
+        _chartKey = $"{SeriesData.Count}:{points}:{first}:{last}";
     }
 
     private static ApexChartOptions<TimeSeriesPoint> BuildOptions() => new()

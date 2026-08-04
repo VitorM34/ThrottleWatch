@@ -15,7 +15,7 @@
     {
         <ApexChart TItem="EndpointMetrics"
                    Options="_options"
-                   @ref="_chart">
+                   @key="_chartKey">
             <ApexPointSeries TItem="EndpointMetrics"
                              Items="Endpoints"
                              SeriesType="SeriesType.Bar"
@@ -36,18 +36,23 @@
     [Parameter] public IReadOnlyList<EndpointMetrics> Endpoints { get; set; } = [];
     [Parameter] public bool IsLoading { get; set; }
 
-    private ApexChart<EndpointMetrics>? _chart;
     private ApexChartOptions<EndpointMetrics> _options = null!;
+    private string _chartKey = "empty";
 
     protected override void OnInitialized()
     {
         _options = BuildOptions();
     }
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        if (_chart is not null && !IsLoading)
-            await _chart.RenderAsync();
+        if (IsLoading || Endpoints.Count == 0)
+        {
+            _chartKey = "empty";
+            return;
+        }
+
+        _chartKey = $"{Endpoints.Count}:{Endpoints.Sum(e => e.TotalRequests)}:{Endpoints.Sum(e => e.BlockedRequests)}";
     }
 
     private static string TruncatePath(string path) =>
