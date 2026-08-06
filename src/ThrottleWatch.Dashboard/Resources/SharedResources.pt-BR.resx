@@ -6,14 +6,14 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Nav_SectionOverview" xml:space="preserve"><value>Visão Geral</value></data>
   <data name="Nav_Overview" xml:space="preserve"><value>Visão Geral</value></data>
-  <data name="Nav_Endpoints" xml:space="preserve"><value>Endpoints</value></data>
+  <data name="Nav_Endpoints" xml:space="preserve"><value>Rotas</value></data>
   <data name="Nav_Clients" xml:space="preserve"><value>Clientes</value></data>
   <data name="Nav_SectionConfig" xml:space="preserve"><value>Configuração</value></data>
   <data name="Nav_Policies" xml:space="preserve"><value>Políticas</value></data>
   <data name="Nav_Alerts" xml:space="preserve"><value>Alertas</value></data>
   <data name="Nav_SectionAnalytics" xml:space="preserve"><value>Análises</value></data>
   <data name="Nav_History" xml:space="preserve"><value>Histórico</value></data>
-  <data name="Nav_Insights" xml:space="preserve"><value>Insights</value></data>
+  <data name="Nav_Insights" xml:space="preserve"><value>Recomendações</value></data>
   <data name="Nav_SectionSystem" xml:space="preserve"><value>Sistema</value></data>
   <data name="Nav_Health" xml:space="preserve"><value>Saúde</value></data>
   <data name="Nav_Settings" xml:space="preserve"><value>Configurações</value></data>
@@ -26,7 +26,7 @@
   <data name="Nav_AlertsActive" xml:space="preserve"><value>{0} alertas ativos</value></data>
   <data name="Topbar_Aria" xml:space="preserve"><value>Barra superior</value></data>
   <data name="Topbar_ActionsAria" xml:space="preserve"><value>Ações da barra superior</value></data>
-  <data name="Topbar_ApiOnline" xml:space="preserve"><value>API online</value></data>
+  <data name="Topbar_ApiOnline" xml:space="preserve"><value>API disponível</value></data>
   <data name="Topbar_ApiChecking" xml:space="preserve"><value>Verificando</value></data>
   <data name="Topbar_ApiOffline" xml:space="preserve"><value>API offline</value></data>
   <data name="Topbar_Offline" xml:space="preserve"><value>Offline</value></data>
@@ -90,9 +90,9 @@
   <data name="Overview_AllowedVsBlocked" xml:space="preserve"><value>Permitidas vs Bloqueadas</value></data>
   <data name="Overview_TopEndpoints" xml:space="preserve"><value>Top Endpoints</value></data>
   <data name="Overview_TopClients" xml:space="preserve"><value>Top Clientes</value></data>
-  <data name="Endpoints_PageTitle" xml:space="preserve"><value>Endpoints - ThrottleWatch</value></data>
-  <data name="Endpoints_Title" xml:space="preserve"><value>Endpoints</value></data>
-  <data name="Endpoints_Subtitle" xml:space="preserve"><value>Métricas de rate limiting por endpoint</value></data>
+  <data name="Endpoints_PageTitle" xml:space="preserve"><value>Rotas - ThrottleWatch</value></data>
+  <data name="Endpoints_Title" xml:space="preserve"><value>Rotas</value></data>
+  <data name="Endpoints_Subtitle" xml:space="preserve"><value>Métricas de rate limiting por rota</value></data>
   <data name="Clients_PageTitle" xml:space="preserve"><value>Clientes - ThrottleWatch</value></data>
   <data name="Clients_Title" xml:space="preserve"><value>Clientes</value></data>
   <data name="Clients_Subtitle" xml:space="preserve"><value>Clientes e atividade de bloqueio</value></data>
@@ -105,8 +105,8 @@
   <data name="History_PageTitle" xml:space="preserve"><value>Histórico - ThrottleWatch</value></data>
   <data name="History_Title" xml:space="preserve"><value>Histórico</value></data>
   <data name="History_Subtitle" xml:space="preserve"><value>Tendências históricas de requisições e rate limiting</value></data>
-  <data name="Insights_PageTitle" xml:space="preserve"><value>Insights - ThrottleWatch</value></data>
-  <data name="Insights_Title" xml:space="preserve"><value>Insights</value></data>
+  <data name="Insights_PageTitle" xml:space="preserve"><value>Recomendações - ThrottleWatch</value></data>
+  <data name="Insights_Title" xml:space="preserve"><value>Recomendações</value></data>
   <data name="Insights_Subtitle" xml:space="preserve"><value>Recomendações inteligentes a partir do tráfego</value></data>
   <data name="Health_PageTitle" xml:space="preserve"><value>Saúde - ThrottleWatch</value></data>
   <data name="Health_Title" xml:space="preserve"><value>Saúde</value></data>
@@ -138,12 +138,12 @@
   <data name="History_Window6Hours" xml:space="preserve"><value>6 horas</value></data>
   <data name="History_Window24Hours" xml:space="preserve"><value>24 horas</value></data>
   <data name="History_WindowMinutes" xml:space="preserve"><value>{0} minutos</value></data>
-  <data name="Endpoints_SearchPlaceholder" xml:space="preserve"><value>Buscar endpoints...</value></data>
-  <data name="Endpoints_SearchAria" xml:space="preserve"><value>Buscar endpoints</value></data>
-  <data name="Endpoints_RefreshAria" xml:space="preserve"><value>Atualizar endpoints</value></data>
-  <data name="Endpoints_ErrorLoad" xml:space="preserve"><value>Erro ao carregar endpoints</value></data>
-  <data name="Endpoints_AllTitle" xml:space="preserve"><value>Todos os Endpoints</value></data>
-  <data name="Endpoints_CountSubtitle" xml:space="preserve"><value>{0} endpoints</value></data>
+  <data name="Endpoints_SearchPlaceholder" xml:space="preserve"><value>Buscar rotas...</value></data>
+  <data name="Endpoints_SearchAria" xml:space="preserve"><value>Buscar rotas</value></data>
+  <data name="Endpoints_RefreshAria" xml:space="preserve"><value>Atualizar rotas</value></data>
+  <data name="Endpoints_ErrorLoad" xml:space="preserve"><value>Erro ao carregar rotas</value></data>
+  <data name="Endpoints_AllTitle" xml:space="preserve"><value>Todas as rotas</value></data>
+  <data name="Endpoints_CountSubtitle" xml:space="preserve"><value>{0} rotas</value></data>
   <data name="Clients_SearchPlaceholder" xml:space="preserve"><value>Buscar por IP...</value></data>
   <data name="Clients_SearchAria" xml:space="preserve"><value>Buscar clientes por IP</value></data>
   <data name="Clients_RiskFilterAria" xml:space="preserve"><value>Filtrar por nível de risco</value></data>
@@ -156,10 +156,10 @@
   <data name="Clients_ActiveToday" xml:space="preserve"><value>Ativos hoje</value></data>
   <data name="Clients_AllTitle" xml:space="preserve"><value>Todos os Clientes</value></data>
   <data name="Clients_CountSubtitle" xml:space="preserve"><value>{0} clientes</value></data>
-  <data name="Insights_ErrorLoad" xml:space="preserve"><value>Erro ao carregar insights</value></data>
-  <data name="Insights_EmptyTitle" xml:space="preserve"><value>Nenhum insight disponível</value></data>
+  <data name="Insights_ErrorLoad" xml:space="preserve"><value>Erro ao carregar recomendações</value></data>
+  <data name="Insights_EmptyTitle" xml:space="preserve"><value>Nenhuma recomendação disponível</value></data>
   <data name="Insights_Dismiss" xml:space="preserve"><value>Dispensar</value></data>
-  <data name="Insights_DismissError" xml:space="preserve"><value>Não foi possível dispensar o insight.</value></data>
+  <data name="Insights_DismissError" xml:space="preserve"><value>Não foi possível dispensar a recomendação.</value></data>
   <data name="Insights_TypeSuspicious" xml:space="preserve"><value>Cliente suspeito</value></data>
   <data name="Insights_TypeMisconfigured" xml:space="preserve"><value>Política mal configurada</value></data>
   <data name="Insights_Critical" xml:space="preserve"><value>Críticos</value></data>
@@ -184,8 +184,8 @@
   <data name="Common_RiskMedium" xml:space="preserve"><value>Médio</value></data>
   <data name="Common_RiskHigh" xml:space="preserve"><value>Alto</value></data>
   <data name="Common_RiskCritical" xml:space="preserve"><value>Crítico</value></data>
-  <data name="Insights_EmptyMessage" xml:space="preserve"><value>Os insights são gerados após coletar dados de tráfego suficientes. Volte após sua aplicação receber mais requisições.</value></data>
-  <data name="Insights_Dismissed" xml:space="preserve"><value>Insight dispensado.</value></data>
+  <data name="Insights_EmptyMessage" xml:space="preserve"><value>As recomendações são geradas após coletar dados de tráfego suficientes. Volte após sua aplicação receber mais requisições.</value></data>
+  <data name="Insights_Dismissed" xml:space="preserve"><value>Recomendação dispensada.</value></data>
   <data name="Insights_Resource" xml:space="preserve"><value>Recurso:</value></data>
   <data name="Insights_TypeHighBlockRate" xml:space="preserve"><value>Alta taxa de bloqueio</value></data>
   <data name="Insights_TypePeakHours" xml:space="preserve"><value>Horário de pico</value></data>
