@@ -2,24 +2,25 @@
 
 @* Donut chart showing the breakdown of allowed vs blocked requests *@
 
-<div class="chart-wrapper" aria-label="Block rate distribution chart" role="img">
+<div class="chart-wrapper" aria-label="@L["Overview_AllowedVsBlocked"]" role="img">
     @if (IsLoading)
     {
         <div class="skeleton" style="height: 220px; border-radius: 50%; width: 220px; margin: 0 auto;"></div>
     }
     else if (Total == 0)
     {
-        <EmptyState Icon="percent" Title="No data" Message="Requests will appear here." />
+        <EmptyState Icon="percent" Title="@L["Common_EmptyDefault"]" Message="@L["Overview_AllowedVsBlocked"]" />
     }
     else
     {
+        @* Stable @key: remount only empty↔data. Remounting on every poll restarts Apex animation. *@
         <ApexChart TItem="DonutSlice"
                    Options="_options"
                    @key="_chartKey">
             <ApexPointSeries TItem="DonutSlice"
                              Items="_slices"
                              SeriesType="SeriesType.Donut"
-                             Name="Requests"
+                             Name="@L["Overview_TotalRequests"]"
                              XValue="@(s => s.Label)"
                              YValue="@(s => (decimal)s.Value)" />
         </ApexChart>
@@ -34,34 +35,44 @@
     private ApexChartOptions<DonutSlice> _options = null!;
     private List<DonutSlice> _slices = [];
     private string _chartKey = "empty";
+    private bool _hasChart;
 
     private long Total => Allowed + Blocked;
 
-    protected override void OnInitialized()
-    {
-        _options = BuildOptions();
-    }
-
     protected override void OnParametersSet()
     {
+        _options = BuildOptions();
+
         _slices =
         [
-            new("Allowed", Allowed),
-            new("Blocked", Blocked)
+            new(L["Overview_Allowed"], Allowed),
+            new(L["Overview_Blocked"], Blocked)
         ];
 
-        _chartKey = IsLoading || Total == 0
-            ? "empty"
-            : $"{Allowed}:{Blocked}";
+        var shouldShow = !IsLoading && Total > 0;
+        if (shouldShow && !_hasChart)
+        {
+            _chartKey = "donut";
+            _hasChart = true;
+        }
+        else if (!shouldShow && _hasChart)
+        {
+            _chartKey = "empty";
+            _hasChart = false;
+        }
     }
 
-    private static ApexChartOptions<DonutSlice> BuildOptions() => new()
+    private ApexChartOptions<DonutSlice> BuildOptions() => new()
     {
         Chart = new Chart
         {
             Background = "transparent",
             ForeColor = "#9aa3b8",
-            Toolbar = new Toolbar { Show = false }
+            Toolbar = new Toolbar { Show = false },
+            Animations = new Animations
+            {
+                Enabled = false
+            }
         },
         Colors = ["#22c55e", "#ef4444"],
         PlotOptions = new PlotOptions
@@ -77,7 +88,7 @@
                         Total = new DonutLabelTotal
                         {
                             Show = true,
-                            Label = "Total",
+                            Label = L["Alerts_MetricTotal"],
                             Color = "#9aa3b8",
                             FontSize = "13px"
                         },
