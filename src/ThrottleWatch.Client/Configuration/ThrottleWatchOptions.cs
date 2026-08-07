@@ -14,6 +14,12 @@ public sealed class ThrottleWatchOptions
 
     public bool CaptureClientIp { get; set; } = true;
 
+    /// <summary>
+    /// Shared secret for authenticating to ThrottleWatch.Api (<c>X-ThrottleWatch-Key</c>).
+    /// Not the same as <see cref="ApiKeyHeaderName"/> (which reads keys from inbound app traffic).
+    /// </summary>
+    public string? ApiKey { get; set; }
+
     public string? ApiKeyHeaderName { get; set; } = "X-Api-Key";
 
     public string? PolicyNameHeaderName { get; set; } = "X-RateLimit-Policy";

@@ -10,6 +10,9 @@ namespace ThrottleWatch.Api.Tests;
 
 public sealed class ThrottleWatchApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    public const string TestApiKey = "test-throttlewatch-key";
+    public const string TestApiKeyHeader = "X-ThrottleWatch-Key";
+
     private PostgreSqlContainer? _postgres;
     private string _connectionString = string.Empty;
 
@@ -82,6 +85,8 @@ public sealed class ThrottleWatchApiFactory : WebApplicationFactory<Program>, IA
             {
                 ["ConnectionStrings:DefaultConnection"] = _connectionString,
                 ["Database:ApplyMigrationsOnStartup"] = "true",
+                ["ThrottleWatch:Security:ApiKey"] = TestApiKey,
+                ["ThrottleWatch:Security:HeaderName"] = TestApiKeyHeader,
                 ["ThrottleWatch:Alerts:Enabled"] = "false",
                 ["ThrottleWatch:Insights:IntervalMinutes"] = "60",
                 ["Serilog:MinimumLevel:Default"] = "Warning"
@@ -94,5 +99,12 @@ public sealed class ThrottleWatchApiFactory : WebApplicationFactory<Program>, IA
             foreach (var descriptor in hosted)
                 services.Remove(descriptor);
         });
+    }
+
+    public HttpClient CreateAuthenticatedClient()
+    {
+        var client = CreateClient();
+        client.DefaultRequestHeaders.TryAddWithoutValidation(TestApiKeyHeader, TestApiKey);
+        return client;
     }
 }

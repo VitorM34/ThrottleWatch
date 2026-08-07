@@ -39,7 +39,7 @@ public sealed class MetricsEndpointsTests
 
     public MetricsEndpointsTests(ThrottleWatchApiFactory factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.CreateAuthenticatedClient();
     }
 
     [Fact]
@@ -95,7 +95,7 @@ public sealed class AlertsEndpointsTests
 
     public AlertsEndpointsTests(ThrottleWatchApiFactory factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.CreateAuthenticatedClient();
     }
 
     [Fact]
@@ -137,7 +137,7 @@ public sealed class InsightsEndpointsTests
 
     public InsightsEndpointsTests(ThrottleWatchApiFactory factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.CreateAuthenticatedClient();
     }
 
     [Fact]
