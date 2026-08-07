@@ -4,9 +4,22 @@ public sealed class ThrottleWatchOptions
 {
     public const string SectionName = "ThrottleWatch";
 
+    public SecurityOptions Security { get; set; } = new();
+
     public AlertsOptions Alerts { get; set; } = new();
 
     public InsightsOptions Insights { get; set; } = new();
+}
+
+/// <summary>Shared-secret auth for ThrottleWatch.Api (/api/*).</summary>
+public sealed class SecurityOptions
+{
+    public const string DefaultHeaderName = "X-ThrottleWatch-Key";
+
+    /// <summary>When empty in Development, auth is skipped (with a warning). Required outside Development.</summary>
+    public string? ApiKey { get; set; }
+
+    public string HeaderName { get; set; } = DefaultHeaderName;
 }
 
 public sealed class InsightsOptions

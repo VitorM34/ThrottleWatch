@@ -44,6 +44,8 @@ services:
       <<: *aspnet-environment
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-throttlewatch};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
       Database__ApplyMigrationsOnStartup: ${APPLY_MIGRATIONS:-true}
+      ThrottleWatch__Security__ApiKey: ${THROTTLEWATCH_API_KEY:-dev-throttlewatch-key}
+      ThrottleWatch__Security__HeaderName: X-ThrottleWatch-Key
     ports:
       # Host 5080 avoids macOS AirPlay on :5000
       - "${API_PORT:-5080}:8080"
@@ -68,6 +70,7 @@ services:
       <<: *aspnet-environment
       # Blazor Server calls the API from inside the network
       ThrottleWatch__ApiBaseUrl: http://api:8080
+      ThrottleWatch__ApiKey: ${THROTTLEWATCH_API_KEY:-dev-throttlewatch-key}
       ThrottleWatch__RefreshIntervalSeconds: ${DASHBOARD_REFRESH_SECONDS:-5}
       DataProtection__KeysPath: /keys
     ports:
@@ -92,6 +95,7 @@ services:
       <<: *aspnet-environment
       # Container → API hostname on the compose network
       ThrottleWatch__ApiBaseUrl: http://api:8080
+      ThrottleWatch__ApiKey: ${THROTTLEWATCH_API_KEY:-dev-throttlewatch-key}
     ports:
       - "${SAMPLE_PORT:-5299}:8080"
     healthcheck:

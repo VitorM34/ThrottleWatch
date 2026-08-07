@@ -27,6 +27,7 @@ try
     app.UseThrottleWatchOpenApi();
     app.UseHttpsRedirection();
     app.UseCors();
+    app.UseThrottleWatchApiKeyAuth();
 
     app.MapMetricsEndpoints();
     app.MapAlertsEndpoints();

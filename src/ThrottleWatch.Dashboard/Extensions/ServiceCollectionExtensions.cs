@@ -1,6 +1,7 @@
 using ApexCharts;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Options;
 using ThrottleWatch.Dashboard.Localization;
 using ThrottleWatch.Dashboard.Models;
 using ThrottleWatch.Dashboard.Services;
@@ -18,15 +19,20 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        var options = configuration
-            .GetSection(ThrottleWatchOptions.SectionName)
-            .Get<ThrottleWatchOptions>() ?? new ThrottleWatchOptions();
-
-        void ConfigureApiClient(HttpClient client)
+        void ConfigureApiClient(IServiceProvider sp, HttpClient client)
         {
+            var options = sp.GetRequiredService<IOptionsMonitor<ThrottleWatchOptions>>().CurrentValue;
             client.BaseAddress = new Uri(options.ApiBaseUrl.TrimEnd('/') + "/");
             client.Timeout = TimeSpan.FromSeconds(10);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
+
+            if (!string.IsNullOrWhiteSpace(options.ApiKey))
+            {
+                client.DefaultRequestHeaders.Remove("X-ThrottleWatch-Key");
+                client.DefaultRequestHeaders.TryAddWithoutValidation(
+                    "X-ThrottleWatch-Key",
+                    options.ApiKey);
+            }
         }
 
         services.AddHttpClient<IMetricsService, MetricsService>(ConfigureApiClient);

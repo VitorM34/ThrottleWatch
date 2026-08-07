@@ -88,6 +88,14 @@ public static class ThrottleWatchExtensions
                 var options = sp.GetRequiredService<IOptionsMonitor<ThrottleWatchOptions>>().CurrentValue;
                 client.BaseAddress = new Uri(options.ApiBaseUrl.TrimEnd('/') + "/");
                 client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+
+                    if (!string.IsNullOrWhiteSpace(options.ApiKey))
+                {
+                    client.DefaultRequestHeaders.Remove("X-ThrottleWatch-Key");
+                    client.DefaultRequestHeaders.TryAddWithoutValidation(
+                        "X-ThrottleWatch-Key",
+                        options.ApiKey);
+                }
             })
             .AddStandardResilienceHandler();
 
