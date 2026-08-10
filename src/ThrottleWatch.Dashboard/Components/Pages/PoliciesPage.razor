@@ -37,7 +37,7 @@ else
                 <div class="card__header">
                     <div>
                         <div class="card__title">@policy.Name</div>
-                        <div class="card__subtitle">@policy.Algorithm</div>
+                        <div class="card__subtitle">@L["Policies_Observed"]</div>
                     </div>
                     <Badge Variant="@(policy.IsActive ? "success" : "neutral")" ShowDot="true" Pulse="policy.IsActive">
                         @(policy.IsActive ? L["Policies_Active"] : L["Policies_Inactive"])
@@ -47,11 +47,11 @@ else
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                         <div>
                             <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">@L["Policies_Limit"]</div>
-                            <div style="font-size: 1.25rem; font-weight: 700;">@policy.PermitLimit.ToString("N0")</div>
+                            <div style="font-size: 1.25rem; font-weight: 700;">@L["Policies_Unavailable"]</div>
                         </div>
                         <div>
                             <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">@L["Policies_Window"]</div>
-                            <div style="font-size: 1.25rem; font-weight: 700;">@FormatWindow(policy.Window)</div>
+                            <div style="font-size: 1.25rem; font-weight: 700;">@L["Policies_Unavailable"]</div>
                         </div>
                         <div>
                             <div style="font-size: 0.75rem; color: var(--tw-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">@L["Policies_TotalReq"]</div>
@@ -70,9 +70,6 @@ else
                             <span style="color: @GetRejectionColor(policy.RejectionRatePercent)">@policy.RejectionRatePercent.ToString("F1")%</span>
                         </div>
                         <ProgressBar Value="policy.RejectionRatePercent" Variant="@GetProgressVariant(policy.RejectionRatePercent)" Label="@L["Policies_RejectionRate"]" />
-                    </div>
-                    <div style="font-size: 0.8125rem; color: var(--tw-text-muted);">
-                        @string.Format(L["Policies_ActiveConnections"].Value, policy.ActiveConnections)
                     </div>
                 </div>
             </div>
@@ -101,14 +98,6 @@ else
         catch (OperationCanceledException) { }
         catch { _hasError = true; }
         finally { _isLoading = false; StateHasChanged(); }
-    }
-
-    private static string FormatWindow(TimeSpan window)
-    {
-        if (window.TotalDays >= 1)    return $"{(int)window.TotalDays}d";
-        if (window.TotalHours >= 1)   return $"{(int)window.TotalHours}h";
-        if (window.TotalMinutes >= 1) return $"{(int)window.TotalMinutes}m";
-        return $"{(int)window.TotalSeconds}s";
     }
 
     private static string FormatNumber(long value) => value switch

@@ -7,7 +7,9 @@ public sealed record MetricsSummaryApiDto(
     long TotalBlocked,
     DateTimeOffset From,
     DateTimeOffset To,
-    double BlockRatePercent)
+    double BlockRatePercent,
+    double AverageLatencyMs,
+    int ActiveClients)
 {
     public DashboardMetrics ToModel()
     {
@@ -18,8 +20,8 @@ public sealed record MetricsSummaryApiDto(
             BlockedRequests = TotalBlocked,
             AllowedRequests = Math.Max(0, TotalRequests - TotalBlocked),
             RequestsPerSecond = Math.Round(TotalRequests / windowSeconds, 2),
-            AverageLatencyMs = 0,
-            ActiveClients = 0,
+            AverageLatencyMs = AverageLatencyMs,
+            ActiveClients = ActiveClients,
             Uptime = To - From
         };
     }
@@ -29,7 +31,10 @@ public sealed record TopEndpointApiDto(
     string Path,
     string Method,
     long RequestCount,
-    long BlockedCount)
+    long BlockedCount,
+    double AverageLatencyMs,
+    string? PolicyName,
+    DateTimeOffset LastActivity)
 {
     public EndpointMetrics ToModel()
     {
@@ -42,12 +47,12 @@ public sealed record TopEndpointApiDto(
             TotalRequests = RequestCount,
             BlockedRequests = BlockedCount,
             AllowedRequests = allowed,
-            AverageLatencyMs = 0,
-            PolicyName = string.Empty,
+            AverageLatencyMs = AverageLatencyMs,
+            PolicyName = PolicyName ?? string.Empty,
             Status = blockRate >= 50 ? EndpointStatus.Critical
                 : blockRate >= 20 ? EndpointStatus.Warning
                 : EndpointStatus.Healthy,
-            LastActivity = DateTimeOffset.UtcNow
+            LastActivity = LastActivity
         };
     }
 }
@@ -55,7 +60,9 @@ public sealed record TopEndpointApiDto(
 public sealed record TopClientApiDto(
     string ClientIdentifier,
     long RequestCount,
-    long BlockedCount)
+    long BlockedCount,
+    DateTimeOffset FirstSeen,
+    DateTimeOffset LastSeen)
 {
     public ClientMetrics ToModel()
     {
@@ -65,8 +72,8 @@ public sealed record TopClientApiDto(
             IpAddress = ClientIdentifier,
             TotalRequests = RequestCount,
             BlockedRequests = BlockedCount,
-            FirstSeen = DateTimeOffset.UtcNow,
-            LastSeen = DateTimeOffset.UtcNow,
+            FirstSeen = FirstSeen,
+            LastSeen = LastSeen,
             RiskLevel = blockRate >= 50 ? ClientRisk.Critical
                 : blockRate >= 20 ? ClientRisk.High
                 : blockRate >= 5 ? ClientRisk.Medium
@@ -74,6 +81,25 @@ public sealed record TopClientApiDto(
             IsBlocked = BlockedCount > 0 && blockRate >= 80
         };
     }
+}
+
+public sealed record ObservedPolicyApiDto(
+    string Name,
+    long TotalRequests,
+    long BlockedCount)
+{
+    public PolicyInfo ToModel() => new()
+    {
+        Name = Name,
+        TotalRequests = TotalRequests,
+        RejectedRequests = BlockedCount,
+        // Not available from ingested metrics — UI shows "—" for these.
+        PermitLimit = 0,
+        Window = TimeSpan.Zero,
+        Algorithm = string.Empty,
+        IsActive = true,
+        ActiveConnections = 0
+    };
 }
 
 public sealed record TimeSeriesPointApiDto(

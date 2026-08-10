@@ -86,6 +86,48 @@ public sealed class MetricsEndpointsTests
         var response = await _client.GetAsync("/api/metrics/timeseries");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
+
+    [Fact]
+    public async Task GetObservedPolicies_ShouldReturnOk()
+    {
+        var response = await _client.GetAsync("/api/metrics/policies");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var policies = await response.Content.ReadFromJsonAsync<IReadOnlyList<ObservedPolicyDto>>();
+        policies.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task GetSummary_AfterIngest_ShouldExposeLatencyAndActiveClients()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var batch = new[]
+        {
+            new IngestMetricDto("/api/demo", "GET", 200, 25, now, "10.0.0.1", "fixed", null),
+            new IngestMetricDto("/api/demo", "GET", 429, 40, now, "10.0.0.2", "fixed", null)
+        };
+
+        var ingest = await _client.PostAsJsonAsync("/api/metrics", batch);
+        ingest.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        // Flush worker may need a short moment; poll summary until totals move or timeout.
+        MetricsSummaryDto? summary = null;
+        for (var i = 0; i < 20; i++)
+        {
+            await Task.Delay(100);
+            var response = await _client.GetAsync("/api/metrics/summary");
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            summary = await response.Content.ReadFromJsonAsync<MetricsSummaryDto>();
+            if (summary is { TotalRequests: > 0 })
+                break;
+        }
+
+        summary.Should().NotBeNull();
+        if (summary!.TotalRequests > 0)
+        {
+            summary.AverageLatencyMs.Should().BeGreaterThan(0);
+            summary.ActiveClients.Should().BeGreaterThan(0);
+        }
+    }
 }
 
 [Collection(nameof(ApiCollection))]

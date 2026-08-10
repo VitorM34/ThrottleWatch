@@ -56,8 +56,10 @@ public sealed class MetricsService : IMetricsService
     {
         var total = await _repository.GetTotalRequestsAsync(from, to, ct);
         var blocked = await _repository.GetTotalBlockedAsync(from, to, ct);
+        var averageLatencyMs = await _repository.GetAverageLatencyMsAsync(from, to, ct);
+        var activeClients = await _repository.GetActiveClientsAsync(from, to, ct);
 
-        return new MetricsSummaryDto(total, blocked, from, to);
+        return new MetricsSummaryDto(total, blocked, from, to, averageLatencyMs, activeClients);
     }
 
     public async Task<IReadOnlyList<TopEndpointDto>> GetTopEndpointsAsync(
@@ -68,7 +70,14 @@ public sealed class MetricsService : IMetricsService
         var results = await _repository.GetTopEndpointsAsync(top, from, ct);
 
         return results
-            .Select(r => new TopEndpointDto(r.Path, r.Method, r.RequestCount, r.BlockedCount))
+            .Select(r => new TopEndpointDto(
+                r.Path,
+                r.Method,
+                r.RequestCount,
+                r.BlockedCount,
+                r.AverageLatencyMs,
+                r.PolicyName,
+                r.LastActivity))
             .ToList();
     }
 
@@ -80,7 +89,23 @@ public sealed class MetricsService : IMetricsService
         var results = await _repository.GetTopClientsAsync(top, from, ct);
 
         return results
-            .Select(r => new TopClientDto(r.ClientIdentifier, r.RequestCount, r.BlockedCount))
+            .Select(r => new TopClientDto(
+                r.ClientIdentifier,
+                r.RequestCount,
+                r.BlockedCount,
+                r.FirstSeen,
+                r.LastSeen))
+            .ToList();
+    }
+
+    public async Task<IReadOnlyList<ObservedPolicyDto>> GetObservedPoliciesAsync(
+        DateTimeOffset from,
+        CancellationToken ct)
+    {
+        var results = await _repository.GetObservedPoliciesAsync(from, ct);
+
+        return results
+            .Select(r => new ObservedPolicyDto(r.Name, r.TotalRequests, r.BlockedCount))
             .ToList();
     }
 

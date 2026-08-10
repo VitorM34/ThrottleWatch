@@ -148,4 +148,57 @@ public sealed class DtoMappingTests
         Assert.Equal(3, model.Points.Count);
         Assert.Equal(30, model.Points[2].Value);
     }
+
+    [Fact]
+    public void MetricsSummaryApiDto_MapsHonestyFields()
+    {
+        var from = DateTimeOffset.UtcNow.AddHours(-1);
+        var to = DateTimeOffset.UtcNow;
+        var dto = new MetricsSummaryApiDto(100, 10, from, to, 10, 33.5, 4);
+
+        var model = dto.ToModel();
+
+        Assert.Equal(33.5, model.AverageLatencyMs);
+        Assert.Equal(4, model.ActiveClients);
+    }
+
+    [Fact]
+    public void TopEndpointApiDto_MapsLatencyAndPolicy()
+    {
+        var last = DateTimeOffset.UtcNow.AddMinutes(-2);
+        var dto = new TopEndpointApiDto("/api/x", "GET", 50, 5, 12.0, "fixed", last);
+
+        var model = dto.ToModel();
+
+        Assert.Equal(12.0, model.AverageLatencyMs);
+        Assert.Equal("fixed", model.PolicyName);
+        Assert.Equal(last, model.LastActivity);
+    }
+
+    [Fact]
+    public void TopClientApiDto_MapsSeenTimestamps()
+    {
+        var first = DateTimeOffset.UtcNow.AddHours(-5);
+        var last = DateTimeOffset.UtcNow.AddMinutes(-1);
+        var dto = new TopClientApiDto("10.0.0.1", 20, 2, first, last);
+
+        var model = dto.ToModel();
+
+        Assert.Equal(first, model.FirstSeen);
+        Assert.Equal(last, model.LastSeen);
+    }
+
+    [Fact]
+    public void ObservedPolicyApiDto_MapsUsageOnly()
+    {
+        var dto = new ObservedPolicyApiDto("fixed-window", 200, 40);
+
+        var model = dto.ToModel();
+
+        Assert.Equal("fixed-window", model.Name);
+        Assert.Equal(200, model.TotalRequests);
+        Assert.Equal(40, model.RejectedRequests);
+        Assert.Equal(0, model.PermitLimit);
+        Assert.Equal(TimeSpan.Zero, model.Window);
+    }
 }

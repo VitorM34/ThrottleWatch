@@ -4,4 +4,7 @@ public sealed record TopEndpointDto(
     string Path,
     string Method,
     long RequestCount,
-    long BlockedCount);
+    long BlockedCount,
+    double AverageLatencyMs,
+    string? PolicyName,
+    DateTimeOffset LastActivity);
