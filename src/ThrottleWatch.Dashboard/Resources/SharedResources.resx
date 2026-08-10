@@ -98,7 +98,7 @@
   <data name="Clients_Subtitle" xml:space="preserve"><value>Clients and block activity</value></data>
   <data name="Policies_PageTitle" xml:space="preserve"><value>Policies - ThrottleWatch</value></data>
   <data name="Policies_Title" xml:space="preserve"><value>Policies</value></data>
-  <data name="Policies_Subtitle" xml:space="preserve"><value>Configured rate limiting policies</value></data>
+  <data name="Policies_Subtitle" xml:space="preserve"><value>Policies observed from ingested metrics</value></data>
   <data name="Alerts_PageTitle" xml:space="preserve"><value>Alerts - ThrottleWatch</value></data>
   <data name="Alerts_Title" xml:space="preserve"><value>Alerts</value></data>
   <data name="Alerts_Subtitle" xml:space="preserve"><value>Rules and alert events</value></data>
@@ -166,7 +166,7 @@
   <data name="Insights_Warnings" xml:space="preserve"><value>Warnings</value></data>
   <data name="Insights_Info" xml:space="preserve"><value>Info</value></data>
   <data name="Policies_ErrorLoad" xml:space="preserve"><value>Failed to load policies</value></data>
-  <data name="Policies_EmptyTitle" xml:space="preserve"><value>No policies configured</value></data>
+  <data name="Policies_EmptyTitle" xml:space="preserve"><value>No policies observed</value></data>
   <data name="Policies_EmptyMessage" xml:space="preserve"><value>Policies appear when rate limiting is configured in your ASP.NET Core app.</value></data>
   <data name="Health_ErrorLoad" xml:space="preserve"><value>Failed to load health status</value></data>
   <data name="Health_EmptyTitle" xml:space="preserve"><value>No health checks registered</value></data>
@@ -243,6 +243,8 @@
   <data name="Alerts_Created" xml:space="preserve"><value>Rule created.</value></data>
   <data name="Alerts_Updated" xml:space="preserve"><value>Rule updated.</value></data>
   <data name="Policies_Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Policies_Observed" xml:space="preserve"><value>Observed from metrics</value></data>
+  <data name="Policies_Unavailable" xml:space="preserve"><value>—</value></data>
   <data name="Policies_Inactive" xml:space="preserve"><value>Inactive</value></data>
   <data name="Policies_Limit" xml:space="preserve"><value>Limit</value></data>
   <data name="Policies_Window" xml:space="preserve"><value>Window</value></data>

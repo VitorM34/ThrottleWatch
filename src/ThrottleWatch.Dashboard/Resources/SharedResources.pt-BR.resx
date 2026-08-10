@@ -98,7 +98,7 @@
   <data name="Clients_Subtitle" xml:space="preserve"><value>Clientes e atividade de bloqueio</value></data>
   <data name="Policies_PageTitle" xml:space="preserve"><value>Políticas - ThrottleWatch</value></data>
   <data name="Policies_Title" xml:space="preserve"><value>Políticas</value></data>
-  <data name="Policies_Subtitle" xml:space="preserve"><value>Políticas de rate limiting configuradas</value></data>
+  <data name="Policies_Subtitle" xml:space="preserve"><value>Políticas observadas nas métricas ingeridas</value></data>
   <data name="Alerts_PageTitle" xml:space="preserve"><value>Alertas - ThrottleWatch</value></data>
   <data name="Alerts_Title" xml:space="preserve"><value>Alertas</value></data>
   <data name="Alerts_Subtitle" xml:space="preserve"><value>Regras e eventos de alerta</value></data>
@@ -166,7 +166,7 @@
   <data name="Insights_Warnings" xml:space="preserve"><value>Avisos</value></data>
   <data name="Insights_Info" xml:space="preserve"><value>Info</value></data>
   <data name="Policies_ErrorLoad" xml:space="preserve"><value>Erro ao carregar políticas</value></data>
-  <data name="Policies_EmptyTitle" xml:space="preserve"><value>Nenhuma política configurada</value></data>
+  <data name="Policies_EmptyTitle" xml:space="preserve"><value>Nenhuma política observada</value></data>
   <data name="Policies_EmptyMessage" xml:space="preserve"><value>As políticas aparecem quando o rate limiting é configurado na sua aplicação ASP.NET Core.</value></data>
   <data name="Health_ErrorLoad" xml:space="preserve"><value>Erro ao carregar saúde</value></data>
   <data name="Health_EmptyTitle" xml:space="preserve"><value>Nenhum health check registrado</value></data>
@@ -243,6 +243,8 @@
   <data name="Alerts_Created" xml:space="preserve"><value>Regra criada.</value></data>
   <data name="Alerts_Updated" xml:space="preserve"><value>Regra atualizada.</value></data>
   <data name="Policies_Active" xml:space="preserve"><value>Ativa</value></data>
+  <data name="Policies_Observed" xml:space="preserve"><value>Observada nas métricas</value></data>
+  <data name="Policies_Unavailable" xml:space="preserve"><value>—</value></data>
   <data name="Policies_Inactive" xml:space="preserve"><value>Inativa</value></data>
   <data name="Policies_Limit" xml:space="preserve"><value>Limite</value></data>
   <data name="Policies_Window" xml:space="preserve"><value>Janela</value></data>

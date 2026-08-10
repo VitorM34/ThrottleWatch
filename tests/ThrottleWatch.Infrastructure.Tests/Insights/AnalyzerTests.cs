@@ -63,7 +63,7 @@ public sealed class SuspiciousClientAnalyzerTests
         _metrics.GetTopClientsAsync(20, Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
             .Returns(new List<ClientSummary>
             {
-                new("10.0.0.1", 80, 55)
+                new("10.0.0.1", 80, 55, DateTimeOffset.UtcNow.AddHours(-2), DateTimeOffset.UtcNow)
             });
 
         var result = await _sut.AnalyzeAsync(_metrics, CancellationToken.None);
@@ -80,7 +80,7 @@ public sealed class SuspiciousClientAnalyzerTests
         _metrics.GetTopClientsAsync(20, Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
             .Returns(new List<ClientSummary>
             {
-                new("10.0.0.1", 20, 5)
+                new("10.0.0.1", 20, 5, DateTimeOffset.UtcNow.AddHours(-1), DateTimeOffset.UtcNow)
             });
 
         var result = await _sut.AnalyzeAsync(_metrics, CancellationToken.None);
@@ -100,7 +100,7 @@ public sealed class MisconfiguredPolicyAnalyzerTests
         _metrics.GetTopEndpointsAsync(20, Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
             .Returns(new List<EndpointSummary>
             {
-                new("/api/login", "POST", 100, 95)
+                new("/api/login", "POST", 100, 95, 12.5, "fixed", DateTimeOffset.UtcNow)
             });
 
         var result = await _sut.AnalyzeAsync(_metrics, CancellationToken.None);

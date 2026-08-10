@@ -25,6 +25,9 @@ public static class MetricsEndpoints
         group.MapGet("/timeseries", MapGetTimeSeries)
             .WithName("GetTimeSeries");
 
+        group.MapGet("/policies", MapGetObservedPolicies)
+            .WithName("GetObservedPolicies");
+
         return app;
     }
 
@@ -89,6 +92,17 @@ public static class MetricsEndpoints
         var rangeFrom = from ?? rangeTo.AddHours(-24);
 
         var result = await metricsService.GetTimeSeriesAsync(rangeFrom, rangeTo, ct);
+        return Results.Ok(result);
+    }
+
+    private static async Task<IResult> MapGetObservedPolicies(
+        DateTimeOffset? from,
+        IMetricsService metricsService,
+        CancellationToken ct)
+    {
+        var rangeFrom = from ?? DateTimeOffset.UtcNow.AddHours(-24);
+
+        var result = await metricsService.GetObservedPoliciesAsync(rangeFrom, ct);
         return Results.Ok(result);
     }
 }

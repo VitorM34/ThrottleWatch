@@ -121,10 +121,20 @@ public sealed class MetricsService : IMetricsService
         return await GetTopClientsAsync(50, cancellationToken);
     }
 
-    public Task<IReadOnlyList<PolicyInfo>> GetPoliciesAsync(
+    public async Task<IReadOnlyList<PolicyInfo>> GetPoliciesAsync(
         CancellationToken cancellationToken = default)
     {
-        return Task.FromResult<IReadOnlyList<PolicyInfo>>([]);
+        try
+        {
+            var dtos = await _httpClient.GetFromJsonAsync<IReadOnlyList<ObservedPolicyApiDto>>(
+                "api/metrics/policies", cancellationToken);
+            return dtos?.Select(d => d.ToModel()).ToList() ?? [];
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Failed to fetch observed policies");
+            return [];
+        }
     }
 
     public async Task<IReadOnlyList<AlertInfo>> GetAlertsAsync(

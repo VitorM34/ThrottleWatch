@@ -3,4 +3,6 @@ namespace ThrottleWatch.Application.DTOs.Metrics;
 public sealed record TopClientDto(
     string ClientIdentifier,
     long RequestCount,
-    long BlockedCount);
+    long BlockedCount,
+    DateTimeOffset FirstSeen,
+    DateTimeOffset LastSeen);
