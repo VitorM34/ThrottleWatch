@@ -6,9 +6,29 @@
     <Nullable>enable</Nullable>
     <RootNamespace>ThrottleWatch.Client</RootNamespace>
     <AssemblyName>ThrottleWatch.Client</AssemblyName>
-    <Description>ASP.NET Core SDK that captures request metrics and ships them to ThrottleWatch.Api.</Description>
     <IsPackable>true</IsPackable>
+
+    <!-- NuGet (PackageId matches README: dotnet add package ThrottleWatch) -->
+    <PackageId>ThrottleWatch</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>ThrottleWatch Contributors</Authors>
+    <Company>ThrottleWatch</Company>
+    <Product>ThrottleWatch</Product>
+    <Description>ASP.NET Core client SDK that captures request metrics (including rate-limit blocks) and ships them to ThrottleWatch.Api.</Description>
+    <PackageTags>aspnetcore;rate-limiting;observability;metrics;throttlewatch;middleware</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/VitorM34/ThrottleWatch</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VitorM34/ThrottleWatch</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>PACKAGE.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="PACKAGE.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
