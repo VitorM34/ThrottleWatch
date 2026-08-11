@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/NuGet-coming%20soon-2563EB?style=for-the-badge&logo=nuget&labelColor=0D1117" alt="NuGet"/>
+  <img src="https://img.shields.io/badge/NuGet-ThrottleWatch%201.0.0-2563EB?style=for-the-badge&logo=nuget&labelColor=0D1117" alt="NuGet ThrottleWatch 1.0.0"/>
   <img src="https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet&labelColor=0D1117" alt=".NET"/>
   <img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge&labelColor=0D1117" alt="License"/>
   <img src="https://img.shields.io/badge/Build-passing-22C55E?style=for-the-badge&logo=github-actions&labelColor=0D1117" alt="Build"/>
@@ -46,23 +46,59 @@ Zero manual instrumentation. Zero boilerplate. Just plug in and observe.
 
 ---
 
-## 📦 Installation
+## 📦 Installation (Client SDK)
+
+The NuGet package **`ThrottleWatch`** is the ASP.NET Core **client SDK** (middleware + metric sender). It talks to a running **ThrottleWatch.Api**; it does not embed the Dashboard.
 
 ```bash
 dotnet add package ThrottleWatch
 ```
 
-## 🚀 Quick Start
+Until the package is published to nuget.org, pack from this repo and install from a local feed:
 
-Add two lines to your `Program.cs`:
+```bash
+make pack-client
+dotnet add package ThrottleWatch --source ./artifacts/nuget --version 1.0.0
+```
+
+Smoke check (pack + temporary web app that calls `AddThrottleWatch` + `ApiKey`):
+
+```bash
+make pack-client-smoke
+```
+
+Publish (manual, when ready):
+
+```bash
+dotnet nuget push artifacts/nuget/ThrottleWatch.1.0.0.nupkg --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY
+# or GitHub Packages — see nuget.org / ghcr docs for your org feed
+```
+
+## 🚀 Quick Start (Client)
+
+Add to your API's `Program.cs`:
 
 ```csharp
+using ThrottleWatch.Client.Configuration;
+
 builder.Services.AddThrottleWatch(builder.Configuration);
 
+var app = builder.Build();
 app.UseThrottleWatch();
 ```
 
-That's it. ThrottleWatch will automatically start monitoring every request. Visit `/throttlewatch` to open the dashboard.
+Minimal `appsettings.json`:
+
+```json
+{
+  "ThrottleWatch": {
+    "ApiBaseUrl": "http://localhost:5080",
+    "ApiKey": "dev-throttlewatch-key"
+  }
+}
+```
+
+`ApiKey` is sent as `X-ThrottleWatch-Key`. Run the API + Dashboard with `make demo` (Compose) to visualize metrics.
 
 ---
 

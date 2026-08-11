@@ -10,10 +10,10 @@ HEALTH_SLEEP ?= 1
 
 .DEFAULT_GOAL := help
 
-.PHONY: help up up-rebuild down db restart logs ps build health sample sample-health demo-health load demo demo-rebuild
+.PHONY: help up up-rebuild down db restart logs ps build health sample sample-health demo-health load demo demo-rebuild pack-client pack-client-smoke
 
 help: ## Show available targets
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make <target>\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  %-12s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make <target>\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  %-14s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 up: ## Start Postgres + Api + Dashboard (cached images, no rebuild)
 	$(COMPOSE) up -d
@@ -120,3 +120,10 @@ demo-rebuild: ## Rebuild images, then run demo (use after code changes)
 	@echo "  Dashboard → http://localhost:$(DASHBOARD_PORT)"
 	@echo "  Sample    → $(SAMPLE_URL)"
 	@echo "  API       → http://localhost:$(API_PORT)"
+
+pack-client: ## Pack ThrottleWatch.Client → artifacts/nuget (PackageId ThrottleWatch)
+	dotnet pack src/ThrottleWatch.Client/ThrottleWatch.Client.csproj -c Release -o artifacts/nuget --nologo
+	@ls -la artifacts/nuget/ThrottleWatch*.nupkg
+
+pack-client-smoke: ## Pack Client and smoke-install into a temporary web app
+	./scripts/pack-client-smoke.sh
