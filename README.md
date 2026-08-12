@@ -6,77 +6,103 @@
   <img src="https://img.shields.io/badge/NuGet-ThrottleWatch%201.0.0-2563EB?style=for-the-badge&logo=nuget&labelColor=0D1117" alt="NuGet ThrottleWatch 1.0.0"/>
   <img src="https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet&labelColor=0D1117" alt=".NET"/>
   <img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge&labelColor=0D1117" alt="License"/>
-  <img src="https://img.shields.io/badge/Build-passing-22C55E?style=for-the-badge&logo=github-actions&labelColor=0D1117" alt="Build"/>
-  <img src="https://img.shields.io/badge/Tests-passing-22C55E?style=for-the-badge&logo=github-actions&labelColor=0D1117" alt="Tests"/>
-  <img src="https://img.shields.io/badge/Coverage-85%25-F59E0B?style=for-the-badge&logo=codecov&labelColor=0D1117" alt="Coverage"/>
+  <img src="https://img.shields.io/badge/Dashboard-REST%20polling-0EA5E9?style=for-the-badge&labelColor=0D1117" alt="Dashboard REST polling"/>
   <a href="https://github.com/VitorM34/ThrottleWatch/stargazers">
     <img src="https://img.shields.io/github/stars/VitorM34/ThrottleWatch?style=for-the-badge&logo=github&labelColor=0D1117&color=F59E0B" alt="GitHub Stars"/>
   </a>
-  <a href="https://github.com/VitorM34/ThrottleWatch/issues">
-    <img src="https://img.shields.io/github/issues/VitorM34/ThrottleWatch?style=for-the-badge&logo=github&labelColor=0D1117" alt="GitHub Issues"/>
-  </a>
 </p>
 
 ---
 
-## 🎯 About the Project
+## About
 
-**ThrottleWatch** is a complete observability solution for ASP.NET Core Rate Limiting.
+**ThrottleWatch** adds observability to ASP.NET Core Rate Limiting.
 
-It complements the native Rate Limiting framework by bringing real-time visibility, interactive dashboards, historical analytics, intelligent alerts, and actionable insights — helping you **understand**, **protect**, and **optimize** your APIs.
+Your app keeps using the built-in rate limiter. The **Client SDK** captures request metrics (including 429s) and ships them to **ThrottleWatch.Api**. Metrics land in **PostgreSQL**. The **Blazor Dashboard** reads them over **REST** (HTTP polling — SignalR was cancelled; see ADR-012).
 
-Zero manual instrumentation. Zero boilerplate. Just plug in and observe.
-
-<p align="center">
-  <img src="docs/images/dashboard.svg" alt="ThrottleWatch Dashboard" width="90%"/>
-</p>
+```
+Your ASP.NET Core API  ──(ThrottleWatch Client)──►  ThrottleWatch.Api  ──►  PostgreSQL
+                                                          ▲
+ThrottleWatch.Dashboard  ──(REST + API key)───────────────┘
+```
 
 ---
 
-## ⚡ Key Features
+## What works today
 
-| | |
+| Feature | Status |
 |---|---|
-| ✅ Zero-configuration setup | ✅ Webhook, Slack, Discord & Email alerts |
-| ✅ Real-time dashboard | ✅ Intelligent insights & recommendations |
-| ✅ Native ASP.NET Core integration | ✅ Persistence with EF Core + PostgreSQL |
-| ✅ Metrics dashboard via HTTP/REST | ✅ Multi-tenant support (v1.3) |
-| ✅ Top IPs, API Keys & Endpoints | ✅ OpenTelemetry export (v1.4) |
-| ✅ Full historical analytics | ✅ Unit & Integration test coverage |
+| Client SDK NuGet (`ThrottleWatch`) — middleware + batch sender | ✅ |
+| Ingest + query API (`/api/metrics`, alerts, insights) | ✅ |
+| Shared API key auth (`X-ThrottleWatch-Key`) | ✅ |
+| Blazor Dashboard (Overview, endpoints, clients, policies, history, alerts, insights) | ✅ |
+| Alerts: Webhook, Slack, Discord, Email | ✅ |
+| Insights analyzers | ✅ |
+| Serilog + OpenTelemetry hooks on the API | ✅ |
+| Docker Compose local stack + sample traffic | ✅ |
+| Embedded dashboard inside the consumer app (`/throttlewatch`) | ❌ not implemented |
+| SignalR live push to the Dashboard | ❌ cancelled (REST polling) |
+| Multi-tenant | ❌ planned |
+| Configurable retention / history rollups | ❌ planned (hard delete ~30d today) |
 
 ---
 
-## 📦 Installation (Client SDK)
+## Quick start (golden path)
 
-The NuGet package **`ThrottleWatch`** is the ASP.NET Core **client SDK** (middleware + metric sender). It talks to a running **ThrottleWatch.Api**; it does not embed the Dashboard.
+**Goal:** Dashboard showing real metrics in a few minutes.
+
+**Prerequisites:** .NET 10 SDK, Docker.
+
+```bash
+git clone https://github.com/VitorM34/ThrottleWatch.git
+cd ThrottleWatch
+cp .env.example .env   # optional overrides
+
+make demo
+open http://localhost:5100
+```
+
+`make demo` starts Postgres + Api + Dashboard + [`samples/WebApiWithPolicies`](samples/WebApiWithPolicies) (Compose profile `demo`), waits for health, then runs a load script against the sample.
+
+| Service | URL |
+|---|---|
+| Dashboard | http://localhost:5100 |
+| API | http://localhost:5080 (`/health` is public) |
+| Sample | http://localhost:5299 |
+| PostgreSQL | localhost:5432 |
+
+Default shared key (dev): `dev-throttlewatch-key` via `THROTTLEWATCH_API_KEY` in `.env.example`.
+
+After changing app code, rebuild images once:
+
+```bash
+make demo-rebuild
+```
+
+Stack without sample traffic:
+
+```bash
+make up && make health
+```
+
+---
+
+## Instrument your API (Client SDK)
+
+Package id: **`ThrottleWatch`** (assembly `ThrottleWatch.Client`).
 
 ```bash
 dotnet add package ThrottleWatch
 ```
 
-Until the package is published to nuget.org, pack from this repo and install from a local feed:
+Local pack (before nuget.org publish):
 
 ```bash
 make pack-client
 dotnet add package ThrottleWatch --source ./artifacts/nuget --version 1.0.0
 ```
 
-Smoke check (pack + temporary web app that calls `AddThrottleWatch` + `ApiKey`):
-
-```bash
-make pack-client-smoke
-```
-
-Publish (manual, when ready):
-
-```bash
-dotnet nuget push artifacts/nuget/ThrottleWatch.1.0.0.nupkg --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY
-# or GitHub Packages — see nuget.org / ghcr docs for your org feed
-```
-
-## 🚀 Quick Start (Client)
-
-Add to your API's `Program.cs`:
+`Program.cs`:
 
 ```csharp
 using ThrottleWatch.Client.Configuration;
@@ -85,330 +111,137 @@ builder.Services.AddThrottleWatch(builder.Configuration);
 
 var app = builder.Build();
 app.UseThrottleWatch();
+// Keep your own UseRateLimiter() / policies as usual.
 ```
 
-Minimal `appsettings.json`:
+`appsettings.json` (Client options — this is what `AddThrottleWatch` binds):
 
 ```json
 {
   "ThrottleWatch": {
     "ApiBaseUrl": "http://localhost:5080",
-    "ApiKey": "dev-throttlewatch-key"
+    "ApiKey": "dev-throttlewatch-key",
+    "CaptureOnlyBlocked": false,
+    "CaptureClientIp": true,
+    "ApiKeyHeaderName": "X-Api-Key",
+    "PolicyNameHeaderName": "X-RateLimit-Policy",
+    "BatchSize": 50,
+    "FlushIntervalMilliseconds": 1000,
+    "BufferCapacity": 10000
   }
 }
 ```
 
-`ApiKey` is sent as `X-ThrottleWatch-Key`. Run the API + Dashboard with `make demo` (Compose) to visualize metrics.
-
----
-
-## 🧠 Why ThrottleWatch?
-
-ASP.NET Core has a great built-in Rate Limiting middleware — but it gives you **zero visibility** into what's happening. You can't see which endpoints are being throttled, which IPs are getting blocked, how your policies are performing, or whether your limits are correctly tuned.
-
-**ThrottleWatch fills that gap.**
-
-| Without ThrottleWatch | With ThrottleWatch |
+| Option | Meaning |
 |---|---|
-| 🔴 Requests blocked silently | ✅ Every block logged and visualized |
-| 🔴 No idea which IPs are hitting limits | ✅ Real-time top offenders table |
-| 🔴 No historical data | ✅ Full time-series analytics |
-| 🔴 Alerts require custom code | ✅ Built-in Webhook / Slack / Discord / Email |
-| 🔴 Policy tuning is guesswork | ✅ Intelligent recommendations |
-| 🔴 Zero observability | ✅ Complete observability layer |
+| `ApiBaseUrl` | Base URL of **ThrottleWatch.Api** |
+| `ApiKey` | Shared secret sent as **`X-ThrottleWatch-Key`** (API auth) |
+| `ApiKeyHeaderName` | Header read from **inbound** traffic to tag metrics (identity), not API auth |
+| `PolicyNameHeaderName` | Header used to record the rate-limit policy name on metrics |
+
+Golden-path sample (rate limits + Client already wired): [`samples/WebApiWithPolicies`](samples/WebApiWithPolicies/README.md).
 
 ---
 
-## 📸 Screenshots
+## Security
 
-<table>
-<tr>
-  <td align="center" width="50%">
-    <strong>Dashboard — Overview</strong><br/><br/>
-    <img src="docs/images/dashboard.svg" alt="Dashboard" width="100%"/>
-  </td>
-  <td align="center" width="50%">
-    <strong>Endpoints Analytics</strong><br/><br/>
-    <img src="docs/images/endpoints.svg" alt="Endpoints" width="100%"/>
-  </td>
-</tr>
-<tr>
-  <td align="center" width="50%">
-    <strong>Alerts &amp; Notifications</strong><br/><br/>
-    <img src="docs/images/alerts.svg" alt="Alerts" width="100%"/>
-  </td>
-  <td align="center" width="50%">
-    <strong>Intelligent Insights</strong><br/><br/>
-    <img src="docs/images/insights.svg" alt="Insights" width="100%"/>
-  </td>
-</tr>
-</table>
+| Piece | Behavior |
+|---|---|
+| Header | `X-ThrottleWatch-Key` (override name via `ThrottleWatch:Security:HeaderName` on the API) |
+| Env (Compose) | `THROTTLEWATCH_API_KEY` → Api, Dashboard, and sample Client |
+| API config | `ThrottleWatch:Security:ApiKey` |
+| Public | `GET /health` (no key) |
+| Protected | `/api/*` (metrics, alerts, insights, …) |
+| Dashboard | No login UI; it calls the API with the configured key |
 
-<p align="center">
-  <img src="docs/images/dashboard.svg" alt="ThrottleWatch Dashboard Demo" width="85%"/><br/>
-  <em>Real-time dashboard — metrics, blocked requests, top endpoints and intelligent alerts</em>
-</p>
+**Production:** set a strong `THROTTLEWATCH_API_KEY` / `ThrottleWatch:Security:ApiKey`. Empty key is only allowed in Development (auth disabled with a warning).
 
 ---
 
-## ⚙️ Configuration
+## Production checklist
 
-Full configuration via `appsettings.json`:
-
-```json
-{
-  "ThrottleWatch": {
-    "Dashboard": {
-      "Route": "/throttlewatch",
-      "RequireAuthentication": false
-    },
-    "Storage": {
-      "ConnectionString": "Host=localhost;Database=throttlewatch;Username=postgres;Password=secret",
-      "RetentionDays": 30
-    },
-    "Alerts": {
-      "Enabled": true,
-      "Channels": {
-        "Webhook": { "Url": "https://your-webhook.url" },
-        "Slack":   { "WebhookUrl": "https://hooks.slack.com/..." },
-        "Discord": { "WebhookUrl": "https://discord.com/api/webhooks/..." },
-        "Email":   { "SmtpHost": "smtp.example.com", "To": "ops@example.com" }
-      },
-      "Rules": [
-        {
-          "Name": "High Block Rate",
-          "Condition": "BlockRate > 10",
-          "Cooldown": "00:05:00"
-        }
-      ]
-    },
-    "Insights": {
-      "Enabled": true,
-      "AnalysisInterval": "00:01:00"
-    }
-  }
-}
-```
-
-<details>
-<summary><strong>🔧 Advanced Registration Options</strong></summary>
-
-```csharp
-builder.Services.AddThrottleWatch(options =>
-{
-    options.Dashboard.Route = "/throttlewatch";
-    options.Dashboard.RequireAuthentication = true;
-    options.Dashboard.AuthorizationPolicy = "AdminOnly";
-
-    options.Storage.UsePostgres(connectionString);
-    options.Storage.RetentionDays = 30;
-
-    options.Alerts.AddWebhook("https://...");
-    options.Alerts.AddSlack("https://hooks.slack.com/...");
-    options.Alerts.AddEmail(smtp => {
-        smtp.Host = "smtp.gmail.com";
-        smtp.Port = 587;
-        smtp.To.Add("ops@yourcompany.com");
-    });
-
-    options.Insights.Enable();
-});
-```
-
-</details>
+- [ ] Strong shared API key (not `dev-throttlewatch-key`)
+- [ ] Postgres connection string and backups
+- [ ] Compose or equivalent for Api + Dashboard (+ your apps with the Client)
+- [ ] Alert channels configured on the **API** (`ThrottleWatch:Alerts` — Webhook / Slack / Discord / Email)
+- [ ] Know retention is currently a **fixed ~30-day** hard delete (configurable retention / rollups = EPIC-17)
+- [ ] TLS and network isolation for Api + Postgres in real deploys
 
 ---
 
-## 🏗 Architecture
+## Architecture (runtime)
 
-<p align="center">
-  <img src="docs/images/architecture.svg" alt="ThrottleWatch Architecture" width="62%"/>
-</p>
+1. **Client middleware** records metrics on the hot path into an in-memory channel (non-blocking).
+2. **Client `MetricSender`** flushes batches to `POST /api/metrics` with the API key.
+3. **API workers** persist to PostgreSQL; alerts and insights run as hosted services.
+4. **Dashboard** polls REST endpoints on a refresh interval (`DASHBOARD_REFRESH_SECONDS`, default 5).
 
-The pipeline is designed for **minimal overhead** on the hot path:
-
-1. **Middleware** intercepts every request and captures metadata in-process — synchronously and in `O(1)`
-2. **In-Memory Queue** (`System.Threading.Channels`) decouples capture from persistence with no blocking
-3. **Background Worker** (`IHostedService`) drains the queue in configurable batches and commits to storage
-4. **Dashboard** refreshes metrics via HTTP polling against the REST API
-5. **Blazor Dashboard** renders live charts, tables, and insights with automatic updates
+Deep dive: [`ARCHITECTURE.md`](ARCHITECTURE.md) · plan / epics: [`PROJECT_PLAN.md`](PROJECT_PLAN.md) · backlog: [`docs/backlog/`](docs/backlog/).
 
 ---
 
-## 📁 Solution Structure
+## Solution layout
 
 ```
-ThrottleWatch.sln
-│
+ThrottleWatch.slnx
 ├── src/
-│   ├── ThrottleWatch.Domain/          # Entities, value objects, domain events
-│   ├── ThrottleWatch.Application/     # Use cases, CQRS handlers, interfaces
-│   ├── ThrottleWatch.Infrastructure/  # EF Core, repositories, external services
-│   ├── ThrottleWatch.Middleware/      # ASP.NET Core middleware + extensions
-│   └── ThrottleWatch.Dashboard/       # Blazor Server dashboard application
-│
-├── tests/
-│   ├── ThrottleWatch.UnitTests/       # Domain and application unit tests
-│   ├── ThrottleWatch.IntegrationTests/# API + database integration tests
-│   └── ThrottleWatch.E2ETests/        # Playwright end-to-end tests
-│
+│   ├── ThrottleWatch.Domain/
+│   ├── ThrottleWatch.Application/
+│   ├── ThrottleWatch.Infrastructure/
+│   ├── ThrottleWatch.Api/
+│   ├── ThrottleWatch.Client/          # NuGet package Id: ThrottleWatch
+│   └── ThrottleWatch.Dashboard/       # Blazor Server UI
+├── tests/                             # Domain, Application, Infrastructure, Api, Client, Dashboard
 ├── samples/
-│   └── WebApiWithPolicies/            # Rate-limited API + Client SDK (real metrics)
-│
+│   └── WebApiWithPolicies/            # Golden path for real metrics
+├── scripts/                           # load-sample, pack-client-smoke, …
 └── docs/
-    └── images/                        # Logos, banners, screenshots
 ```
 
 ---
 
-## 🗺 Roadmap
-
-| Version | Status | Features |
-|---------|--------|----------|
-| **v1.0** | ✅ Released | Dashboard, real-time metrics, historical analytics |
-| **v1.1** | ✅ Released | Alerts (Webhook, Slack, Discord, Email) |
-| **v1.2** | 🔄 In progress | Smart Insights &amp; AI-powered recommendations |
-| **v1.3** | 📋 Planned | Multi-Tenant support |
-| **v1.4** | 📋 Planned | Prometheus &amp; Grafana exporters |
-| **v2.0** | 🔮 Future | OpenTelemetry native integration |
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome and greatly appreciated!
-
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feat/amazing-feature`
-3. **Commit** your changes: `git commit -m 'feat: add amazing feature'`
-4. **Push** to the branch: `git push origin feat/amazing-feature`
-5. **Open** a Pull Request
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines, code of conduct, and PR requirements.
-
----
-
-## 🧪 Development & Testing
-
-**Prerequisites:** .NET 10 SDK, Docker
-
-### Local stack (Docker Compose)
-
-Starts PostgreSQL, API and Dashboard. The API waits for a healthy database; the Dashboard waits for a healthy API. Migrations apply on API startup by default (`APPLY_MIGRATIONS=true`).
-
-```bash
-# Optional: override ports/credentials
-cp .env.example .env
-
-# Stack only (Postgres + Api + Dashboard) — uses cached images
-make up
-make health
-open http://localhost:5100
-
-# One-shot demo with real metrics (sample + load, no rebuild)
-make demo
-open http://localhost:5100
-
-# After changing app/sample code, rebuild images once:
-make demo-rebuild
-```
-
-| Service | URL / port |
-|---------|------------|
-| API | http://localhost:5080 |
-| Dashboard | http://localhost:5100 |
-| Sample (profile `demo`) | http://localhost:5299 |
-| PostgreSQL | localhost:5432 |
-
-> Default API port is **5080** (macOS often reserves `:5000` for AirPlay). Override via `.env`.  
-> `make up` / `make demo` are fast (no `--build`). Use `make up-rebuild` / `make demo-rebuild` when images are stale.
+## Make targets
 
 | Target | Action |
-|--------|--------|
-| `make up` | Start Postgres + Api + Dashboard (cached images) |
-| `make up-rebuild` | Rebuild images, then start stack |
-| `make demo` | Fast: stack + sample + load (no rebuild) |
-| `make demo-rebuild` | Rebuild images, then demo |
-| `make db` | Start PostgreSQL only |
-| `make health` | Wait until API `/health` is ready |
+|---|---|
+| `make demo` | Postgres + Api + Dashboard + sample + load |
+| `make demo-rebuild` | Same after rebuilding images |
+| `make up` / `make up-rebuild` | Stack without sample |
+| `make health` | Wait for API `/health` |
 | `make down` | Stop containers (keeps volume) |
-| `make logs` / `make ps` | Logs / status |
-| `make sample` | Run sample locally with `dotnet run` (no Docker) |
-| `make load` | Hammer the sample (`SAMPLE_URL`, default `:5299`) |
-
-See [`samples/WebApiWithPolicies/README.md`](samples/WebApiWithPolicies/README.md).
-
-### Run tests locally
+| `make sample` / `make load` | Run sample / hammer it locally |
+| `make pack-client` / `make pack-client-smoke` | Pack NuGet + smoke install |
 
 ```bash
-dotnet restore
-dotnet test
+dotnet test ThrottleWatch.slnx
 ```
 
 ---
 
-<table>
-<tr>
-<td width="33%" valign="top">
+## Roadmap (post-core)
 
-### 📚 Documentation
+| Item | Status |
+|---|---|
+| EPIC-01 … 12 (core platform) | ✅ (SignalR EPIC-06 cancelled) |
+| EPIC-13 Dashboard data honesty | ✅ |
+| EPIC-14 API security | ✅ |
+| EPIC-15 Client NuGet | ✅ |
+| EPIC-16 Honest docs | 🔄 this README |
+| EPIC-17 Retention + history rollups | 🔲 planned |
+| Multi-tenant / richer exporters | 🔲 future |
 
-Access the full documentation at:
-
-**[throttlewatch.dev/docs](https://throttlewatch.dev/docs)**
-
-- [Getting Started](https://throttlewatch.dev/docs/getting-started)
-- [Configuration Reference](https://throttlewatch.dev/docs/configuration)
-- [Dashboard Guide](https://throttlewatch.dev/docs/dashboard)
-- [Alerts Setup](https://throttlewatch.dev/docs/alerts)
-- [API Reference](https://throttlewatch.dev/docs/api)
-
-</td>
-<td width="33%" valign="top">
-
-### 👥 Community
-
-⭐ If this project helps you, please **star** the repo!
-
-- [GitHub Discussions](https://github.com/VitorM34/ThrottleWatch/discussions)
-- [Report an Issue](https://github.com/VitorM34/ThrottleWatch/issues/new)
-- [Request a Feature](https://github.com/VitorM34/ThrottleWatch/issues/new?template=feature_request.md)
-- Contributions are welcome!
-
-</td>
-<td width="33%" valign="top">
-
-### 🗺 Roadmap
-
-- ✅ **v1.0** — Dashboard & Metrics
-- ✅ **v1.1** — Alerts & Notifications
-- 🔄 **v1.2** — Smart Insights
-- 📋 **v1.3** — Multi-Tenant
-- 📋 **v1.4** — Prometheus / Grafana
-- 🔮 **v2.0** — OpenTelemetry
-
-[View full roadmap →](https://github.com/VitorM34/ThrottleWatch/projects)
-
-</td>
-</tr>
-</table>
+Historical sprint notes in `PROJECT_PLAN.md` still mention SignalR as originally planned; **runtime path is REST polling**.
 
 ---
 
-<p align="center">
-  <a href="https://github.com/VitorM34/ThrottleWatch">
-    <img src="https://img.shields.io/badge/GitHub-VitorM34%2FThrottleWatch-181717?style=flat-square&logo=github" alt="GitHub"/>
-  </a>
-  &nbsp;&nbsp;
-  <a href="https://github.com/VitorM34/ThrottleWatch/issues">
-    <img src="https://img.shields.io/badge/Issues-Report%20a%20Bug-EF4444?style=flat-square&logo=github" alt="Issues"/>
-  </a>
-  &nbsp;&nbsp;
-  <a href="https://github.com/VitorM34/ThrottleWatch/discussions">
-    <img src="https://img.shields.io/badge/Discussions-Join-7C3AED?style=flat-square&logo=github" alt="Discussions"/>
-  </a>
-</p>
+## Contributing
 
-<p align="center">
-  <sub>Licensed under the <a href="LICENSE">MIT License</a> · Built with ❤️ for the .NET community</sub>
-</p>
+1. Fork → branch `feature/...`
+2. Keep changes focused; follow existing architecture ([`ARCHITECTURE.md`](ARCHITECTURE.md))
+3. Open a PR against `main`
+
+---
+
+## License
+
+[MIT](LICENSE)
