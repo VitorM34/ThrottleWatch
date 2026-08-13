@@ -14,5 +14,8 @@ public interface IMetricsRepository
     Task<IReadOnlyList<ClientSummary>> GetTopClientsAsync(int top, DateTimeOffset from, CancellationToken ct);
     Task<IReadOnlyList<PolicySummary>> GetObservedPoliciesAsync(DateTimeOffset from, CancellationToken ct);
     Task<IReadOnlyList<TimeSeriesPoint>> GetTimeSeriesAsync(DateTimeOffset from, DateTimeOffset to, CancellationToken ct);
+    /// <summary>Aggregates raw metrics into minute/hour rollup buckets for [from, toExclusive).</summary>
+    Task RebuildRollupsAsync(DateTimeOffset fromInclusive, DateTimeOffset toExclusive, CancellationToken ct);
+    /// <summary>Deletes raw metrics and rollups with timestamp/bucket older than cutoff.</summary>
     Task DeleteOlderThanAsync(DateTimeOffset cutoff, CancellationToken ct);
 }

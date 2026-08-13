@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using ThrottleWatch.Domain.Entities;
+using ThrottleWatch.Domain.Enums;
 using ThrottleWatch.Domain.Interfaces;
 using ThrottleWatch.Domain.ReadModels;
 using ThrottleWatch.Infrastructure.Persistence;
+using ThrottleWatch.Infrastructure.Persistence.Models;
 
 namespace ThrottleWatch.Infrastructure.Persistence.Repositories;
 
@@ -188,27 +190,35 @@ public sealed class MetricsRepository : IMetricsRepository
         DateTimeOffset to,
         CancellationToken ct)
     {
-        var entries = await _db.MetricEntries
-            .AsNoTracking()
-            .Where(x => x.Timestamp >= from && x.Timestamp <= to)
-            .Select(x => new { x.Timestamp, x.IsBlocked })
-            .ToListAsync(ct);
+        if (to < from)
+            return [];
 
-        return entries
-            .GroupBy(x => new DateTimeOffset(
-                x.Timestamp.Year,
-                x.Timestamp.Month,
-                x.Timestamp.Day,
-                x.Timestamp.Hour,
-                0,
-                0,
-                x.Timestamp.Offset))
-            .OrderBy(g => g.Key)
-            .Select(g => new TimeSeriesPoint(
-                g.Key,
-                g.LongCount(),
-                g.LongCount(x => x.IsBlocked)))
-            .ToList();
+        // ≤6h → minute resolution; longer windows → hourly (scales with rollups, not raw rows).
+        var useMinute = to - from <= TimeSpan.FromHours(6);
+        var granularity = useMinute ? RollupGranularity.Minute : RollupGranularity.Hour;
+
+        var fromRollups = await GetTimeSeriesFromRollupsAsync(from, to, granularity, ct);
+        if (fromRollups.Count == 0)
+            return await AggregateRawInDatabaseAsync(from, to, useMinute, ct);
+
+        // Incomplete coverage (e.g. right after deploy) → SQL aggregate full window.
+        var coverageSlack = useMinute ? TimeSpan.FromMinutes(2) : TimeSpan.FromHours(2);
+        if (fromRollups[0].Timestamp - from > coverageSlack)
+            return await AggregateRawInDatabaseAsync(from, to, useMinute, ct);
+
+        return fromRollups;
+    }
+
+    public async Task RebuildRollupsAsync(
+        DateTimeOffset fromInclusive,
+        DateTimeOffset toExclusive,
+        CancellationToken ct)
+    {
+        if (toExclusive <= fromInclusive)
+            return;
+
+        await UpsertRollupsAsync(fromInclusive, toExclusive, minuteBuckets: true, ct);
+        await UpsertRollupsAsync(fromInclusive, toExclusive, minuteBuckets: false, ct);
     }
 
     public async Task DeleteOlderThanAsync(DateTimeOffset cutoff, CancellationToken ct)
@@ -216,5 +226,140 @@ public sealed class MetricsRepository : IMetricsRepository
         await _db.MetricEntries
             .Where(x => x.Timestamp < cutoff)
             .ExecuteDeleteAsync(ct);
+
+        await _db.MetricRollups
+            .Where(x => x.BucketStart < cutoff)
+            .ExecuteDeleteAsync(ct);
+    }
+
+    private async Task<IReadOnlyList<TimeSeriesPoint>> GetTimeSeriesFromRollupsAsync(
+        DateTimeOffset from,
+        DateTimeOffset to,
+        RollupGranularity granularity,
+        CancellationToken ct)
+    {
+        var rows = await _db.MetricRollups
+            .AsNoTracking()
+            .Where(x => x.Granularity == granularity
+                        && x.BucketStart >= from
+                        && x.BucketStart <= to)
+            .OrderBy(x => x.BucketStart)
+            .Select(x => new TimeSeriesPoint(x.BucketStart, x.TotalRequests, x.BlockedRequests))
+            .ToListAsync(ct);
+
+        return rows;
+    }
+
+    private async Task<IReadOnlyList<TimeSeriesPoint>> AggregateRawInDatabaseAsync(
+        DateTimeOffset from,
+        DateTimeOffset to,
+        bool minuteBuckets,
+        CancellationToken ct)
+    {
+        // Group in SQL (do not materialize raw rows). Date parts translate to PostgreSQL.
+        var rows = await _db.MetricEntries
+            .AsNoTracking()
+            .Where(x => x.Timestamp >= from && x.Timestamp <= to)
+            .GroupBy(x => new
+            {
+                x.Timestamp.Year,
+                x.Timestamp.Month,
+                x.Timestamp.Day,
+                x.Timestamp.Hour,
+                Minute = minuteBuckets ? x.Timestamp.Minute : 0
+            })
+            .Select(g => new
+            {
+                g.Key.Year,
+                g.Key.Month,
+                g.Key.Day,
+                g.Key.Hour,
+                g.Key.Minute,
+                TotalRequests = g.LongCount(),
+                BlockedRequests = g.Sum(x => x.IsBlocked ? 1L : 0L)
+            })
+            .OrderBy(x => x.Year)
+            .ThenBy(x => x.Month)
+            .ThenBy(x => x.Day)
+            .ThenBy(x => x.Hour)
+            .ThenBy(x => x.Minute)
+            .ToListAsync(ct);
+
+        return rows
+            .Select(x => new TimeSeriesPoint(
+                new DateTimeOffset(x.Year, x.Month, x.Day, x.Hour, x.Minute, 0, TimeSpan.Zero),
+                x.TotalRequests,
+                x.BlockedRequests))
+            .ToList();
+    }
+
+    private async Task UpsertRollupsAsync(
+        DateTimeOffset fromInclusive,
+        DateTimeOffset toExclusive,
+        bool minuteBuckets,
+        CancellationToken ct)
+    {
+        var granularity = minuteBuckets ? RollupGranularity.Minute : RollupGranularity.Hour;
+
+        var aggregated = await _db.MetricEntries
+            .AsNoTracking()
+            .Where(x => x.Timestamp >= fromInclusive && x.Timestamp < toExclusive)
+            .GroupBy(x => new
+            {
+                x.Timestamp.Year,
+                x.Timestamp.Month,
+                x.Timestamp.Day,
+                x.Timestamp.Hour,
+                Minute = minuteBuckets ? x.Timestamp.Minute : 0
+            })
+            .Select(g => new
+            {
+                g.Key.Year,
+                g.Key.Month,
+                g.Key.Day,
+                g.Key.Hour,
+                g.Key.Minute,
+                TotalRequests = g.LongCount(),
+                BlockedRequests = g.Sum(x => x.IsBlocked ? 1L : 0L)
+            })
+            .ToListAsync(ct);
+
+        if (aggregated.Count == 0)
+            return;
+
+        var bucketStarts = aggregated
+            .Select(x => new DateTimeOffset(x.Year, x.Month, x.Day, x.Hour, x.Minute, 0, TimeSpan.Zero))
+            .ToList();
+
+        var existing = await _db.MetricRollups
+            .Where(x => x.Granularity == granularity && bucketStarts.Contains(x.BucketStart))
+            .ToListAsync(ct);
+
+        var byBucket = existing.ToDictionary(x => x.BucketStart);
+
+        foreach (var row in aggregated)
+        {
+            var bucketStart = new DateTimeOffset(
+                row.Year, row.Month, row.Day, row.Hour, row.Minute, 0, TimeSpan.Zero);
+
+            if (byBucket.TryGetValue(bucketStart, out var rollup))
+            {
+                rollup.TotalRequests = row.TotalRequests;
+                rollup.BlockedRequests = row.BlockedRequests;
+            }
+            else
+            {
+                _db.MetricRollups.Add(new MetricRollup
+                {
+                    Id = Guid.NewGuid(),
+                    BucketStart = bucketStart,
+                    Granularity = granularity,
+                    TotalRequests = row.TotalRequests,
+                    BlockedRequests = row.BlockedRequests
+                });
+            }
+        }
+
+        await _db.SaveChangesAsync(ct);
     }
 }

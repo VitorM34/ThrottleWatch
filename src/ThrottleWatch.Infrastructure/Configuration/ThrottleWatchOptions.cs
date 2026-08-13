@@ -6,6 +6,8 @@ public sealed class ThrottleWatchOptions
 
     public SecurityOptions Security { get; set; } = new();
 
+    public StorageOptions Storage { get; set; } = new();
+
     public AlertsOptions Alerts { get; set; } = new();
 
     public InsightsOptions Insights { get; set; } = new();
@@ -20,6 +22,41 @@ public sealed class SecurityOptions
     public string? ApiKey { get; set; }
 
     public string HeaderName { get; set; } = DefaultHeaderName;
+}
+
+/// <summary>Retention and history rollup settings.</summary>
+public sealed class StorageOptions
+{
+    /// <summary>Days to retain raw metrics and rollups. Default 30.</summary>
+    public int RetentionDays { get; set; } = 30;
+
+    /// <summary>How often the retention job runs (hours). Default 6.</summary>
+    public int RetentionIntervalHours { get; set; } = 6;
+
+    /// <summary>How often the rollup job runs (minutes). Default 1.</summary>
+    public int RollupIntervalMinutes { get; set; } = 1;
+
+    /// <summary>
+    /// Lookback window (hours) of completed buckets rebuilt each rollup pass.
+    /// Idempotent upsert; default 3 hours covers delayed flushes.
+    /// </summary>
+    public int RollupLookbackHours { get; set; } = 3;
+
+    /// <summary>Clamp invalid/zero config to safe defaults for background workers.</summary>
+    public static StorageOptions Normalize(StorageOptions? source)
+    {
+        source ??= new StorageOptions();
+        return new StorageOptions
+        {
+            RetentionDays = Math.Clamp(source.RetentionDays <= 0 ? 30 : source.RetentionDays, 1, 3650),
+            RetentionIntervalHours = Math.Clamp(
+                source.RetentionIntervalHours <= 0 ? 6 : source.RetentionIntervalHours, 1, 168),
+            RollupIntervalMinutes = Math.Clamp(
+                source.RollupIntervalMinutes <= 0 ? 1 : source.RollupIntervalMinutes, 1, 60),
+            RollupLookbackHours = Math.Clamp(
+                source.RollupLookbackHours <= 0 ? 3 : source.RollupLookbackHours, 1, 168)
+        };
+    }
 }
 
 public sealed class InsightsOptions

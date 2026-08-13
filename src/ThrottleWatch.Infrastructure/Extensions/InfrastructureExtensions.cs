@@ -58,6 +58,7 @@ public static class InfrastructureExtensions
         services.AddHostedService<MetricProcessorService>();
         services.AddHostedService<AlertEvaluatorService>();
         services.AddHostedService<InsightGeneratorService>();
+        services.AddHostedService<MetricsRollupService>();
         services.AddHostedService<DataRetentionService>();
 
         return services;

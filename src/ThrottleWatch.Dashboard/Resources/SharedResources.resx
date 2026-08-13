@@ -104,7 +104,7 @@
   <data name="Alerts_Subtitle" xml:space="preserve"><value>Rules and alert events</value></data>
   <data name="History_PageTitle" xml:space="preserve"><value>History - ThrottleWatch</value></data>
   <data name="History_Title" xml:space="preserve"><value>History</value></data>
-  <data name="History_Subtitle" xml:space="preserve"><value>Historical request and rate limiting trends</value></data>
+  <data name="History_Subtitle" xml:space="preserve"><value>Historical trends from metric rollups (minute ≤6h, hourly for longer windows)</value></data>
   <data name="Insights_PageTitle" xml:space="preserve"><value>Insights - ThrottleWatch</value></data>
   <data name="Insights_Title" xml:space="preserve"><value>Insights</value></data>
   <data name="Insights_Subtitle" xml:space="preserve"><value>Intelligent recommendations from your traffic</value></data>
@@ -127,6 +127,8 @@
   <data name="History_Last3Hours" xml:space="preserve"><value>Last 3 hours</value></data>
   <data name="History_Last6Hours" xml:space="preserve"><value>Last 6 hours</value></data>
   <data name="History_Last24Hours" xml:space="preserve"><value>Last 24 hours</value></data>
+  <data name="History_Last7Days" xml:space="preserve"><value>Last 7 days</value></data>
+  <data name="History_Last30Days" xml:space="preserve"><value>Last 30 days</value></data>
   <data name="History_RequestVolume" xml:space="preserve"><value>Request volume</value></data>
   <data name="History_LastPrefix" xml:space="preserve"><value>Last {0}</value></data>
   <data name="History_TopEndpointsPeriod" xml:space="preserve"><value>Top endpoints in period</value></data>
@@ -137,7 +139,11 @@
   <data name="History_Window3Hours" xml:space="preserve"><value>3 hours</value></data>
   <data name="History_Window6Hours" xml:space="preserve"><value>6 hours</value></data>
   <data name="History_Window24Hours" xml:space="preserve"><value>24 hours</value></data>
+  <data name="History_Window7Days" xml:space="preserve"><value>7 days</value></data>
+  <data name="History_Window30Days" xml:space="preserve"><value>30 days</value></data>
   <data name="History_WindowMinutes" xml:space="preserve"><value>{0} minutes</value></data>
+  <data name="History_ResolutionMinute" xml:space="preserve"><value>1-minute buckets (rollups)</value></data>
+  <data name="History_ResolutionHour" xml:space="preserve"><value>1-hour buckets (rollups)</value></data>
   <data name="Endpoints_SearchPlaceholder" xml:space="preserve"><value>Search endpoints...</value></data>
   <data name="Endpoints_SearchAria" xml:space="preserve"><value>Search endpoints</value></data>
   <data name="Endpoints_RefreshAria" xml:space="preserve"><value>Refresh endpoints</value></data>
