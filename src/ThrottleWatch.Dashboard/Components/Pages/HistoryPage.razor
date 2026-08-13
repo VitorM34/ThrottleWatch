@@ -10,12 +10,14 @@
         <p class="page-subtitle">@L["History_Subtitle"]</p>
     </div>
     <div class="page-actions">
-        <select class="form-control" style="width: 160px;" @bind="_window" @bind:after="LoadDataAsync" aria-label="@L["History_SelectWindow"]">
+        <select class="form-control" style="width: 180px;" @bind="_window" @bind:after="LoadDataAsync" aria-label="@L["History_SelectWindow"]">
             <option value="30">@L["History_Last30Min"]</option>
             <option value="60">@L["History_Last1Hour"]</option>
             <option value="180">@L["History_Last3Hours"]</option>
             <option value="360">@L["History_Last6Hours"]</option>
             <option value="1440">@L["History_Last24Hours"]</option>
+            <option value="10080">@L["History_Last7Days"]</option>
+            <option value="43200">@L["History_Last30Days"]</option>
         </select>
         <button class="btn btn--secondary btn--sm" @onclick="LoadDataAsync" disabled="@_isLoading">@L["Common_Refresh"]</button>
     </div>
@@ -27,7 +29,7 @@
 }
 else
 {
-    <ContentCard Title="@L["History_RequestVolume"]" Subtitle="@string.Format(L["History_LastPrefix"].Value, GetWindowLabel())">
+    <ContentCard Title="@L["History_RequestVolume"]" Subtitle="@GetChartSubtitle()">
         <RequestsLineChart SeriesData="_timeSeries" IsLoading="_isLoading" />
     </ContentCard>
 
@@ -73,8 +75,19 @@ else
         180 => L["History_Window3Hours"],
         360 => L["History_Window6Hours"],
         1440 => L["History_Window24Hours"],
+        10080 => L["History_Window7Days"],
+        43200 => L["History_Window30Days"],
         _ => string.Format(L["History_WindowMinutes"].Value, _window)
     };
+
+    private string GetChartSubtitle()
+    {
+        var window = string.Format(L["History_LastPrefix"].Value, GetWindowLabel());
+        var resolution = _window <= 360
+            ? L["History_ResolutionMinute"].Value
+            : L["History_ResolutionHour"].Value;
+        return $"{window} · {resolution}";
+    }
 
     public void Dispose()
     {

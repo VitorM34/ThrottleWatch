@@ -43,7 +43,7 @@ ThrottleWatch.Dashboard  ──(REST + API key)───────────
 | Embedded dashboard inside the consumer app (`/throttlewatch`) | ❌ not implemented |
 | SignalR live push to the Dashboard | ❌ cancelled (REST polling) |
 | Multi-tenant | ❌ planned |
-| Configurable retention / history rollups | ❌ planned (hard delete ~30d today) |
+| Configurable retention / history rollups | ✅ `Storage:RetentionDays` + minute/hour rollups |
 
 ---
 
@@ -164,7 +164,7 @@ Golden-path sample (rate limits + Client already wired): [`samples/WebApiWithPol
 - [ ] Postgres connection string and backups
 - [ ] Compose or equivalent for Api + Dashboard (+ your apps with the Client)
 - [ ] Alert channels configured on the **API** (`ThrottleWatch:Alerts` — Webhook / Slack / Discord / Email)
-- [ ] Know retention is currently a **fixed ~30-day** hard delete (configurable retention / rollups = EPIC-17)
+- [ ] Set `ThrottleWatch:Storage:RetentionDays` (default 30) and know History uses minute rollups for ≤6h windows and hourly rollups for longer ranges
 - [ ] TLS and network isolation for Api + Postgres in real deploys
 
 ---
@@ -177,6 +177,17 @@ Golden-path sample (rate limits + Client already wired): [`samples/WebApiWithPol
 4. **Dashboard** polls REST endpoints on a refresh interval (`DASHBOARD_REFRESH_SECONDS`, default 5).
 
 Deep dive: [`ARCHITECTURE.md`](ARCHITECTURE.md) · plan / epics: [`PROJECT_PLAN.md`](PROJECT_PLAN.md) · backlog: [`docs/backlog/`](docs/backlog/).
+
+### Retention vs History resolution
+
+| Setting | Default | Notes |
+|---|---|---|
+| `ThrottleWatch:Storage:RetentionDays` | `30` | Raw `metric_entries` **and** `metric_rollups` older than this are deleted |
+| `RetentionIntervalHours` | `6` | How often retention runs |
+| `RollupIntervalMinutes` | `1` | Rebuilds completed minute/hour buckets |
+| `RollupLookbackHours` | `3` | Idempotent rebuild window (covers delayed Client flushes) |
+
+History UI windows ≤ **6 hours** read **1-minute** rollups; **24h / 7d / 30d** use **1-hour** rollups. If rollups are not ready yet, the API falls back to SQL `GROUP BY` on raw rows (still no in-memory full scan of every field).
 
 ---
 
@@ -227,7 +238,7 @@ dotnet test ThrottleWatch.slnx
 | EPIC-14 API security | ✅ |
 | EPIC-15 Client NuGet | ✅ |
 | EPIC-16 Honest docs | 🔄 this README |
-| EPIC-17 Retention + history rollups | 🔲 planned |
+| EPIC-17 Retention + history rollups | ✅ |
 | Multi-tenant / richer exporters | 🔲 future |
 
 Historical sprint notes in `PROJECT_PLAN.md` still mention SignalR as originally planned; **runtime path is REST polling**.
