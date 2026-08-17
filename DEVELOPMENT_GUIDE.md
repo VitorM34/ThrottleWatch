@@ -157,7 +157,8 @@ ThrottleWatch.sln
 │   ├── ThrottleWatch.Application/      # Use cases, CQRS, interfaces de aplicação
 │   ├── ThrottleWatch.Infrastructure/   # EF Core, repositórios, serviços externos
 │   ├── ThrottleWatch.Middleware/       # Middleware ASP.NET Core + extensions
-│   └── ThrottleWatch.Dashboard/        # Blazor Web App (Interactive Server)
+│   ├── ThrottleWatch.Dashboard/        # Blazor RCL (Interactive Server UI)
+│   └── ThrottleWatch.Dashboard.Host/   # Standalone host (Compose)
 │
 ├── tests/
 │   ├── ThrottleWatch.UnitTests/        # Domain + Application
@@ -253,7 +254,7 @@ Middleware/
 └── Options/
 ```
 
-#### Dashboard (`ThrottleWatch.Dashboard/`)
+#### Dashboard (`ThrottleWatch.Dashboard/`) — Razor Class Library
 
 ```
 Dashboard/
@@ -266,10 +267,12 @@ Dashboard/
 │   └── Tables/        # Tabelas com ordenação
 ├── Models/            # Modelos de domínio da UI
 ├── DTOs/              # Contratos HTTP + ToModel()
-├── Extensions/        # ServiceCollectionExtensions
-├── Models/            # ThrottleWatchOptions
-└── wwwroot/           # CSS, assets estáticos
+├── Extensions/        # AddThrottleWatchDashboard / UseThrottleWatchDashboard
+└── wwwroot/           # CSS, assets estáticos (_content/ThrottleWatch.Dashboard/)
 ```
+
+Host standalone: `ThrottleWatch.Dashboard.Host` (`UseThrottleWatchDashboard("/")`).
+Consumidor: `UseThrottleWatchDashboard()` → `/throttlewatch`.
 
 ### Onde colocar cada artefato
 
@@ -602,6 +605,7 @@ public sealed class ThrottleWatchMiddleware(RequestDelegate next)
 app.UseRouting();
 app.UseRateLimiter();
 app.UseThrottleWatch();   // após routing, antes de endpoints
+app.UseThrottleWatchDashboard(); // opcional: UI em /throttlewatch (RCL)
 app.MapControllers();
 ```
 
