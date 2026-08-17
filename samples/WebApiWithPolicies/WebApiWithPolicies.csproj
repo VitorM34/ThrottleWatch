@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ThrottleWatch.Client\ThrottleWatch.Client.csproj" />
+    <ProjectReference Include="..\..\src\ThrottleWatch.Dashboard\ThrottleWatch.Dashboard.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

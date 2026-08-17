@@ -47,6 +47,7 @@ make load
 | Path | Policy | Limit |
 |------|--------|-------|
 | `GET /health` | none | — |
+| `GET /throttlewatch` | none | Embedded Dashboard (Overview) |
 | `GET/POST /api/orders` | `strict` | 10 / 10s per API key (or IP) |
 | `GET /api/products` | `standard` | 30 / 10s per API key (or IP) |
 
