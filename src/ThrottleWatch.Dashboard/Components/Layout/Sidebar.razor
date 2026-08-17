@@ -6,8 +6,8 @@
        role="navigation"
        aria-label="@L["Nav_MainAria"]">
 
-    <a href="/" class="sidebar__logo" aria-label="ThrottleWatch Dashboard">
-        <img src="/favicon.svg" alt="ThrottleWatch logo" class="sidebar__logo-icon" />
+    <a href="./" class="sidebar__logo" aria-label="ThrottleWatch Dashboard">
+        <img src="@($"{DashboardPath.StaticContent}/favicon.svg")" alt="ThrottleWatch logo" class="sidebar__logo-icon" />
         <span class="sidebar__logo-text">ThrottleWatch</span>
     </a>
 
@@ -15,7 +15,7 @@
         <div class="sidebar__section">
             <div class="sidebar__section-label" aria-hidden="true">@L["Nav_SectionOverview"]</div>
 
-            <NavLink href="/"
+            <NavLink href="./"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      Match="NavLinkMatch.All"
@@ -24,7 +24,7 @@
                 <span class="sidebar__item-label">@L["Nav_Overview"]</span>
             </NavLink>
 
-            <NavLink href="/endpoints"
+            <NavLink href="endpoints"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="@L["Nav_Endpoints"]">
@@ -32,7 +32,7 @@
                 <span class="sidebar__item-label">@L["Nav_Endpoints"]</span>
             </NavLink>
 
-            <NavLink href="/clients"
+            <NavLink href="clients"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="@L["Nav_Clients"]">
@@ -44,7 +44,7 @@
         <div class="sidebar__section">
             <div class="sidebar__section-label" aria-hidden="true">@L["Nav_SectionConfig"]</div>
 
-            <NavLink href="/policies"
+            <NavLink href="policies"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="@L["Nav_Policies"]">
@@ -52,7 +52,7 @@
                 <span class="sidebar__item-label">@L["Nav_Policies"]</span>
             </NavLink>
 
-            <NavLink href="/alerts"
+            <NavLink href="alerts"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="@L["Nav_Alerts"]">
@@ -70,7 +70,7 @@
         <div class="sidebar__section">
             <div class="sidebar__section-label" aria-hidden="true">@L["Nav_SectionAnalytics"]</div>
 
-            <NavLink href="/history"
+            <NavLink href="history"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="@L["Nav_History"]">
@@ -78,7 +78,7 @@
                 <span class="sidebar__item-label">@L["Nav_History"]</span>
             </NavLink>
 
-            <NavLink href="/insights"
+            <NavLink href="insights"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="@L["Nav_Insights"]">
@@ -90,7 +90,7 @@
         <div class="sidebar__section">
             <div class="sidebar__section-label" aria-hidden="true">@L["Nav_SectionSystem"]</div>
 
-            <NavLink href="/health"
+            <NavLink href="health"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="@L["Nav_Health"]">
@@ -98,7 +98,7 @@
                 <span class="sidebar__item-label">@L["Nav_Health"]</span>
             </NavLink>
 
-            <NavLink href="/settings"
+            <NavLink href="settings"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="@L["Nav_Settings"]">
@@ -106,7 +106,7 @@
                 <span class="sidebar__item-label">@L["Nav_Settings"]</span>
             </NavLink>
 
-            <NavLink href="/about"
+            <NavLink href="about"
                      class="sidebar__item"
                      ActiveClass="sidebar__item--active"
                      aria-label="@L["Nav_About"]">
