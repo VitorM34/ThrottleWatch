@@ -40,7 +40,7 @@ ThrottleWatch.Dashboard  ──(REST + API key)───────────
 | Insights analyzers | ✅ |
 | Serilog + OpenTelemetry hooks on the API | ✅ |
 | Docker Compose local stack + sample traffic | ✅ |
-| Embedded dashboard inside the consumer app (`/throttlewatch`) | ❌ not implemented |
+| Embedded dashboard inside the consumer app (`/throttlewatch`) | ✅ `UseThrottleWatchDashboard()` (Dashboard RCL, not the Client NuGet) |
 | SignalR live push to the Dashboard | ❌ cancelled (REST polling) |
 | Multi-tenant | ❌ planned |
 | Configurable retention / history rollups | ✅ `Storage:RetentionDays` + minute/hour rollups |
@@ -141,6 +141,24 @@ app.UseThrottleWatch();
 
 Golden-path sample (rate limits + Client already wired): [`samples/WebApiWithPolicies`](samples/WebApiWithPolicies/README.md).
 
+### Embed the Dashboard in your API (`/throttlewatch`)
+
+The Client NuGet does **not** include the UI (ADR-010). Reference `ThrottleWatch.Dashboard` (RCL) and follow the [Blazor RCL](https://learn.microsoft.com/aspnet/core/blazor/components/class-libraries) + [app base path](https://learn.microsoft.com/aspnet/core/blazor/host-and-deploy/app-base-path) host pattern:
+
+```csharp
+using ThrottleWatch.Client.Configuration;
+using ThrottleWatch.Dashboard.Extensions;
+
+builder.Services.AddThrottleWatch(builder.Configuration);
+builder.Services.AddThrottleWatchDashboard(builder.Configuration);
+
+var app = builder.Build();
+app.UseThrottleWatch();
+app.UseThrottleWatchDashboard(); // default: /throttlewatch
+```
+
+`GET /health` on your API stays yours. Dashboard health is `GET /throttlewatch/health`. Standalone Compose Dashboard remains at http://localhost:5100 (root).
+
 ---
 
 ## Security
@@ -201,7 +219,8 @@ ThrottleWatch.slnx
 │   ├── ThrottleWatch.Infrastructure/
 │   ├── ThrottleWatch.Api/
 │   ├── ThrottleWatch.Client/          # NuGet package Id: ThrottleWatch
-│   └── ThrottleWatch.Dashboard/       # Blazor Server UI
+│   ├── ThrottleWatch.Dashboard/       # Blazor RCL (embeddable UI)
+│   └── ThrottleWatch.Dashboard.Host/  # Standalone host (Compose :5100)
 ├── tests/                             # Domain, Application, Infrastructure, Api, Client, Dashboard
 ├── samples/
 │   └── WebApiWithPolicies/            # Golden path for real metrics
@@ -237,8 +256,9 @@ dotnet test ThrottleWatch.slnx
 | EPIC-13 Dashboard data honesty | ✅ |
 | EPIC-14 API security | ✅ |
 | EPIC-15 Client NuGet | ✅ |
-| EPIC-16 Honest docs | 🔄 this README |
+| EPIC-16 Honest docs | ✅ |
 | EPIC-17 Retention + history rollups | ✅ |
+| EPIC-18 Embedded dashboard (`/throttlewatch`) | ✅ |
 | Multi-tenant / richer exporters | 🔲 future |
 
 Historical sprint notes in `PROJECT_PLAN.md` still mention SignalR as originally planned; **runtime path is REST polling**.

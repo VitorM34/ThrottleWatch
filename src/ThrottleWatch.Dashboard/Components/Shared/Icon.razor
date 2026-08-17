@@ -1,4 +1,5 @@
 @* Renders a Lucide-style SVG from wwwroot/icons via CSS mask (color inherits currentColor). *@
+@inject NavigationManager Navigation
 
 <span class="tw-icon tw-icon--@SizeClass @Class"
       style="--tw-icon-url: url('@IconUrl')"
@@ -6,7 +7,7 @@
 </span>
 
 @code {
-    /// <summary>Icon file name without extension (e.g. "users" → /icons/users.svg).</summary>
+    /// <summary>Icon file name without extension (e.g. "users").</summary>
     [Parameter, EditorRequired]
     public string Name { get; set; } = string.Empty;
 
@@ -17,7 +18,8 @@
     [Parameter]
     public string? Class { get; set; }
 
-    private string IconUrl => $"/icons/{Name}.svg";
+    private string IconUrl =>
+        DashboardPath.IconHref(new Uri(Navigation.BaseUri).AbsolutePath, Name);
 
     private string SizeClass => Size.ToLowerInvariant() switch
     {

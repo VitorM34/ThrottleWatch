@@ -117,7 +117,7 @@ else
     <div class="grid grid--2" style="margin-bottom: 24px;">
         <ContentCard Title="@L["Overview_TopEndpoints"]" Subtitle="@L["Overview_ByVolume"]">
             <HeaderActions>
-                <a href="/endpoints" class="btn btn--ghost btn--sm">@L["Common_ViewAll"]</a>
+                <a href="endpoints" class="btn btn--ghost btn--sm">@L["Common_ViewAll"]</a>
             </HeaderActions>
             <ChildContent>
                 <TopEndpointsBarChart Endpoints="_topEndpoints" IsLoading="_isLoadingCharts" />
@@ -126,7 +126,7 @@ else
 
         <ContentCard Title="@L["Overview_TopClients"]" Subtitle="@L["Overview_ByVolume"]">
             <HeaderActions>
-                <a href="/clients" class="btn btn--ghost btn--sm">@L["Common_ViewAll"]</a>
+                <a href="clients" class="btn btn--ghost btn--sm">@L["Common_ViewAll"]</a>
             </HeaderActions>
             <ChildContent>
                 @if (_isLoadingCharts)

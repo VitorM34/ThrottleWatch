@@ -4,7 +4,7 @@ using Xunit;
 
 namespace ThrottleWatch.Dashboard.Tests.Components;
 
-public sealed class EmptyStateTests : TestContext
+public sealed class EmptyStateTests : DashboardTestContext
 {
     [Fact]
     public void EmptyState_Renders_DefaultTitle()

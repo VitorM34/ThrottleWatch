@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -6,11 +6,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ThrottleWatch.Dashboard</RootNamespace>
     <AssemblyName>ThrottleWatch.Dashboard</AssemblyName>
-    <UserSecretsId>throttlewatch-dashboard-dev</UserSecretsId>
+    <AddRazorSupportForMvc>false</AddRazorSupportForMvc>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <!-- .NET 10: ensure blazor.web.js is published (required for Docker / cross-build). -->
-    <RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
   </PropertyGroup>
+
+  <!-- https://learn.microsoft.com/aspnet/core/blazor/components/class-libraries -->
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <!-- https://learn.microsoft.com/aspnet/core/fundamentals/target-aspnetcore -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazor-ApexCharts" Version="6.1.0" />

@@ -1,10 +1,12 @@
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 using ThrottleWatch.Client.Configuration;
+using ThrottleWatch.Dashboard.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddThrottleWatch();
+builder.Services.AddThrottleWatchDashboard(builder.Configuration);
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -48,6 +50,8 @@ app.Use(async (context, next) =>
     ApplyPolicyHeader(context);
     await next();
 });
+
+app.UseThrottleWatchDashboard();
 
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 

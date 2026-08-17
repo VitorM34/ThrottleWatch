@@ -1,6 +1,6 @@
 ﻿@using ThrottleWatch.Dashboard.Components.Layout
 
-<Router AppAssembly="typeof(Program).Assembly">
+<Router AppAssembly="typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
@@ -12,7 +12,7 @@
                 <div class="not-found__code">404</div>
                 <h2 class="not-found__title">@L["NotFound_Heading"]</h2>
                 <p class="not-found__message">@L["NotFound_Message"]</p>
-                <a href="/" class="btn btn--primary">@L["NotFound_Back"]</a>
+                <a href="./" class="btn btn--primary">@L["NotFound_Back"]</a>
             </div>
         </LayoutView>
     </NotFound>

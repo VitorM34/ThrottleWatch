@@ -7,9 +7,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="/" />
+    <base href="@GetBaseHref()" />
     <title>ThrottleWatch</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="@($"{DashboardPath.StaticContent}/favicon.svg")" />
     @* Apply stored theme before CSS paint to avoid flash / desync with Blazor circuit. *@
     <script>
         (function () {
@@ -21,16 +21,16 @@
             }
         })();
     </script>
-    <link rel="stylesheet" href="@Assets["app.css"]" />
-    <link rel="stylesheet" href="@Assets["ThrottleWatch.Dashboard.styles.css"]" />
+    <link rel="stylesheet" href="@($"{DashboardPath.StaticContent}/app.css")" />
+    <link rel="stylesheet" href="@($"{DashboardPath.StaticContent}/ThrottleWatch.Dashboard.bundle.scp.css")" />
     <ImportMap />
     <HeadOutlet />
 </head>
 <body>
     @* prerender:false avoids duplicate scoped services (theme toggle desync). *@
     <Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
-    <script src="js/theme.js"></script>
-    <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="@($"{DashboardPath.StaticContent}/js/theme.js")"></script>
+    <script src="_framework/blazor.web.js"></script>
     <script src="_content/Blazor-ApexCharts/js/blazor-apexcharts.js"></script>
 </body>
 </html>
@@ -39,12 +39,14 @@
     [CascadingParameter]
     private HttpContext? HttpContext { get; set; }
 
+    private string GetBaseHref() =>
+        DashboardPath.ToBaseHref(HttpContext?.Request.PathBase.Value);
+
     protected override void OnInitialized()
     {
         if (HttpContext is null)
             return;
 
-        // Persist culture for the Blazor circuit. Do not overwrite an existing user cookie.
         if (HttpContext.Request.Cookies.ContainsKey(CookieRequestCultureProvider.DefaultCookieName))
             return;
 

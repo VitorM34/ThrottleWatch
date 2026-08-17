@@ -120,6 +120,6 @@
     {
         var uri = new Uri(Navigation.Uri)
             .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
-        return $"/Culture/Set?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
+        return $"Culture/Set?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
     }
 }

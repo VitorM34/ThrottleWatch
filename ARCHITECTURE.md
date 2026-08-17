@@ -170,7 +170,8 @@ ThrottleWatch/
 │   ├── ThrottleWatch.Application/   # Camada de aplicação (casos de uso)
 │   ├── ThrottleWatch.Infrastructure/# Camada de infraestrutura
 │   ├── ThrottleWatch.Api/           # API REST (ponto de entrada principal)
-│   ├── ThrottleWatch.Dashboard/     # Dashboard Blazor
+│   ├── ThrottleWatch.Dashboard/     # Dashboard Blazor (Razor Class Library)
+│   ├── ThrottleWatch.Dashboard.Host/# Host Compose / standalone (Sdk.Web)
 │   └── ThrottleWatch.Client/        # SDK para aplicações consumidoras
 │
 ├── tests/
@@ -353,28 +354,31 @@ ThrottleWatch/
 
 ### ThrottleWatch.Dashboard
 
-**Objetivo:** Interface visual de monitoramento. Consome exclusivamente a API REST do ThrottleWatch.Api.
+**Objetivo:** Interface visual de monitoramento como **Razor Class Library**. Consome exclusivamente a API REST do ThrottleWatch.Api.
 
 **Responsabilidades:**
 - Exibir métricas via polling/consultas à API REST
 - Exibir gráficos históricos via chamadas à API REST
 - Gerenciar regras de alerta pela interface
 - Exibir insights e recomendações
+- Expor `AddThrottleWatchDashboard` / `UseThrottleWatchDashboard` para o host standalone e para o consumidor (`/throttlewatch`)
 
 **Pode conter:**
 - Componentes Blazor (páginas e componentes reutilizáveis)
-- Serviços HTTP que chamam `ThrottleWatch.Api` (`IMetricsApiClient`, `IAlertsApiClient`)
+- Serviços HTTP que chamam `ThrottleWatch.Api`
 - DTOs locais para desserialização das respostas da API
 - Lógica de apresentação e estado de UI
+- Extension methods de DI e de pipeline (Microsoft.NET.Sdk.Razor)
 
 **NÃO pode conter:**
 - Regras de negócio
 - Acesso direto ao banco de dados
 - Referência a `ThrottleWatch.Domain`, `ThrottleWatch.Application` ou `ThrottleWatch.Infrastructure`
 - Queries SQL ou LINQ
+- `Program.cs` (host é `ThrottleWatch.Dashboard.Host`)
 
 **Dependências permitidas:**
-- `Microsoft.AspNetCore.Components.WebAssembly` ou Blazor Server packages
+- `Microsoft.AspNetCore.App` (FrameworkReference — [target ASP.NET Core](https://learn.microsoft.com/aspnet/core/fundamentals/target-aspnetcore))
 - Pacotes de UI (charts, componentes)
 
 **Dependências proibidas:**
@@ -382,6 +386,22 @@ ThrottleWatch/
 - `ThrottleWatch.Application`
 - `ThrottleWatch.Infrastructure`
 - `Microsoft.EntityFrameworkCore`
+
+---
+
+### ThrottleWatch.Dashboard.Host
+
+**Objetivo:** Aplicação web fina (`Microsoft.NET.Sdk.Web`) que hospeda a RCL na raiz para Compose / `make demo`.
+
+**Responsabilidades:**
+- `Program.cs`, `appsettings`, Dockerfile
+- Chamar `AddThrottleWatchDashboard` + `UseThrottleWatchDashboard("/")`
+
+**Pode conter:** apenas o host. Sem páginas Razor próprias.
+
+**Dependências permitidas:** `ThrottleWatch.Dashboard`
+
+**Dependências proibidas:** Domain, Application, Infrastructure, Client, Api
 
 ---
 
@@ -569,22 +589,17 @@ ThrottleWatch.Client/
 ThrottleWatch.Dashboard/
 ├── Components/
 │   ├── Pages/
-│   │   ├── DashboardPage.razor
-│   │   ├── AlertsPage.razor
-│   │   └── InsightsPage.razor
 │   ├── Charts/
 │   ├── Cards/
 │   ├── Tables/
 │   └── Shared/
 ├── Services/
-│   ├── IMetricsApiClient.cs
-│   ├── MetricsApiClient.cs
-│   ├── IAlertsApiClient.cs
-│   └── AlertsApiClient.cs
-├── Models/              # DTOs locais de desserialização
-├── wwwroot/
-└── Program.cs
+├── Models/
+├── Extensions/          # AddThrottleWatchDashboard, UseThrottleWatchDashboard
+└── wwwroot/
 ```
+
+Host: `ThrottleWatch.Dashboard.Host/Program.cs`
 
 ---
 
@@ -689,6 +704,7 @@ sequenceDiagram
 5. `ThrottleWatch.Infrastructure` referencia `ThrottleWatch.Application` e `ThrottleWatch.Domain`
 6. `ThrottleWatch.Api` referencia `ThrottleWatch.Application` e `ThrottleWatch.Infrastructure` (somente para DI)
 7. `ThrottleWatch.Dashboard` **nunca** referencia nenhum projeto ThrottleWatch além de pacotes de UI
+7b. `ThrottleWatch.Dashboard.Host` referencia **apenas** `ThrottleWatch.Dashboard`
 8. `ThrottleWatch.Client` **nunca** referencia nenhum projeto ThrottleWatch
 
 ### Regras de Responsabilidade
@@ -977,12 +993,12 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 
 ---
 
-### ADR-009 — Dashboard como projeto separado
+### ADR-009 — Dashboard como RCL + host separado
 
-**Status:** Aceito  
-**Decisão:** O Dashboard Blazor é um projeto separado (`ThrottleWatch.Dashboard`) que consome a API exclusivamente via HTTP.  
-**Motivo:** Separação de responsabilidades. O Dashboard é puro frontend — não deve ter acesso a camadas internas. Pode ser implantado separadamente se necessário.  
-**Consequência:** Dashboard não referencia Domain, Application ou Infrastructure.
+**Status:** Aceito (atualizado EPIC-18)  
+**Decisão:** O Dashboard Blazor é uma **Razor Class Library** (`ThrottleWatch.Dashboard`, `Microsoft.NET.Sdk.Razor`, sem Support pages and views) que consome a API exclusivamente via HTTP. O processo Compose / standalone é `ThrottleWatch.Dashboard.Host`. O consumidor mapeia a mesma UI em `/throttlewatch` via `UseThrottleWatchDashboard()` ([app base path](https://learn.microsoft.com/aspnet/core/blazor/host-and-deploy/app-base-path), [RCL](https://learn.microsoft.com/aspnet/core/blazor/components/class-libraries)).  
+**Motivo:** Separação de responsabilidades. O Client NuGet permanece só métricas (ADR-010). A UI não entra no pacote `ThrottleWatch`. Prefixo `/throttlewatch` evita colisão com `/health` da API consumidora.  
+**Consequência:** Dashboard não referencia Domain, Application ou Infrastructure. Host não contém páginas. Links internos da UI são relativos (sem `/` inicial).
 
 ---
 
@@ -1017,7 +1033,7 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 
 ### Restrições de Estrutura
 
-- Não criar novos projetos além dos existentes sem decisão arquitetural formal
+- Não criar novos projetos além dos existentes sem decisão arquitetural formal (exceção: `ThrottleWatch.Dashboard.Host`, ADR-009 / EPIC-18)
 - Não mover responsabilidades entre projetos sem atualizar este documento
 - Não criar dependências circulares entre projetos
 - Não criar projetos de `Shared`, `Common` ou `Utils` genéricos

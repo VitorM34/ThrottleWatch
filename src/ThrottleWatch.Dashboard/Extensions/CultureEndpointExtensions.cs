@@ -6,11 +6,11 @@ namespace ThrottleWatch.Dashboard.Extensions;
 public static class CultureEndpointExtensions
 {
     /// <summary>
-    /// Sets the ASP.NET Core culture cookie and redirects (official Blazor pattern).
+    /// Sets the ASP.NET Core culture cookie and redirects (official Blazor cookie culture pattern).
     /// </summary>
-    public static WebApplication MapCultureEndpoints(this WebApplication app)
+    public static IEndpointRouteBuilder MapCultureSetEndpoint(this IEndpointRouteBuilder endpoints)
     {
-        app.MapGet("/Culture/Set", (string culture, string redirectUri, HttpContext httpContext) =>
+        endpoints.MapGet("/Culture/Set", (string culture, string redirectUri, HttpContext httpContext) =>
         {
             if (!string.IsNullOrWhiteSpace(culture)
                 && LocalizationConstants.SupportedCultures.Contains(culture, StringComparer.OrdinalIgnoreCase))
@@ -33,17 +33,16 @@ public static class CultureEndpointExtensions
             return Results.LocalRedirect(target);
         });
 
-        return app;
+        return endpoints;
     }
 
-    public static WebApplication UseDashboardRequestLocalization(this WebApplication app)
+    public static IApplicationBuilder UseDashboardRequestLocalization(this IApplicationBuilder app)
     {
         var options = new RequestLocalizationOptions()
             .SetDefaultCulture(LocalizationConstants.DefaultCulture)
             .AddSupportedCultures(LocalizationConstants.SupportedCultures)
             .AddSupportedUICultures(LocalizationConstants.SupportedCultures);
 
-        // Prefer cookie (Settings) over Accept-Language.
         options.RequestCultureProviders =
         [
             new CookieRequestCultureProvider(),

@@ -6,11 +6,13 @@ WORKDIR /src
 
 COPY global.json Directory.Build.props ThrottleWatch.slnx ./
 COPY src/ThrottleWatch.Client/ThrottleWatch.Client.csproj src/ThrottleWatch.Client/
+COPY src/ThrottleWatch.Dashboard/ThrottleWatch.Dashboard.csproj src/ThrottleWatch.Dashboard/
 COPY samples/WebApiWithPolicies/WebApiWithPolicies.csproj samples/WebApiWithPolicies/
 
 RUN dotnet restore samples/WebApiWithPolicies/WebApiWithPolicies.csproj
 
 COPY src/ThrottleWatch.Client/ src/ThrottleWatch.Client/
+COPY src/ThrottleWatch.Dashboard/ src/ThrottleWatch.Dashboard/
 COPY samples/WebApiWithPolicies/ samples/WebApiWithPolicies/
 
 RUN dotnet publish samples/WebApiWithPolicies/WebApiWithPolicies.csproj \

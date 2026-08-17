@@ -4,7 +4,7 @@ using Xunit;
 
 namespace ThrottleWatch.Dashboard.Tests.Components;
 
-public sealed class BadgeTests : TestContext
+public sealed class BadgeTests : DashboardTestContext
 {
     [Fact]
     public void Badge_Renders_WithDefaultVariant()

@@ -5,11 +5,11 @@ WORKDIR /src
 
 COPY global.json Directory.Build.props ThrottleWatch.slnx ./
 COPY src/ThrottleWatch.Dashboard/ src/ThrottleWatch.Dashboard/
+COPY src/ThrottleWatch.Dashboard.Host/ src/ThrottleWatch.Dashboard.Host/
 
-# Restore after full source copy so Blazor web assets (blazor.web.js) are included.
-RUN dotnet restore src/ThrottleWatch.Dashboard/ThrottleWatch.Dashboard.csproj
+RUN dotnet restore src/ThrottleWatch.Dashboard.Host/ThrottleWatch.Dashboard.Host.csproj
 
-RUN dotnet publish src/ThrottleWatch.Dashboard/ThrottleWatch.Dashboard.csproj \
+RUN dotnet publish src/ThrottleWatch.Dashboard.Host/ThrottleWatch.Dashboard.Host.csproj \
     -c Release \
     -o /app/publish \
     --no-restore
@@ -26,4 +26,4 @@ EXPOSE 8080
 
 COPY --from=build /app/publish .
 
-ENTRYPOINT ["dotnet", "ThrottleWatch.Dashboard.dll"]
+ENTRYPOINT ["dotnet", "ThrottleWatch.Dashboard.Host.dll"]

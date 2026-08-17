@@ -4,7 +4,7 @@ using Xunit;
 
 namespace ThrottleWatch.Dashboard.Tests.Components;
 
-public sealed class ProgressBarTests : TestContext
+public sealed class ProgressBarTests : DashboardTestContext
 {
     [Fact]
     public void ProgressBar_Renders_WithValue()

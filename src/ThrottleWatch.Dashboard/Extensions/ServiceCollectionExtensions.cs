@@ -14,6 +14,9 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddRazorComponents()
+            .AddInteractiveServerComponents();
+
         services.AddOptions<ThrottleWatchOptions>()
             .Bind(configuration.GetSection(ThrottleWatchOptions.SectionName))
             .ValidateDataAnnotations()
@@ -46,12 +49,14 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.AddScoped<CircuitHandler, CultureCircuitHandler>();
 
-        // Persist keys across container recreates so Blazor antiforgery/circuits keep working.
-        var keysPath = configuration["DataProtection:KeysPath"] ?? "/keys";
-        Directory.CreateDirectory(keysPath);
-        services.AddDataProtection()
-            .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
-            .SetApplicationName("ThrottleWatch.Dashboard");
+        var keysPath = configuration["DataProtection:KeysPath"];
+        if (!string.IsNullOrWhiteSpace(keysPath))
+        {
+            Directory.CreateDirectory(keysPath);
+            services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+                .SetApplicationName("ThrottleWatch.Dashboard");
+        }
 
         services.AddApexCharts();
 
