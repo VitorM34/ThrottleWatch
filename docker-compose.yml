@@ -61,7 +61,7 @@ services:
   dashboard:
     build:
       context: .
-      dockerfile: src/ThrottleWatch.Dashboard/Dockerfile
+      dockerfile: src/ThrottleWatch.Dashboard.Host/Dockerfile
     restart: unless-stopped
     depends_on:
       api:
