@@ -4,7 +4,7 @@ using Xunit;
 
 namespace ThrottleWatch.Dashboard.Tests.Components;
 
-public sealed class AlertBannerTests : TestContext
+public sealed class AlertBannerTests : DashboardTestContext
 {
     [Fact]
     public void AlertBanner_Renders_ByDefault()

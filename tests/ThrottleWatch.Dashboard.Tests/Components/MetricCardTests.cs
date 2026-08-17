@@ -4,7 +4,7 @@ using Xunit;
 
 namespace ThrottleWatch.Dashboard.Tests.Components;
 
-public sealed class MetricCardTests : TestContext
+public sealed class MetricCardTests : DashboardTestContext
 {
     [Fact]
     public void MetricCard_Renders_LabelAndValue()

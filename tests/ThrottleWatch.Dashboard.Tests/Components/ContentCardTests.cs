@@ -4,7 +4,7 @@ using Xunit;
 
 namespace ThrottleWatch.Dashboard.Tests.Components;
 
-public sealed class ContentCardTests : TestContext
+public sealed class ContentCardTests : DashboardTestContext
 {
     [Fact]
     public void ContentCard_Renders_Title()
