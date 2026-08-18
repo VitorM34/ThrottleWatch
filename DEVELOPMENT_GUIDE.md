@@ -272,7 +272,7 @@ Dashboard/
 ```
 
 Host standalone: `ThrottleWatch.Dashboard.Host` (`UseThrottleWatchDashboard("/")`).
-Consumidor: `UseThrottleWatchDashboard()` → `/throttlewatch`.
+Consumidor: pacote `ThrottleWatch.Dashboard` + `UseThrottleWatchDashboard()` → `/throttlewatch`. Sample do monorepo usa `ProjectReference`.
 
 ### Onde colocar cada artefato
 
