@@ -354,7 +354,7 @@ ThrottleWatch/
 
 ### ThrottleWatch.Dashboard
 
-**Objetivo:** Interface visual de monitoramento como **Razor Class Library**. Consome exclusivamente a API REST do ThrottleWatch.Api.
+**Objetivo:** Interface visual de monitoramento como **Razor Class Library**. Consome exclusivamente a API REST do ThrottleWatch.Api. Pacote NuGet: `ThrottleWatch.Dashboard` (separado do Client `ThrottleWatch`; ADR-010).
 
 **Responsabilidades:**
 - Exibir métricas via polling/consultas à API REST
