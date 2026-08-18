@@ -8,7 +8,35 @@
     <AssemblyName>ThrottleWatch.Dashboard</AssemblyName>
     <AddRazorSupportForMvc>false</AddRazorSupportForMvc>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <IsPackable>true</IsPackable>
+
+    <PackageId>ThrottleWatch.Dashboard</PackageId>
+    <Title>ThrottleWatch Dashboard</Title>
+    <Version>1.0.0</Version>
+    <Authors>ThrottleWatch Contributors</Authors>
+    <Company>ThrottleWatch</Company>
+    <Product>ThrottleWatch</Product>
+    <Description>Embeddable Blazor Dashboard (Razor Class Library) for ThrottleWatch. Map the UI at /throttlewatch. Does not include the Client SDK.</Description>
+    <Copyright>Copyright (c) ThrottleWatch Contributors 2026</Copyright>
+    <PackageTags>aspnetcore;blazor;dashboard;rate-limiting;observability;throttlewatch</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/VitorM34/ThrottleWatch</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VitorM34/ThrottleWatch</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>PACKAGE.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="PACKAGE.md" Pack="true" PackagePath="\" />
+    <Content Remove="appsettings.json" />
+    <Content Remove="appsettings.*.json" />
+    <None Remove="appsettings.json" />
+    <None Remove="appsettings.*.json" />
+  </ItemGroup>
 
   <!-- https://learn.microsoft.com/aspnet/core/blazor/components/class-libraries -->
   <ItemGroup>
