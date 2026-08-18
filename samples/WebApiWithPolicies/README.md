@@ -42,6 +42,8 @@ make sample
 make load
 ```
 
+This sample uses **project references** to `ThrottleWatch.Client` and `ThrottleWatch.Dashboard` (monorepo / Compose). External apps should install the NuGet packages instead (`ThrottleWatch` + `ThrottleWatch.Dashboard`).
+
 ## Endpoints
 
 | Path | Policy | Limit |

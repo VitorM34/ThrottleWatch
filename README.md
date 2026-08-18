@@ -40,7 +40,7 @@ ThrottleWatch.Dashboard  ──(REST + API key)───────────
 | Insights analyzers | ✅ |
 | Serilog + OpenTelemetry hooks on the API | ✅ |
 | Docker Compose local stack + sample traffic | ✅ |
-| Embedded dashboard inside the consumer app (`/throttlewatch`) | ✅ `UseThrottleWatchDashboard()` (Dashboard RCL, not the Client NuGet) |
+| Embedded dashboard inside the consumer app (`/throttlewatch`) | ✅ `ThrottleWatch.Dashboard` NuGet — `UseThrottleWatchDashboard()` (not the Client package) |
 | SignalR live push to the Dashboard | ❌ cancelled (REST polling) |
 | Multi-tenant | ❌ planned |
 | Configurable retention / history rollups | ✅ `Storage:RetentionDays` + minute/hour rollups |
@@ -143,7 +143,18 @@ Golden-path sample (rate limits + Client already wired): [`samples/WebApiWithPol
 
 ### Embed the Dashboard in your API (`/throttlewatch`)
 
-The Client NuGet does **not** include the UI (ADR-010). Reference `ThrottleWatch.Dashboard` (RCL) and follow the [Blazor RCL](https://learn.microsoft.com/aspnet/core/blazor/components/class-libraries) + [app base path](https://learn.microsoft.com/aspnet/core/blazor/host-and-deploy/app-base-path) host pattern:
+The Client NuGet does **not** include the UI (ADR-010). Install the separate **`ThrottleWatch.Dashboard`** package ([Blazor RCL](https://learn.microsoft.com/aspnet/core/blazor/components/class-libraries) + [app base path](https://learn.microsoft.com/aspnet/core/blazor/host-and-deploy/app-base-path)):
+
+```bash
+dotnet add package ThrottleWatch.Dashboard
+```
+
+Local pack (before nuget.org publish):
+
+```bash
+make pack-dashboard
+dotnet add package ThrottleWatch.Dashboard --source ./artifacts/nuget --version 1.0.0
+```
 
 ```csharp
 using ThrottleWatch.Client.Configuration;
@@ -158,6 +169,8 @@ app.UseThrottleWatchDashboard(); // default: /throttlewatch
 ```
 
 `GET /health` on your API stays yours. Dashboard health is `GET /throttlewatch/health`. Standalone Compose Dashboard remains at http://localhost:5100 (root).
+
+The golden-path sample keeps a **project reference** to the Dashboard (monorepo). External apps use the NuGet package.
 
 ---
 
@@ -219,12 +232,12 @@ ThrottleWatch.slnx
 │   ├── ThrottleWatch.Infrastructure/
 │   ├── ThrottleWatch.Api/
 │   ├── ThrottleWatch.Client/          # NuGet package Id: ThrottleWatch
-│   ├── ThrottleWatch.Dashboard/       # Blazor RCL (embeddable UI)
+│   ├── ThrottleWatch.Dashboard/       # NuGet package Id: ThrottleWatch.Dashboard (Blazor RCL)
 │   └── ThrottleWatch.Dashboard.Host/  # Standalone host (Compose :5100)
 ├── tests/                             # Domain, Application, Infrastructure, Api, Client, Dashboard
 ├── samples/
 │   └── WebApiWithPolicies/            # Golden path for real metrics
-├── scripts/                           # load-sample, pack-client-smoke, …
+├── scripts/                           # load-sample, pack-client-smoke, pack-dashboard-smoke, …
 └── docs/
 ```
 
@@ -240,7 +253,8 @@ ThrottleWatch.slnx
 | `make health` | Wait for API `/health` |
 | `make down` | Stop containers (keeps volume) |
 | `make sample` / `make load` | Run sample / hammer it locally |
-| `make pack-client` / `make pack-client-smoke` | Pack NuGet + smoke install |
+| `make pack-client` / `make pack-client-smoke` | Pack Client NuGet + smoke install |
+| `make pack-dashboard` / `make pack-dashboard-smoke` | Pack Dashboard NuGet + smoke install |
 
 ```bash
 dotnet test ThrottleWatch.slnx
@@ -259,7 +273,9 @@ dotnet test ThrottleWatch.slnx
 | EPIC-16 Honest docs | ✅ |
 | EPIC-17 Retention + history rollups | ✅ |
 | EPIC-18 Embedded dashboard (`/throttlewatch`) | ✅ |
-| Multi-tenant / richer exporters | 🔲 future |
+| EPIC-19 Dashboard NuGet | ✅ |
+| EPIC-20 Multi-tenant | 🔲 planned (v1.3) |
+| EPIC-21 OpenTelemetry export (Client) | 🔲 planned (v1.4) |
 
 Historical sprint notes in `PROJECT_PLAN.md` still mention SignalR as originally planned; **runtime path is REST polling**.
 

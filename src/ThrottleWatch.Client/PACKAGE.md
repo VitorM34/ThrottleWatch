@@ -2,7 +2,7 @@
 
 ASP.NET Core middleware + background sender that captures request metrics and posts them to **ThrottleWatch.Api**.
 
-> This package is the **consumer SDK only**. The API, Dashboard, and PostgreSQL stack run separately (see the [repository](https://github.com/VitorM34/ThrottleWatch)).
+> This package is the **consumer SDK only**. The Dashboard UI is a separate package (`ThrottleWatch.Dashboard`). The API and PostgreSQL stack run separately (see the [repository](https://github.com/VitorM34/ThrottleWatch)).
 
 ## Install
 
