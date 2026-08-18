@@ -10,7 +10,7 @@ HEALTH_SLEEP ?= 1
 
 .DEFAULT_GOAL := help
 
-.PHONY: help up up-rebuild down db restart logs ps build health sample sample-health demo-health load demo demo-rebuild pack-client pack-client-smoke
+.PHONY: help up up-rebuild down db restart logs ps build health sample sample-health demo-health load demo demo-rebuild pack-client pack-client-smoke pack-dashboard pack-dashboard-smoke
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make <target>\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  %-14s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
@@ -127,3 +127,10 @@ pack-client: ## Pack ThrottleWatch.Client → artifacts/nuget (PackageId Throttl
 
 pack-client-smoke: ## Pack Client and smoke-install into a temporary web app
 	./scripts/pack-client-smoke.sh
+
+pack-dashboard: ## Pack ThrottleWatch.Dashboard → artifacts/nuget
+	dotnet pack src/ThrottleWatch.Dashboard/ThrottleWatch.Dashboard.csproj -c Release -o artifacts/nuget --nologo
+	@ls -la artifacts/nuget/ThrottleWatch.Dashboard*.nupkg
+
+pack-dashboard-smoke: ## Pack Dashboard and smoke-install into a temporary web app
+	./scripts/pack-dashboard-smoke.sh
