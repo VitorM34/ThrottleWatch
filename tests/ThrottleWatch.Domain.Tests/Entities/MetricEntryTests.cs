@@ -1,6 +1,7 @@
 using FluentAssertions;
 using ThrottleWatch.Domain.Entities;
 using ThrottleWatch.Domain.Exceptions;
+using ThrottleWatch.Domain.Tenancy;
 
 namespace ThrottleWatch.Domain.Tests.Entities;
 
@@ -26,6 +27,7 @@ public sealed class MetricEntryTests
         entry.IsBlocked.Should().BeFalse();
         entry.DurationMs.Should().Be(15.5);
         entry.Timestamp.Should().Be(_timestamp);
+        entry.TenantId.Should().Be("default");
     }
 
     [Fact]
@@ -118,5 +120,37 @@ public sealed class MetricEntryTests
         var b = MetricEntry.Create("/api/b", "GET", 200, 10, _timestamp);
 
         a.Id.Should().NotBe(b.Id);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Create_WithEmptyTenantId_ShouldThrowDomainException(string? tenantId)
+    {
+        var act = () => MetricEntry.Create(
+            "/api/test",
+            "GET",
+            200,
+            10,
+            _timestamp,
+            tenantId: tenantId!);
+
+        act.Should().Throw<DomainException>().WithMessage("*TenantId*");
+    }
+
+    [Fact]
+    public void Create_WithCustomTenantId_ShouldPersistIt()
+    {
+        var entry = MetricEntry.Create(
+            "/api/test",
+            "GET",
+            200,
+            10,
+            _timestamp,
+            tenantId: "acme");
+
+        entry.TenantId.Should().Be("acme");
+        entry.TenantId.Should().NotBe(TenantIds.Default);
     }
 }

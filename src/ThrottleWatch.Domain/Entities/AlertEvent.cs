@@ -1,10 +1,12 @@
 using ThrottleWatch.Domain.Enums;
 using ThrottleWatch.Domain.Exceptions;
+using ThrottleWatch.Domain.Tenancy;
 
 namespace ThrottleWatch.Domain.Entities;
 
 public sealed class AlertEvent : Entity
 {
+    public string TenantId { get; private set; } = TenantIds.Default;
     public Guid AlertRuleId { get; private set; }
     public string RuleName { get; private set; } = string.Empty;
     public string Message { get; private set; } = string.Empty;
@@ -18,7 +20,8 @@ public sealed class AlertEvent : Entity
         Guid alertRuleId,
         string ruleName,
         string message,
-        AlertSeverity severity)
+        AlertSeverity severity,
+        string tenantId = TenantIds.Default)
     {
         if (alertRuleId == Guid.Empty)
             throw new DomainException("AlertEvent alertRuleId cannot be empty.");
@@ -31,6 +34,7 @@ public sealed class AlertEvent : Entity
 
         return new AlertEvent
         {
+            TenantId = TenantIds.Normalize(tenantId),
             AlertRuleId = alertRuleId,
             RuleName = ruleName.Trim(),
             Message = message.Trim(),
