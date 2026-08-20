@@ -12,6 +12,8 @@ public sealed class MetricRollupConfiguration : IEntityTypeConfiguration<MetricR
 
         builder.HasKey(x => x.Id);
 
+        TenantColumn.Map(builder, x => x.TenantId);
+
         builder.Property(x => x.BucketStart)
             .IsRequired();
 
@@ -25,7 +27,7 @@ public sealed class MetricRollupConfiguration : IEntityTypeConfiguration<MetricR
         builder.Property(x => x.BlockedRequests)
             .IsRequired();
 
-        builder.HasIndex(x => new { x.Granularity, x.BucketStart })
+        builder.HasIndex(x => new { x.TenantId, x.Granularity, x.BucketStart })
             .IsUnique();
 
         builder.HasIndex(x => x.BucketStart);

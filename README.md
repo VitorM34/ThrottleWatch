@@ -34,7 +34,7 @@ ThrottleWatch.Dashboard  ──(REST + API key)───────────
 |---|---|
 | Client SDK NuGet (`ThrottleWatch`) — middleware + batch sender | ✅ |
 | Ingest + query API (`/api/metrics`, alerts, insights) | ✅ |
-| Shared API key auth (`X-ThrottleWatch-Key`) | ✅ |
+| Shared API key auth (`X-ThrottleWatch-Key`) | ✅ one key = one tenant (ADR-013) |
 | Blazor Dashboard (Overview, endpoints, clients, policies, history, alerts, insights) | ✅ |
 | Alerts: Webhook, Slack, Discord, Email | ✅ |
 | Insights analyzers | ✅ |
@@ -42,7 +42,7 @@ ThrottleWatch.Dashboard  ──(REST + API key)───────────
 | Docker Compose local stack + sample traffic | ✅ |
 | Embedded dashboard inside the consumer app (`/throttlewatch`) | ✅ `ThrottleWatch.Dashboard` NuGet — `UseThrottleWatchDashboard()` (not the Client package) |
 | SignalR live push to the Dashboard | ❌ cancelled (REST polling) |
-| Multi-tenant | ❌ planned |
+| Multi-tenant | ✅ one API key = one tenant; Client does **not** send `TenantId` |
 | Configurable retention / history rollups | ✅ `Storage:RetentionDays` + minute/hour rollups |
 
 ---
@@ -135,7 +135,7 @@ app.UseThrottleWatch();
 | Option | Meaning |
 |---|---|
 | `ApiBaseUrl` | Base URL of **ThrottleWatch.Api** |
-| `ApiKey` | Shared secret sent as **`X-ThrottleWatch-Key`** (API auth) |
+| `ApiKey` | Shared secret sent as **`X-ThrottleWatch-Key`** (API auth). Selects the tenant on the Api (ADR-013). There is **no** Client `TenantId` option. |
 | `ApiKeyHeaderName` | Header read from **inbound** traffic to tag metrics (identity), not API auth |
 | `PolicyNameHeaderName` | Header used to record the rate-limit policy name on metrics |
 
@@ -180,12 +180,14 @@ The golden-path sample keeps a **project reference** to the Dashboard (monorepo)
 |---|---|
 | Header | `X-ThrottleWatch-Key` (override name via `ThrottleWatch:Security:HeaderName` on the API) |
 | Env (Compose) | `THROTTLEWATCH_API_KEY` → Api, Dashboard, and sample Client |
-| API config | `ThrottleWatch:Security:ApiKey` |
+| API config | `ThrottleWatch:Security:ApiKey` (+ optional `TenantId`, default `default`) |
+| Extra keys | `ThrottleWatch:Security:Tenants[]` — `{ ApiKey, TenantId }` |
 | Public | `GET /health` (no key) |
-| Protected | `/api/*` (metrics, alerts, insights, …) |
-| Dashboard | No login UI; it calls the API with the configured key |
+| Protected | `/api/*` (metrics, alerts, insights, …) — filtered to the key’s tenant |
+| Dashboard | No login UI; the key it uses selects the visible tenant |
+| Client | No `TenantId` option; the Api stamps tenant from the key |
 
-**Production:** set a strong `THROTTLEWATCH_API_KEY` / `ThrottleWatch:Security:ApiKey`. Empty key is only allowed in Development (auth disabled with a warning).
+**Production:** set a strong `THROTTLEWATCH_API_KEY` / `ThrottleWatch:Security:ApiKey`. Empty key is only allowed in Development (auth disabled with a warning; data lands in tenant `default`). Compose demo stays a single key → tenant `default`.
 
 ---
 
@@ -274,7 +276,7 @@ dotnet test ThrottleWatch.slnx
 | EPIC-17 Retention + history rollups | ✅ |
 | EPIC-18 Embedded dashboard (`/throttlewatch`) | ✅ |
 | EPIC-19 Dashboard NuGet | ✅ |
-| EPIC-20 Multi-tenant | 🔲 planned (v1.3) |
+| EPIC-20 Multi-tenant | ✅ one API key = one tenant (ADR-013) |
 | EPIC-21 OpenTelemetry export (Client) | 🔲 planned (v1.4) |
 
 Historical sprint notes in `PROJECT_PLAN.md` still mention SignalR as originally planned; **runtime path is REST polling**.

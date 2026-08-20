@@ -1,4 +1,5 @@
 using ThrottleWatch.Domain.Enums;
+using ThrottleWatch.Domain.Tenancy;
 
 namespace ThrottleWatch.Infrastructure.Persistence.Models;
 
@@ -6,6 +7,8 @@ namespace ThrottleWatch.Infrastructure.Persistence.Models;
 public sealed class MetricRollup
 {
     public Guid Id { get; set; }
+
+    public string TenantId { get; set; } = TenantIds.Default;
 
     public DateTimeOffset BucketStart { get; set; }
 

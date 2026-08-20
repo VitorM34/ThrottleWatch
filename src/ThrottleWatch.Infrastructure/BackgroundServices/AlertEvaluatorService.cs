@@ -2,24 +2,29 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ThrottleWatch.Application.Interfaces;
+using ThrottleWatch.Application.Tenancy;
 using ThrottleWatch.Domain.Entities;
 using ThrottleWatch.Domain.Events;
 using ThrottleWatch.Domain.Interfaces;
 using ThrottleWatch.Infrastructure.Alerting;
+using ThrottleWatch.Infrastructure.Tenancy;
 
 namespace ThrottleWatch.Infrastructure.BackgroundServices;
 
 public sealed class AlertEvaluatorService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IApiKeyTenantMap _tenantMap;
     private readonly ILogger<AlertEvaluatorService> _logger;
     private static readonly TimeSpan Interval = TimeSpan.FromMinutes(1);
 
     public AlertEvaluatorService(
         IServiceScopeFactory scopeFactory,
+        IApiKeyTenantMap tenantMap,
         ILogger<AlertEvaluatorService> logger)
     {
         _scopeFactory = scopeFactory;
+        _tenantMap = tenantMap;
         _logger = logger;
     }
 
@@ -33,7 +38,7 @@ public sealed class AlertEvaluatorService : BackgroundService
         {
             try
             {
-                await EvaluateAsync(stoppingToken);
+                await EvaluateAllTenantsAsync(stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -48,13 +53,22 @@ public sealed class AlertEvaluatorService : BackgroundService
         _logger.LogInformation("AlertEvaluatorService stopped.");
     }
 
-    private async Task EvaluateAsync(CancellationToken ct)
+    private async Task EvaluateAllTenantsAsync(CancellationToken ct)
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        var alertRepository = scope.ServiceProvider.GetRequiredService<IAlertRepository>();
-        var metricsRepository = scope.ServiceProvider.GetRequiredService<IMetricsRepository>();
-        var dispatcher = scope.ServiceProvider.GetRequiredService<IDomainEventDispatcher>();
-        var notificationService = scope.ServiceProvider.GetRequiredService<AlertNotificationService>();
+        foreach (var tenantId in ConfiguredTenants.Ids(_tenantMap))
+        {
+            await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+            scope.ServiceProvider.GetRequiredService<ITenantContext>().Set(tenantId);
+            await EvaluateAsync(scope.ServiceProvider, ct);
+        }
+    }
+
+    private async Task EvaluateAsync(IServiceProvider services, CancellationToken ct)
+    {
+        var alertRepository = services.GetRequiredService<IAlertRepository>();
+        var metricsRepository = services.GetRequiredService<IMetricsRepository>();
+        var dispatcher = services.GetRequiredService<IDomainEventDispatcher>();
+        var notificationService = services.GetRequiredService<AlertNotificationService>();
 
         var rules = await alertRepository.GetActiveRulesAsync(ct);
         var now = DateTimeOffset.UtcNow;
@@ -73,7 +87,7 @@ public sealed class AlertEvaluatorService : BackgroundService
                 continue;
 
             var message = $"Alert '{rule.Name}' triggered. Block rate {blockRate:F2}% exceeded threshold {rule.Threshold}.";
-            var alertEvent = AlertEvent.Create(rule.Id, rule.Name, message, rule.Severity);
+            var alertEvent = AlertEvent.Create(rule.Id, rule.Name, message, rule.Severity, rule.TenantId);
 
             rule.RecordTrigger(now);
             await alertRepository.UpdateAsync(rule, ct);
@@ -91,7 +105,7 @@ public sealed class AlertEvaluatorService : BackgroundService
                     alertEvent.TriggeredAt),
                 ct);
 
-            _logger.LogWarning("Alert triggered: {RuleName}", rule.Name);
+            _logger.LogWarning("Alert triggered: {RuleName} (tenant {TenantId})", rule.Name, rule.TenantId);
         }
     }
 

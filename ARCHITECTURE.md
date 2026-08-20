@@ -1,8 +1,8 @@
 # ThrottleWatch — Documento Oficial de Arquitetura
 
-**Versão:** 1.2  
+**Versão:** 1.3  
 **Status:** Definitivo  
-**Última atualização:** Julho 2026
+**Última atualização:** Agosto 2026
 
 > Este documento é a única fonte de verdade para todas as decisões arquiteturais do projeto.  
 > Nenhuma implementação deverá contradizer o que está definido aqui.  
@@ -210,7 +210,8 @@ ThrottleWatch/
 - Records de eventos de domínio (`MetricRecordedEvent`, `AlertTriggeredEvent`, `InsightGeneratedEvent`)
 - Exceções de domínio (`DomainException` e subclasses, incluindo `AlertEventNotFoundException`)
 - Factory methods nas próprias entidades
-- Métodos de comportamento nas entidades (`CanTrigger`, `Acknowledge`, `Dismiss`, `Update`)
+- Métodos de comportamento nas entidades (`CanTrigger`, `Acknowledge`, `Dismiss`, `Update`, `AssignTenant`)
+- Constantes e normalização de tenant (`Tenancy/TenantIds`)
 
 **NÃO pode conter:**
 - Referência a qualquer pacote NuGet externo
@@ -247,6 +248,7 @@ ThrottleWatch/
 - Implementações de serviço (`MetricsService`, `AlertService`, `InsightService`)
 - DTOs de entrada e saída (`IngestMetricDto`, `MetricsSummaryDto`, `CreateAlertRuleDto`, `AlertRuleDto`, etc.)
 - Interfaces de infraestrutura necessárias à Application (`IMetricQueue`, `IDomainEventDispatcher`)
+- Contexto de tenant da request (`ITenantContext`) e mapa API key → tenant (`IApiKeyTenantMap`)
 - Validators FluentValidation (`CreateAlertRuleValidator`, etc.)
 - Extension methods de registro de DI (`AddApplication`)
 - Mapeamento manual entre entidades e DTOs
@@ -293,6 +295,7 @@ ThrottleWatch/
 - Implementação do dispatcher de eventos (`DomainEventDispatcher`)
 - Background services (`MetricProcessorService`, `AlertEvaluatorService`, `InsightGeneratorService`, `DataRetentionService`)
 - Extension methods de registro de DI (`AddInfrastructure(this IServiceCollection services)`)
+- Mapa de API keys para tenants (`ApiKeyTenantMap`)
 - Configurações de Serilog e OpenTelemetry
 
 **NÃO pode conter:**
@@ -450,6 +453,8 @@ ThrottleWatch.Domain/
 │   ├── AlertRule.cs           # Regra de alerta configurada pelo usuário
 │   ├── AlertEvent.cs          # Registro de um alerta disparado
 │   └── Insight.cs             # Recomendação gerada pelo sistema
+├── Tenancy/
+│   └── TenantIds.cs           # Tenant default e normalização (ADR-013)
 ├── Enums/
 │   ├── AlertSeverity.cs       # Info, Warning, Critical
 │   ├── InsightType.cs         # Tipos de insight gerado
@@ -511,6 +516,10 @@ ThrottleWatch.Application/
 │   ├── AlertService.cs
 │   ├── IInsightService.cs
 │   └── InsightService.cs
+├── Tenancy/
+│   ├── ITenantContext.cs
+│   ├── TenantContext.cs
+│   └── IApiKeyTenantMap.cs
 ├── Validators/
 │   ├── CreateAlertRuleValidator.cs
 │   └── UpdateAlertRuleValidator.cs
@@ -528,12 +537,17 @@ ThrottleWatch.Infrastructure/
 │   │   ├── MetricEntryConfiguration.cs
 │   │   ├── AlertRuleConfiguration.cs
 │   │   ├── AlertEventConfiguration.cs
-│   │   └── InsightConfiguration.cs
+│   │   ├── InsightConfiguration.cs
+│   │   └── MetricRollupConfiguration.cs
+│   ├── Models/
+│   │   └── MetricRollup.cs
 │   ├── Migrations/
 │   └── Repositories/
 │       ├── MetricsRepository.cs
 │       ├── AlertRepository.cs
 │       └── InsightRepository.cs
+├── Security/
+│   └── ApiKeyTenantMap.cs          # Resolve API key → TenantId (ADR-013)
 ├── Queue/
 │   └── MetricQueue.cs              # System.Threading.Channels
 ├── Events/
@@ -556,7 +570,8 @@ ThrottleWatch.Api/
 │   ├── AlertsEndpoints.cs
 │   └── InsightsEndpoints.cs
 ├── Middleware/
-│   └── GlobalExceptionHandler.cs       # IExceptionHandler + ProblemDetails (doc Microsoft)
+│   ├── GlobalExceptionHandler.cs       # IExceptionHandler + ProblemDetails (doc Microsoft)
+│   └── ApiKeyAuthenticationMiddleware.cs  # API key + tenant (ADR-013)
 ├── Extensions/
 │   ├── ApiExtensions.cs
 │   └── SwaggerExtensions.cs
@@ -1029,6 +1044,21 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 
 ---
 
+### ADR-013 — Multi-tenant: uma API key = um tenant
+
+**Status:** Aceito  
+**Decisão:** Isolamento multi-tenant v1: cada API key mapeia para exatamente um `TenantId`. O tenant é resolvido **somente** pela key na Api (`X-ThrottleWatch-Key`). Ingestão carimba `TenantId` a partir do contexto autenticado, nunca do body do Client. Leituras `/api/*`, alertas, insights e rollups são filtrados pelo tenant da key (query filters EF Core).  
+**Motivo:** Com uma key compartilhada, qualquer cliente via o banco inteiro. Isolar por key cobre o caso SaaS simples (vários consumidores, um banco) sem OIDC, IAM ou login no Dashboard. O Client permanece só métricas (ADR-010): não ganha option `TenantId`.  
+**Consequência:**
+- `TenantId` em `MetricEntry`, `MetricRollup`, `AlertRule`, `AlertEvent` e `Insight` (máx. 64 chars; default `"default"`)
+- Config: `ThrottleWatch:Security:ApiKey` + opcional `TenantId` (default `default`); lista opcional `Security:Tenants[]` `{ ApiKey, TenantId }` para keys extras
+- Compose demo continua uma key → tenant `default`
+- Workers (alertas/insights) iteram os tenants configurados com scope próprio; rollups/retenção usam `IgnoreQueryFilters()` e agrupam por `TenantId`
+- Índice único de rollup: `(TenantId, Granularity, BucketStart)`
+- Fora de escopo: OIDC, duas keys (ingest vs admin), billing, retenção distinta por tenant, Timescale
+
+---
+
 ## 11. Restrições
 
 ### Restrições de Estrutura
@@ -1076,6 +1106,7 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 - Não referenciar nenhum projeto `ThrottleWatch.*`
 - Não acessar banco de dados
 - Não conter regras de negócio do ThrottleWatch
+- Não adicionar `TenantId` nas options do Client (o tenant vem da API key na Api; ADR-013)
 
 ### Restrições Gerais
 

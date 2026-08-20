@@ -1,9 +1,11 @@
 using ThrottleWatch.Domain.Exceptions;
+using ThrottleWatch.Domain.Tenancy;
 
 namespace ThrottleWatch.Domain.Entities;
 
 public sealed class MetricEntry : Entity
 {
+    public string TenantId { get; private set; } = TenantIds.Default;
     public string Path { get; private set; } = string.Empty;
     public string Method { get; private set; } = string.Empty;
     public int StatusCode { get; private set; }
@@ -24,7 +26,8 @@ public sealed class MetricEntry : Entity
         DateTimeOffset timestamp,
         string? clientIp = null,
         string? policyName = null,
-        string? apiKey = null)
+        string? apiKey = null,
+        string tenantId = TenantIds.Default)
     {
         if (string.IsNullOrWhiteSpace(path))
             throw new DomainException("MetricEntry path cannot be null or empty.");
@@ -37,6 +40,7 @@ public sealed class MetricEntry : Entity
 
         return new MetricEntry
         {
+            TenantId = TenantIds.Normalize(tenantId),
             Path = path.Trim().ToLowerInvariant(),
             Method = method.Trim().ToUpperInvariant(),
             StatusCode = statusCode,

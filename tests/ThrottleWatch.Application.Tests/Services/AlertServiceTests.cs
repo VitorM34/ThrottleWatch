@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using ThrottleWatch.Application.DTOs.Alerts;
 using ThrottleWatch.Application.Services;
+using ThrottleWatch.Application.Tenancy;
 using ThrottleWatch.Domain.Entities;
 using ThrottleWatch.Domain.Enums;
 using ThrottleWatch.Domain.Exceptions;
@@ -13,12 +14,14 @@ namespace ThrottleWatch.Application.Tests.Services;
 public sealed class AlertServiceTests
 {
     private readonly IAlertRepository _repository = Substitute.For<IAlertRepository>();
+    private readonly ITenantContext _tenantContext = Substitute.For<ITenantContext>();
     private readonly ILogger<AlertService> _logger = Substitute.For<ILogger<AlertService>>();
     private readonly AlertService _sut;
 
     public AlertServiceTests()
     {
-        _sut = new AlertService(_repository, _logger);
+        _tenantContext.TenantId.Returns("default");
+        _sut = new AlertService(_repository, _tenantContext, _logger);
     }
 
     [Fact]

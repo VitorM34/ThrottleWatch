@@ -224,10 +224,12 @@ public sealed class MetricsRepository : IMetricsRepository
     public async Task DeleteOlderThanAsync(DateTimeOffset cutoff, CancellationToken ct)
     {
         await _db.MetricEntries
+            .IgnoreQueryFilters()
             .Where(x => x.Timestamp < cutoff)
             .ExecuteDeleteAsync(ct);
 
         await _db.MetricRollups
+            .IgnoreQueryFilters()
             .Where(x => x.BucketStart < cutoff)
             .ExecuteDeleteAsync(ct);
     }
@@ -302,10 +304,12 @@ public sealed class MetricsRepository : IMetricsRepository
         var granularity = minuteBuckets ? RollupGranularity.Minute : RollupGranularity.Hour;
 
         var aggregated = await _db.MetricEntries
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(x => x.Timestamp >= fromInclusive && x.Timestamp < toExclusive)
             .GroupBy(x => new
             {
+                x.TenantId,
                 x.Timestamp.Year,
                 x.Timestamp.Month,
                 x.Timestamp.Day,
@@ -314,6 +318,7 @@ public sealed class MetricsRepository : IMetricsRepository
             })
             .Select(g => new
             {
+                g.Key.TenantId,
                 g.Key.Year,
                 g.Key.Month,
                 g.Key.Day,
@@ -329,20 +334,26 @@ public sealed class MetricsRepository : IMetricsRepository
 
         var bucketStarts = aggregated
             .Select(x => new DateTimeOffset(x.Year, x.Month, x.Day, x.Hour, x.Minute, 0, TimeSpan.Zero))
+            .Distinct()
             .ToList();
 
+        var tenantIds = aggregated.Select(x => x.TenantId).Distinct().ToList();
+
         var existing = await _db.MetricRollups
-            .Where(x => x.Granularity == granularity && bucketStarts.Contains(x.BucketStart))
+            .IgnoreQueryFilters()
+            .Where(x => x.Granularity == granularity
+                        && tenantIds.Contains(x.TenantId)
+                        && bucketStarts.Contains(x.BucketStart))
             .ToListAsync(ct);
 
-        var byBucket = existing.ToDictionary(x => x.BucketStart);
+        var byKey = existing.ToDictionary(x => (x.TenantId, x.BucketStart));
 
         foreach (var row in aggregated)
         {
             var bucketStart = new DateTimeOffset(
                 row.Year, row.Month, row.Day, row.Hour, row.Minute, 0, TimeSpan.Zero);
 
-            if (byBucket.TryGetValue(bucketStart, out var rollup))
+            if (byKey.TryGetValue((row.TenantId, bucketStart), out var rollup))
             {
                 rollup.TotalRequests = row.TotalRequests;
                 rollup.BlockedRequests = row.BlockedRequests;
@@ -352,6 +363,7 @@ public sealed class MetricsRepository : IMetricsRepository
                 _db.MetricRollups.Add(new MetricRollup
                 {
                     Id = Guid.NewGuid(),
+                    TenantId = row.TenantId,
                     BucketStart = bucketStart,
                     Granularity = granularity,
                     TotalRequests = row.TotalRequests,

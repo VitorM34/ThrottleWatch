@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using ThrottleWatch.Application.DTOs.Alerts;
+using ThrottleWatch.Application.Tenancy;
 using ThrottleWatch.Domain.Entities;
 using ThrottleWatch.Domain.Exceptions;
 using ThrottleWatch.Domain.Interfaces;
@@ -9,11 +10,16 @@ namespace ThrottleWatch.Application.Services;
 public sealed class AlertService : IAlertService
 {
     private readonly IAlertRepository _repository;
+    private readonly ITenantContext _tenantContext;
     private readonly ILogger<AlertService> _logger;
 
-    public AlertService(IAlertRepository repository, ILogger<AlertService> logger)
+    public AlertService(
+        IAlertRepository repository,
+        ITenantContext tenantContext,
+        ILogger<AlertService> logger)
     {
         _repository = repository;
+        _tenantContext = tenantContext;
         _logger = logger;
     }
 
@@ -39,7 +45,8 @@ public sealed class AlertService : IAlertService
             dto.Threshold,
             dto.Severity,
             dto.CooldownMinutes,
-            dto.Description);
+            dto.Description,
+            _tenantContext.TenantId);
 
         await _repository.AddAsync(rule, ct);
 

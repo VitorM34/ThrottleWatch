@@ -1,10 +1,12 @@
 using ThrottleWatch.Domain.Enums;
 using ThrottleWatch.Domain.Exceptions;
+using ThrottleWatch.Domain.Tenancy;
 
 namespace ThrottleWatch.Domain.Entities;
 
 public sealed class Insight : Entity
 {
+    public string TenantId { get; private set; } = TenantIds.Default;
     public InsightType Type { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
@@ -20,7 +22,8 @@ public sealed class Insight : Entity
         string title,
         string description,
         AlertSeverity severity,
-        string? affectedResource = null)
+        string? affectedResource = null,
+        string tenantId = TenantIds.Default)
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new DomainException("Insight title cannot be null or empty.");
@@ -30,6 +33,7 @@ public sealed class Insight : Entity
 
         return new Insight
         {
+            TenantId = TenantIds.Normalize(tenantId),
             Type = type,
             Title = title.Trim(),
             Description = description.Trim(),
@@ -39,6 +43,8 @@ public sealed class Insight : Entity
             IsDismissed = false
         };
     }
+
+    public void AssignTenant(string tenantId) => TenantId = TenantIds.Normalize(tenantId);
 
     public void Dismiss() => IsDismissed = true;
 }

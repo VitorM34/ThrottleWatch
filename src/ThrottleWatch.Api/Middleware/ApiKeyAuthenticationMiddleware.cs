@@ -1,10 +1,10 @@
-using System.Security.Cryptography;
-using System.Text;
+using ThrottleWatch.Application.Tenancy;
 
 namespace ThrottleWatch.Api.Middleware;
 
 /// <summary>
-/// Requires a shared API key on <c>/api/*</c>. Leaves <c>/health</c> and other non-api paths open.
+/// Requires a shared API key on <c>/api/*</c> and stamps the matching tenant.
+/// Leaves <c>/health</c> and other non-api paths open.
 /// </summary>
 public sealed class ApiKeyAuthenticationMiddleware
 {
@@ -12,14 +12,13 @@ public sealed class ApiKeyAuthenticationMiddleware
 
     private readonly RequestDelegate _next;
     private readonly ILogger<ApiKeyAuthenticationMiddleware> _logger;
-    private readonly bool _authEnabled;
-    private readonly string _expectedKey;
     private readonly string _headerName;
 
     public ApiKeyAuthenticationMiddleware(
         RequestDelegate next,
         IConfiguration configuration,
         IHostEnvironment environment,
+        IApiKeyTenantMap tenantMap,
         ILogger<ApiKeyAuthenticationMiddleware> logger)
     {
         _next = next;
@@ -30,44 +29,45 @@ public sealed class ApiKeyAuthenticationMiddleware
             ? DefaultHeaderName
             : configuredHeader.Trim();
 
-        var key = configuration["ThrottleWatch:Security:ApiKey"]?.Trim();
-        if (string.IsNullOrEmpty(key))
-        {
-            if (!environment.IsDevelopment())
-            {
-                throw new InvalidOperationException(
-                    "ThrottleWatch:Security:ApiKey is required outside Development.");
-            }
+        if (tenantMap.AuthEnabled)
+            return;
 
-            _authEnabled = false;
-            _expectedKey = string.Empty;
-            _logger.LogWarning(
-                "ThrottleWatch API key auth is disabled (empty ThrottleWatch:Security:ApiKey in Development).");
-        }
-        else
+        if (!environment.IsDevelopment())
         {
-            _authEnabled = true;
-            _expectedKey = key;
+            throw new InvalidOperationException(
+                "ThrottleWatch:Security:ApiKey (or ThrottleWatch:Security:Tenants) is required outside Development.");
         }
+
+        _logger.LogWarning(
+            "ThrottleWatch API key auth is disabled (no API keys configured in Development).");
     }
 
     /// <summary>
-    /// Validates the shared API key for <c>/api/*</c> requests, then continues the pipeline.
+    /// Validates the shared API key for <c>/api/*</c> requests, stamps the tenant, then continues the pipeline.
     /// </summary>
     /// <remarks>Resolved by the ASP.NET Core pipeline by convention (no direct call sites).</remarks>
     // ReSharper disable once UnusedMember.Global
-    public async Task InvokeAsync(HttpContext httpContext)
+    public async Task InvokeAsync(
+        HttpContext httpContext,
+        ITenantContext tenantContext,
+        IApiKeyTenantMap tenantMap)
     {
         ArgumentNullException.ThrowIfNull(httpContext);
 
-        if (!_authEnabled || !IsProtectedPath(httpContext.Request.Path))
+        if (!IsProtectedPath(httpContext.Request.Path))
+        {
+            await _next(httpContext);
+            return;
+        }
+
+        if (!tenantMap.AuthEnabled)
         {
             await _next(httpContext);
             return;
         }
 
         if (!httpContext.Request.Headers.TryGetValue(_headerName, out var provided)
-            || !FixedTimeEquals(provided.ToString(), _expectedKey))
+            || !tenantMap.TryResolve(provided.ToString(), out var tenantId))
         {
             _logger.LogDebug("Rejected {Method} {Path}: missing or invalid API key.",
                 httpContext.Request.Method, httpContext.Request.Path);
@@ -84,19 +84,10 @@ public sealed class ApiKeyAuthenticationMiddleware
             return;
         }
 
+        tenantContext.Set(tenantId);
         await _next(httpContext);
     }
 
     private static bool IsProtectedPath(PathString path) =>
         path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase);
-
-    private static bool FixedTimeEquals(string provided, string expected)
-    {
-        var a = Encoding.UTF8.GetBytes(provided);
-        var b = Encoding.UTF8.GetBytes(expected);
-        if (a.Length != b.Length)
-            return false;
-
-        return CryptographicOperations.FixedTimeEquals(a, b);
-    }
 }

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using ThrottleWatch.Application.DTOs.Metrics;
 using ThrottleWatch.Application.Interfaces;
+using ThrottleWatch.Application.Tenancy;
 using ThrottleWatch.Domain.Entities;
 using ThrottleWatch.Domain.Interfaces;
 
@@ -11,17 +12,20 @@ public sealed class MetricsService : IMetricsService
     private readonly IMetricsRepository _repository;
     private readonly IMetricQueue _queue;
     private readonly IOperationalMetrics _operationalMetrics;
+    private readonly ITenantContext _tenantContext;
     private readonly ILogger<MetricsService> _logger;
 
     public MetricsService(
         IMetricsRepository repository,
         IMetricQueue queue,
         IOperationalMetrics operationalMetrics,
+        ITenantContext tenantContext,
         ILogger<MetricsService> logger)
     {
         _repository = repository;
         _queue = queue;
         _operationalMetrics = operationalMetrics;
+        _tenantContext = tenantContext;
         _logger = logger;
     }
 
@@ -37,7 +41,8 @@ public sealed class MetricsService : IMetricsService
                 dto.Timestamp,
                 dto.ClientIp,
                 dto.PolicyName,
-                dto.ApiKey);
+                dto.ApiKey,
+                _tenantContext.TenantId);
 
             if (_queue.TryEnqueue(entry))
                 continue;

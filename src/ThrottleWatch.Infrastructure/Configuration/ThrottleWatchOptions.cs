@@ -13,15 +13,28 @@ public sealed class ThrottleWatchOptions
     public InsightsOptions Insights { get; set; } = new();
 }
 
-/// <summary>Shared-secret auth for ThrottleWatch.Api (/api/*).</summary>
+/// <summary>Shared-secret auth for ThrottleWatch.Api (/api/*). One API key = one tenant (ADR-013).</summary>
 public sealed class SecurityOptions
 {
     public const string DefaultHeaderName = "X-ThrottleWatch-Key";
 
-    /// <summary>When empty in Development, auth is skipped (with a warning). Required outside Development.</summary>
+    /// <summary>When empty in Development, auth is skipped (with a warning). Required outside Development unless <see cref="Tenants"/> is set.</summary>
     public string? ApiKey { get; set; }
 
+    /// <summary>Tenant for <see cref="ApiKey"/>. Defaults to <c>default</c> (Compose demo).</summary>
+    public string? TenantId { get; set; }
+
     public string HeaderName { get; set; } = DefaultHeaderName;
+
+    /// <summary>Additional API keys, each mapped to a tenant. Does not replace <see cref="ApiKey"/>.</summary>
+    public List<TenantKeyOptions> Tenants { get; set; } = [];
+}
+
+public sealed class TenantKeyOptions
+{
+    public string ApiKey { get; set; } = string.Empty;
+
+    public string TenantId { get; set; } = string.Empty;
 }
 
 /// <summary>Retention and history rollup settings.</summary>

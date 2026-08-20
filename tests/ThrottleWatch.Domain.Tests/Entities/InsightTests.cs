@@ -64,4 +64,14 @@ public sealed class InsightTests
 
         insight.IsDismissed.Should().BeTrue();
     }
+
+    [Fact]
+    public void AssignTenant_ShouldUpdateTenantId()
+    {
+        var insight = Insight.Create(InsightType.HighBlockRate, "title", "description", AlertSeverity.Warning);
+
+        insight.AssignTenant("acme");
+
+        insight.TenantId.Should().Be("acme");
+    }
 }

@@ -40,7 +40,7 @@ app.UseThrottleWatch();
 }
 ```
 
-`ApiKey` is sent as `X-ThrottleWatch-Key` on ingest calls. It must match the API’s configured key. `/health` on the API stays public.
+`ApiKey` is sent as `X-ThrottleWatch-Key` on ingest calls. It must match a key configured on the API (one key = one tenant). The Client has no `TenantId` option — the Api stamps the tenant from the key. `/health` on the API stays public.
 
 ## Requirements
 

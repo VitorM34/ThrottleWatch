@@ -1,10 +1,12 @@
 using ThrottleWatch.Domain.Enums;
 using ThrottleWatch.Domain.Exceptions;
+using ThrottleWatch.Domain.Tenancy;
 
 namespace ThrottleWatch.Domain.Entities;
 
 public sealed class AlertRule : Entity
 {
+    public string TenantId { get; private set; } = TenantIds.Default;
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public string Condition { get; private set; } = string.Empty;
@@ -22,7 +24,8 @@ public sealed class AlertRule : Entity
         double threshold,
         AlertSeverity severity,
         int cooldownMinutes,
-        string? description = null)
+        string? description = null,
+        string tenantId = TenantIds.Default)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("AlertRule name cannot be null or empty.");
@@ -38,6 +41,7 @@ public sealed class AlertRule : Entity
 
         return new AlertRule
         {
+            TenantId = TenantIds.Normalize(tenantId),
             Name = name.Trim(),
             Description = description?.Trim(),
             Condition = condition.Trim(),

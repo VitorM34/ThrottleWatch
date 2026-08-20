@@ -4,6 +4,7 @@ using NSubstitute;
 using ThrottleWatch.Application.DTOs.Metrics;
 using ThrottleWatch.Application.Interfaces;
 using ThrottleWatch.Application.Services;
+using ThrottleWatch.Application.Tenancy;
 using ThrottleWatch.Domain.Entities;
 using ThrottleWatch.Domain.Interfaces;
 using ThrottleWatch.Domain.ReadModels;
@@ -15,12 +16,14 @@ public sealed class MetricsServiceTests
     private readonly IMetricsRepository _repository = Substitute.For<IMetricsRepository>();
     private readonly IMetricQueue _queue = Substitute.For<IMetricQueue>();
     private readonly IOperationalMetrics _operationalMetrics = Substitute.For<IOperationalMetrics>();
+    private readonly ITenantContext _tenantContext = Substitute.For<ITenantContext>();
     private readonly ILogger<MetricsService> _logger = Substitute.For<ILogger<MetricsService>>();
     private readonly MetricsService _sut;
 
     public MetricsServiceTests()
     {
-        _sut = new MetricsService(_repository, _queue, _operationalMetrics, _logger);
+        _tenantContext.TenantId.Returns("default");
+        _sut = new MetricsService(_repository, _queue, _operationalMetrics, _tenantContext, _logger);
     }
 
     [Fact]
@@ -50,6 +53,23 @@ public sealed class MetricsServiceTests
         await _sut.EnqueueBatchAsync(batch, CancellationToken.None);
 
         _operationalMetrics.Received(1).RecordDrop();
+    }
+
+    [Fact]
+    public async Task EnqueueBatchAsync_ShouldStampTenantFromContext()
+    {
+        _tenantContext.TenantId.Returns("acme");
+        MetricEntry? captured = null;
+        _queue.TryEnqueue(Arg.Do<MetricEntry>(e => captured = e)).Returns(true);
+        var batch = new[]
+        {
+            new IngestMetricDto("/api/test", "GET", 200, 12, DateTimeOffset.UtcNow)
+        };
+
+        await _sut.EnqueueBatchAsync(batch, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.TenantId.Should().Be("acme");
     }
 
     [Fact]

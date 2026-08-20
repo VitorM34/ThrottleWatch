@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using ThrottleWatch.Application.Interfaces;
+using ThrottleWatch.Application.Tenancy;
 using ThrottleWatch.Domain.Entities;
 using ThrottleWatch.Domain.Enums;
 using ThrottleWatch.Domain.Interfaces;
@@ -47,11 +48,15 @@ public sealed class InsightGeneratorTests
             Insights = new InsightsOptions { DedupWindowMinutes = 60 }
         });
 
+        var tenantContext = Substitute.For<ITenantContext>();
+        tenantContext.TenantId.Returns("default");
+
         var sut = new InsightGenerator(
             [failing, ok],
             metrics,
             insights,
             dispatcher,
+            tenantContext,
             options,
             Substitute.For<ILogger<InsightGenerator>>());
 
@@ -84,11 +89,15 @@ public sealed class InsightGeneratorTests
         var options = Substitute.For<IOptionsMonitor<ThrottleWatchOptions>>();
         options.CurrentValue.Returns(new ThrottleWatchOptions());
 
+        var tenantContext = Substitute.For<ITenantContext>();
+        tenantContext.TenantId.Returns("default");
+
         var sut = new InsightGenerator(
             [analyzer],
             Substitute.For<IMetricsRepository>(),
             insights,
             Substitute.For<IDomainEventDispatcher>(),
+            tenantContext,
             options,
             Substitute.For<ILogger<InsightGenerator>>());
 

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ThrottleWatch.Application.Interfaces;
+using ThrottleWatch.Application.Tenancy;
 using ThrottleWatch.Domain.Entities;
 using ThrottleWatch.Domain.Events;
 using ThrottleWatch.Domain.Interfaces;
@@ -14,6 +15,7 @@ public sealed class InsightGenerator : IInsightGenerator
     private readonly IMetricsRepository _metricsRepository;
     private readonly IInsightRepository _insightRepository;
     private readonly IDomainEventDispatcher _dispatcher;
+    private readonly ITenantContext _tenantContext;
     private readonly IOptionsMonitor<ThrottleWatchOptions> _options;
     private readonly ILogger<InsightGenerator> _logger;
 
@@ -22,6 +24,7 @@ public sealed class InsightGenerator : IInsightGenerator
         IMetricsRepository metricsRepository,
         IInsightRepository insightRepository,
         IDomainEventDispatcher dispatcher,
+        ITenantContext tenantContext,
         IOptionsMonitor<ThrottleWatchOptions> options,
         ILogger<InsightGenerator> logger)
     {
@@ -29,6 +32,7 @@ public sealed class InsightGenerator : IInsightGenerator
         _metricsRepository = metricsRepository;
         _insightRepository = insightRepository;
         _dispatcher = dispatcher;
+        _tenantContext = tenantContext;
         _options = options;
         _logger = logger;
     }
@@ -46,6 +50,8 @@ public sealed class InsightGenerator : IInsightGenerator
                 var insights = await analyzer.AnalyzeAsync(_metricsRepository, ct);
                 foreach (var insight in insights)
                 {
+                    insight.AssignTenant(_tenantContext.TenantId);
+
                     var exists = await _insightRepository.ExistsRecentAsync(
                         insight.Type,
                         insight.AffectedResource,

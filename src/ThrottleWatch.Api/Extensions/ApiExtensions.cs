@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using ThrottleWatch.Api.Middleware;
 using ThrottleWatch.Application.Extensions;
+using ThrottleWatch.Infrastructure.Configuration;
 using ThrottleWatch.Infrastructure.Extensions;
 using ThrottleWatch.Infrastructure.Persistence;
+using ThrottleWatch.Infrastructure.Security;
 
 namespace ThrottleWatch.Api.Extensions;
 
@@ -69,11 +71,13 @@ public static class ApiExtensions
         if (environment.IsDevelopment())
             return;
 
-        var apiKey = configuration["ThrottleWatch:Security:ApiKey"];
-        if (string.IsNullOrWhiteSpace(apiKey))
+        var security = configuration.GetSection("ThrottleWatch:Security").Get<SecurityOptions>()
+            ?? new SecurityOptions();
+
+        if (ApiKeyTenantMap.BuildEntries(security).Count == 0)
         {
             throw new InvalidOperationException(
-                "ThrottleWatch:Security:ApiKey is required outside Development.");
+                "ThrottleWatch:Security:ApiKey (or ThrottleWatch:Security:Tenants) is required outside Development.");
         }
     }
 }

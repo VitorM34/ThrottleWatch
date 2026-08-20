@@ -46,6 +46,20 @@ public sealed class ApiKeyAuthTests
     }
 
     [Fact]
+    public async Task PostMetrics_WithoutApiKey_ShouldReturnUnauthorized()
+    {
+        var client = _factory.CreateClient();
+        var batch = new[]
+        {
+            new IngestMetricDto("/api/auth-demo", "GET", 200, 5, DateTimeOffset.UtcNow, "127.0.0.1")
+        };
+
+        var response = await client.PostAsJsonAsync("/api/metrics", batch);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
     public async Task PostMetrics_WithValidApiKey_ShouldReturnAccepted()
     {
         var client = _factory.CreateAuthenticatedClient();

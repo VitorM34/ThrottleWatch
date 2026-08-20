@@ -12,6 +12,8 @@ public sealed class AlertEventConfiguration : IEntityTypeConfiguration<AlertEven
 
         builder.HasKey(x => x.Id);
 
+        TenantColumn.Map(builder, x => x.TenantId);
+
         builder.Property(x => x.AlertRuleId)
             .IsRequired();
 
