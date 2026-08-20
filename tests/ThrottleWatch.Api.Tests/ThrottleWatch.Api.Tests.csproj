@@ -24,6 +24,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ThrottleWatch.Api\ThrottleWatch.Api.csproj" />
+    <ProjectReference Include="..\..\src\ThrottleWatch.Application\ThrottleWatch.Application.csproj" />
+    <ProjectReference Include="..\..\src\ThrottleWatch.Domain\ThrottleWatch.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ThrottleWatch.Infrastructure\ThrottleWatch.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
