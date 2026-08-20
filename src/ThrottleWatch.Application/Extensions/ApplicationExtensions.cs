@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using ThrottleWatch.Application.Services;
+using ThrottleWatch.Application.Tenancy;
 using ThrottleWatch.Application.Validators;
 
 namespace ThrottleWatch.Application.Extensions;
@@ -9,6 +10,7 @@ public static class ApplicationExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddScoped<ITenantContext, TenantContext>();
         services.AddScoped<IMetricsService, MetricsService>();
         services.AddScoped<IAlertService, AlertService>();
         services.AddScoped<IInsightService, InsightService>();
