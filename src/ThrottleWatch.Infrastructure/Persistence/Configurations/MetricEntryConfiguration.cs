@@ -12,6 +12,8 @@ public sealed class MetricEntryConfiguration : IEntityTypeConfiguration<MetricEn
 
         builder.HasKey(x => x.Id);
 
+        TenantColumn.Map(builder, x => x.TenantId);
+
         builder.Property(x => x.Path)
             .IsRequired()
             .HasMaxLength(512);
@@ -45,6 +47,7 @@ public sealed class MetricEntryConfiguration : IEntityTypeConfiguration<MetricEn
             .IsRequired();
 
         builder.HasIndex(x => x.Timestamp);
+        builder.HasIndex(x => new { x.TenantId, x.Timestamp });
         builder.HasIndex(x => new { x.Path, x.Method });
         builder.HasIndex(x => x.IsBlocked);
         builder.HasIndex(x => x.ClientIp);

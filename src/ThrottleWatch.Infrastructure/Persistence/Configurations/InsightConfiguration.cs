@@ -12,6 +12,8 @@ public sealed class InsightConfiguration : IEntityTypeConfiguration<Insight>
 
         builder.HasKey(x => x.Id);
 
+        TenantColumn.Map(builder, x => x.TenantId);
+
         builder.Property(x => x.Type)
             .IsRequired()
             .HasConversion<string>()

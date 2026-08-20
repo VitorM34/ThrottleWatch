@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ThrottleWatch.Application.Interfaces;
+using ThrottleWatch.Application.Tenancy;
 using ThrottleWatch.Domain.Interfaces;
 using ThrottleWatch.Infrastructure.Alerting;
 using ThrottleWatch.Infrastructure.Alerting.Notifiers;
@@ -13,6 +14,7 @@ using ThrottleWatch.Infrastructure.Insights.Analyzers;
 using ThrottleWatch.Infrastructure.Persistence;
 using ThrottleWatch.Infrastructure.Persistence.Repositories;
 using ThrottleWatch.Infrastructure.Queue;
+using ThrottleWatch.Infrastructure.Security;
 
 namespace ThrottleWatch.Infrastructure.Extensions;
 
@@ -28,6 +30,12 @@ public static class InfrastructureExtensions
 
         services.Configure<ThrottleWatchOptions>(
             configuration.GetSection(ThrottleWatchOptions.SectionName));
+
+        var security = configuration.GetSection($"{ThrottleWatchOptions.SectionName}:Security")
+            .Get<SecurityOptions>() ?? new SecurityOptions();
+        _ = ApiKeyTenantMap.BuildEntries(security);
+
+        services.AddSingleton<IApiKeyTenantMap, ApiKeyTenantMap>();
 
         services.AddScoped<IMetricsRepository, MetricsRepository>();
         services.AddScoped<IAlertRepository, AlertRepository>();
