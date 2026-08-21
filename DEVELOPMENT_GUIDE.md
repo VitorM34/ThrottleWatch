@@ -1110,7 +1110,7 @@ chore(deps): bump Blazor-ApexCharts to 6.2.0
 | v1.1 | Alertas (Webhook, Slack, Discord, Email) |
 | v1.2 | Insights e recomendações |
 | v1.3 | Multi-tenant (uma API key = um tenant, ADR-013) |
-| v1.4 | OpenTelemetry export |
+| v1.4 | OpenTelemetry export (Client meters BCL, ADR-014) |
 
 ---
 
