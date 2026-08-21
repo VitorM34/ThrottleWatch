@@ -56,7 +56,7 @@ ThrottleWatch é uma plataforma open source de observabilidade focada em monitor
 - Gerenciamento das políticas de rate limiting (responsabilidade da aplicação consumidora)
 - Autenticação da aplicação consumidora (gerenciada externamente)
 - Integração com brokers de mensagem (Kafka, RabbitMQ)
-- Deploy automatizado (CI/CD não faz parte do escopo de desenvolvimento)
+- Deploy de runtime em nuvem (staging/prod). Validação contínua é GitHub Actions (ADR-015). Push nuget.org não é automático.
 
 ---
 
@@ -933,6 +933,12 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 **Conteúdo:** PostgreSQL, ThrottleWatch.Api, ThrottleWatch.Dashboard  
 **Não usar:** Docker dentro do código da aplicação
 
+### GitHub Actions
+
+**Onde:** `.github/workflows/ci.yml`  
+**Uso:** CI de validação em PR e `main` (build, testes, pack smoke). Sem deploy de runtime. Sem push nuget.org neste passo (ADR-015).  
+**Paridade local:** `make ci`
+
 ### System.Threading.Channels
 
 **Onde:** `ThrottleWatch.Infrastructure` (implementação de `IMetricQueue`)  
@@ -1072,6 +1078,15 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 **Decisão:** `ThrottleWatch.Client` expõe um `Meter` (`ThrottleWatch.Client`) via `System.Diagnostics.Metrics` / `IMeterFactory`. O pacote NuGet `ThrottleWatch` **não** referencia `OpenTelemetry.*`. O consumidor que já tem Grafana/OTLP registra `AddMeter("ThrottleWatch.Client")` no `MeterProvider` do host.  
 **Motivo:** Ver 429s e volume sem obrigar o Dashboard, sem inflar o SDK (ADR-010). Se ninguém escuta o meter, o custo é ~zero. Tag `path` é omitida de propósito (alta cardinalidade). O meter observa **todo** request, mesmo com `CaptureOnlyBlocked` (esse flag só filtra o ingest HTTP).  
 **Consequência:** Ingest para a Api continua REST (`POST /api/metrics`). Sem dashboards Grafana oficiais neste epic. Instrumentos: `throttlewatch.client.requests` (tags `http.method`, `blocked`; `throttlewatch.policy` só se presente), `throttlewatch.client.buffer.dropped`, `throttlewatch.client.flush.metrics`, `throttlewatch.client.flush.errors`.
+
+---
+
+### ADR-015 — CI de validação no GitHub Actions
+
+**Status:** Aceito  
+**Decisão:** O repositório usa GitHub Actions (`.github/workflows/ci.yml`) para validar PRs e `main`: restore/build Release, `dotnet test` da solution, smoke de pack do Client e do Dashboard. Não há workflow de release, nem push para nuget.org, nem deploy de Api/Dashboard.  
+**Motivo:** Sem gate automático, regressões e nupkgs quebrados só aparecem na máquina de quem lembrou de rodar `dotnet test` / `make pack-*-smoke`. Testcontainers cobre os testes da Api no runner (Docker).  
+**Consequência:** Branch protection deve exigir o check `CI`. Paridade local: `make test` e `make ci`. Push nuget.org e imagens em registry continuam manuais / chore separado.
 
 ---
 

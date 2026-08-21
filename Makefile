@@ -10,7 +10,7 @@ HEALTH_SLEEP ?= 1
 
 .DEFAULT_GOAL := help
 
-.PHONY: help up up-rebuild down db restart logs ps build health sample sample-health demo-health load demo demo-rebuild pack-client pack-client-smoke pack-dashboard pack-dashboard-smoke
+.PHONY: help up up-rebuild down db restart logs ps build health sample sample-health demo-health load demo demo-rebuild pack-client pack-client-smoke pack-dashboard pack-dashboard-smoke test ci
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make <target>\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  %-14s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
@@ -134,3 +134,11 @@ pack-dashboard: ## Pack ThrottleWatch.Dashboard → artifacts/nuget
 
 pack-dashboard-smoke: ## Pack Dashboard and smoke-install into a temporary web app
 	./scripts/pack-dashboard-smoke.sh
+
+test: ## Run the full test suite (Release)
+	dotnet test ThrottleWatch.slnx -c Release --nologo
+
+ci: ## Same gates as GitHub Actions (tests + Client/Dashboard pack smoke)
+	$(MAKE) test
+	$(MAKE) pack-client-smoke
+	$(MAKE) pack-dashboard-smoke

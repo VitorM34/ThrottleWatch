@@ -45,6 +45,7 @@ ThrottleWatch.Dashboard  ──(REST + API key)───────────
 | SignalR live push to the Dashboard | ❌ cancelled (REST polling) |
 | Multi-tenant | ✅ one API key = one tenant; Client does **not** send `TenantId` |
 | Configurable retention / history rollups | ✅ `Storage:RetentionDays` + minute/hour rollups |
+| GitHub Actions CI | ✅ tests + Client/Dashboard pack smoke (no nuget push) |
 
 ---
 
@@ -267,6 +268,8 @@ ThrottleWatch.slnx
 | `make sample` / `make load` | Run sample / hammer it locally |
 | `make pack-client` / `make pack-client-smoke` | Pack Client NuGet + smoke install |
 | `make pack-dashboard` / `make pack-dashboard-smoke` | Pack Dashboard NuGet + smoke install |
+| `make test` | Full test suite (Release) |
+| `make ci` | Same gates as GitHub Actions (tests + pack smokes) |
 
 ```bash
 dotnet test ThrottleWatch.slnx
@@ -297,7 +300,7 @@ Historical sprint notes in `PROJECT_PLAN.md` still mention SignalR as originally
 
 1. Fork → branch `feature/...`
 2. Keep changes focused; follow existing architecture ([`ARCHITECTURE.md`](ARCHITECTURE.md))
-3. Open a PR against `main`
+3. Open a PR against `main` — GitHub Actions must pass (tests + NuGet pack smoke)
 
 ---
 
