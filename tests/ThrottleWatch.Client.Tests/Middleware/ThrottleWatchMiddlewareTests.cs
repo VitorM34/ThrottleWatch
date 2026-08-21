@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using ThrottleWatch.Client.Configuration;
+using ThrottleWatch.Client.Metrics;
 using ThrottleWatch.Client.Middleware;
 using ThrottleWatch.Client.Queue;
 
@@ -32,6 +33,7 @@ public sealed class ThrottleWatchMiddlewareTests
         await middleware.InvokeAsync(
             new DefaultHttpContext(),
             new LocalMetricBuffer(),
+            new ClientMetrics(new TestMeterFactory()),
             CreateOptionsMonitor(new ThrottleWatchOptions()),
             NullLogger<ThrottleWatchMiddleware>.Instance);
 
@@ -58,6 +60,7 @@ public sealed class ThrottleWatchMiddlewareTests
         await middleware.InvokeAsync(
             context,
             buffer,
+            new ClientMetrics(new TestMeterFactory()),
             CreateOptionsMonitor(new ThrottleWatchOptions()),
             NullLogger<ThrottleWatchMiddleware>.Instance);
 
@@ -86,6 +89,7 @@ public sealed class ThrottleWatchMiddlewareTests
         await middleware.InvokeAsync(
             new DefaultHttpContext(),
             buffer,
+            new ClientMetrics(new TestMeterFactory()),
             CreateOptionsMonitor(options),
             NullLogger<ThrottleWatchMiddleware>.Instance);
 
@@ -106,6 +110,7 @@ public sealed class ThrottleWatchMiddlewareTests
         await middleware.InvokeAsync(
             new DefaultHttpContext(),
             buffer,
+            new ClientMetrics(new TestMeterFactory()),
             CreateOptionsMonitor(options),
             NullLogger<ThrottleWatchMiddleware>.Instance);
 
@@ -125,6 +130,7 @@ public sealed class ThrottleWatchMiddlewareTests
         await middleware.InvokeAsync(
             context,
             buffer,
+            new ClientMetrics(new TestMeterFactory()),
             CreateOptionsMonitor(options),
             NullLogger<ThrottleWatchMiddleware>.Instance);
 
@@ -144,6 +150,7 @@ public sealed class ThrottleWatchMiddlewareTests
         var act = () => middleware.InvokeAsync(
             context,
             buffer,
+            new ClientMetrics(new TestMeterFactory()),
             CreateOptionsMonitor(new ThrottleWatchOptions()),
             NullLogger<ThrottleWatchMiddleware>.Instance);
 
