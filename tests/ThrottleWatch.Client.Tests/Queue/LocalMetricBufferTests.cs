@@ -50,7 +50,7 @@ public sealed class LocalMetricBufferTests
         buffer.TryEnqueue(CreatePayload("/1")).Should().BeTrue();
         buffer.TryEnqueue(CreatePayload("/2")).Should().BeTrue();
 
-        buffer.TryEnqueue(CreatePayload("/3"));
+        buffer.TryEnqueue(CreatePayload("/3")).Should().BeFalse();
 
         buffer.Count.Should().Be(2);
         var batch = buffer.DequeueBatch(10);
