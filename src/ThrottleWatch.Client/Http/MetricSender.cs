@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ThrottleWatch.Client.Configuration;
+using ThrottleWatch.Client.Metrics;
 using ThrottleWatch.Client.Queue;
 
 namespace ThrottleWatch.Client.Http;
@@ -14,22 +15,26 @@ public sealed class MetricSender : BackgroundService
     private readonly LocalMetricBuffer _buffer;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptionsMonitor<ThrottleWatchOptions> _options;
+    private readonly ClientMetrics _metrics;
     private readonly ILogger<MetricSender> _logger;
 
     public MetricSender(
         LocalMetricBuffer buffer,
         IHttpClientFactory httpClientFactory,
         IOptionsMonitor<ThrottleWatchOptions> options,
+        ClientMetrics metrics,
         ILogger<MetricSender> logger)
     {
         ArgumentNullException.ThrowIfNull(buffer);
         ArgumentNullException.ThrowIfNull(httpClientFactory);
         ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(metrics);
         ArgumentNullException.ThrowIfNull(logger);
 
         _buffer = buffer;
         _httpClientFactory = httpClientFactory;
         _options = options;
+        _metrics = metrics;
         _logger = logger;
     }
 
@@ -83,6 +88,7 @@ public sealed class MetricSender : BackgroundService
 
             if (!response.IsSuccessStatusCode)
             {
+                _metrics.RecordFlushError();
                 _logger.LogWarning(
                     "ThrottleWatch.Api returned {StatusCode} when posting {Count} metrics.",
                     (int)response.StatusCode,
@@ -90,6 +96,7 @@ public sealed class MetricSender : BackgroundService
             }
             else
             {
+                _metrics.RecordFlush(batch.Count);
                 _logger.LogDebug("Posted {Count} metrics to ThrottleWatch.Api.", batch.Count);
             }
 
