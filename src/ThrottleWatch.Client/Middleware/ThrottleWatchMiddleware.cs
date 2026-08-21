@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ThrottleWatch.Client.Configuration;
 using ThrottleWatch.Client.Http;
+using ThrottleWatch.Client.Metrics;
 using ThrottleWatch.Client.Queue;
 
 namespace ThrottleWatch.Client.Middleware;
@@ -21,6 +22,7 @@ public sealed class ThrottleWatchMiddleware
     public async Task InvokeAsync(
         HttpContext context,
         LocalMetricBuffer buffer,
+        ClientMetrics metrics,
         IOptionsMonitor<ThrottleWatchOptions> optionsMonitor,
         ILogger<ThrottleWatchMiddleware> logger)
     {
@@ -37,7 +39,7 @@ public sealed class ThrottleWatchMiddleware
 
             try
             {
-                TryCapture(context, buffer, options, stopwatch.Elapsed.TotalMilliseconds);
+                TryCapture(context, buffer, metrics, options, stopwatch.Elapsed.TotalMilliseconds);
             }
             catch (Exception ex)
             {
@@ -49,12 +51,25 @@ public sealed class ThrottleWatchMiddleware
     private static void TryCapture(
         HttpContext context,
         LocalMetricBuffer buffer,
+        ClientMetrics metrics,
         ThrottleWatchOptions options,
         double durationMs)
     {
         var statusCode = context.Response.StatusCode;
+        var blocked = statusCode == StatusCodes.Status429TooManyRequests;
 
-        if (options.CaptureOnlyBlocked && statusCode != StatusCodes.Status429TooManyRequests)
+        string? policyName = null;
+        if (!string.IsNullOrWhiteSpace(options.PolicyNameHeaderName)
+            && context.Response.Headers.TryGetValue(options.PolicyNameHeaderName, out var policyValues))
+        {
+            policyName = policyValues.ToString();
+            if (string.IsNullOrWhiteSpace(policyName))
+                policyName = null;
+        }
+
+        metrics.RecordRequest(context.Request.Method, blocked, policyName);
+
+        if (options.CaptureOnlyBlocked && !blocked)
             return;
 
         var path = context.Request.Path.HasValue
@@ -74,15 +89,6 @@ public sealed class ThrottleWatchMiddleware
                 apiKey = null;
         }
 
-        string? policyName = null;
-        if (!string.IsNullOrWhiteSpace(options.PolicyNameHeaderName)
-            && context.Response.Headers.TryGetValue(options.PolicyNameHeaderName, out var policyValues))
-        {
-            policyName = policyValues.ToString();
-            if (string.IsNullOrWhiteSpace(policyName))
-                policyName = null;
-        }
-
         var payload = new MetricPayload(
             Path: path,
             Method: context.Request.Method,
@@ -93,6 +99,7 @@ public sealed class ThrottleWatchMiddleware
             PolicyName: policyName,
             ApiKey: apiKey);
 
-        buffer.TryEnqueue(payload);
+        if (!buffer.TryEnqueue(payload))
+            metrics.RecordDrop();
     }
 }

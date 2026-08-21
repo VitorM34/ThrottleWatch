@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ThrottleWatch.Client.Configuration;
 using ThrottleWatch.Client.Http;
+using ThrottleWatch.Client.Metrics;
 using ThrottleWatch.Client.Queue;
 
 namespace ThrottleWatch.Client.Tests.Configuration;
@@ -25,6 +26,7 @@ public sealed class ThrottleWatchExtensionsTests
         using var provider = services.BuildServiceProvider();
 
         provider.GetRequiredService<LocalMetricBuffer>().Should().NotBeNull();
+        provider.GetRequiredService<ClientMetrics>().Should().NotBeNull();
         provider.GetRequiredService<IHttpClientFactory>()
             .CreateClient(MetricSender.HttpClientName)
             .BaseAddress.Should().Be(new Uri("http://localhost:5287/"));

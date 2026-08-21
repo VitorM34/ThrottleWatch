@@ -39,6 +39,7 @@ ThrottleWatch.Dashboard  ──(REST + API key)───────────
 | Alerts: Webhook, Slack, Discord, Email | ✅ |
 | Insights analyzers | ✅ |
 | Serilog + OpenTelemetry hooks on the API | ✅ |
+| Client BCL meters (`ThrottleWatch.Client`) for the consumer host’s OTel | ✅ no `OpenTelemetry.*` on the Client package (ADR-014) |
 | Docker Compose local stack + sample traffic | ✅ |
 | Embedded dashboard inside the consumer app (`/throttlewatch`) | ✅ `ThrottleWatch.Dashboard` NuGet — `UseThrottleWatchDashboard()` (not the Client package) |
 | SignalR live push to the Dashboard | ❌ cancelled (REST polling) |
@@ -113,6 +114,15 @@ var app = builder.Build();
 app.UseThrottleWatch();
 // Keep your own UseRateLimiter() / policies as usual.
 ```
+
+If the host already uses OpenTelemetry, subscribe to the Client meter (no extra NuGet on `ThrottleWatch`):
+
+```csharp
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics => metrics.AddMeter("ThrottleWatch.Client"));
+```
+
+Instruments: `throttlewatch.client.requests` (tags `http.method`, `blocked`; optional `throttlewatch.policy`), `throttlewatch.client.buffer.dropped`, `throttlewatch.client.flush.metrics`, `throttlewatch.client.flush.errors`. There is **no** `path` tag (cardinality). Meters fire on every request; `CaptureOnlyBlocked` only filters HTTP ingest to the Api.
 
 `appsettings.json` (Client options — this is what `AddThrottleWatch` binds):
 
@@ -277,7 +287,7 @@ dotnet test ThrottleWatch.slnx
 | EPIC-18 Embedded dashboard (`/throttlewatch`) | ✅ |
 | EPIC-19 Dashboard NuGet | ✅ |
 | EPIC-20 Multi-tenant | ✅ one API key = one tenant (ADR-013) |
-| EPIC-21 OpenTelemetry export (Client) | 🔲 planned (v1.4) |
+| EPIC-21 OpenTelemetry export (Client) | ✅ BCL `Meter` `ThrottleWatch.Client` (ADR-014) |
 
 Historical sprint notes in `PROJECT_PLAN.md` still mention SignalR as originally planned; **runtime path is REST polling**.
 

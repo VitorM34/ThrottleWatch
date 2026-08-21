@@ -29,6 +29,15 @@ builder.Services.AddThrottleWatch(builder.Configuration);
 app.UseThrottleWatch();
 ```
 
+If the host already uses OpenTelemetry, add the Client meter (the `ThrottleWatch` package itself has **no** `OpenTelemetry.*` dependency):
+
+```csharp
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics => metrics.AddMeter("ThrottleWatch.Client"));
+```
+
+`CaptureOnlyBlocked` only filters what is posted to ThrottleWatch.Api. The meter still records every request. There is no `path` tag (high cardinality).
+
 `appsettings.json`:
 
 ```json

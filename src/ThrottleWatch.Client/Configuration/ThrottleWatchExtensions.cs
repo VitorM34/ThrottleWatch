@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using ThrottleWatch.Client.Http;
+using ThrottleWatch.Client.Metrics;
 using ThrottleWatch.Client.Middleware;
 using ThrottleWatch.Client.Queue;
 
@@ -77,6 +78,9 @@ public static class ThrottleWatchExtensions
 
     private static void RegisterCoreServices(IServiceCollection services)
     {
+        services.AddMetrics();
+        services.AddSingleton<ClientMetrics>();
+
         services.AddSingleton(sp =>
         {
             var options = sp.GetRequiredService<IOptions<ThrottleWatchOptions>>().Value;

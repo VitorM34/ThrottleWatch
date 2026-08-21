@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using ThrottleWatch.Client.Configuration;
 using ThrottleWatch.Client.Http;
+using ThrottleWatch.Client.Metrics;
 using ThrottleWatch.Client.Queue;
 
 namespace ThrottleWatch.Client.Tests.Http;
@@ -30,6 +31,7 @@ public sealed class MetricSenderTests
             buffer,
             factory,
             new TestOptionsMonitor<ThrottleWatchOptions>(options),
+            new ClientMetrics(new TestMeterFactory()),
             NullLogger<MetricSender>.Instance);
 
         await sender.StartAsync(CancellationToken.None);
@@ -70,6 +72,7 @@ public sealed class MetricSenderTests
             new LocalMetricBuffer(),
             factory,
             new TestOptionsMonitor<ThrottleWatchOptions>(options),
+            new ClientMetrics(new TestMeterFactory()),
             NullLogger<MetricSender>.Instance);
 
         await sender.StartAsync(CancellationToken.None);

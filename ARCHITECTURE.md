@@ -1,6 +1,6 @@
 # ThrottleWatch — Documento Oficial de Arquitetura
 
-**Versão:** 1.3  
+**Versão:** 1.4  
 **Status:** Definitivo  
 **Última atualização:** Agosto 2026
 
@@ -416,6 +416,7 @@ ThrottleWatch/
 - Fornecer middleware ASP.NET Core que intercepta respostas HTTP
 - Detectar status 429 (Too Many Requests) e capturar metadados da requisição
 - Enfileirar métricas localmente e enviá-las em batch via HTTP para a ThrottleWatch.Api
+- Expor instrumentos BCL (`System.Diagnostics.Metrics`) para o host exportar via OTel (ADR-014)
 - Expor extension methods de configuração (`AddThrottleWatch`, `UseThrottleWatch`)
 
 **Pode conter:**
@@ -424,6 +425,7 @@ ThrottleWatch/
 - Fila interna em memória para envio em batch (não bloqueante)
 - Extension methods de configuração (`ThrottleWatchOptions`, `IServiceCollectionExtensions`)
 - DTOs locais para serialização do payload enviado à API
+- Meter BCL (`ClientMetrics`, meter `ThrottleWatch.Client`) — sem pacote `OpenTelemetry.*`
 
 **NÃO pode conter:**
 - Referência a `ThrottleWatch.Domain`, `ThrottleWatch.Application` ou `ThrottleWatch.Infrastructure`
@@ -438,6 +440,7 @@ ThrottleWatch/
 **Dependências proibidas:**
 - Qualquer projeto `ThrottleWatch.*`
 - `Microsoft.EntityFrameworkCore`
+- Pacotes `OpenTelemetry.*` (o host do consumidor registra o meter; ADR-014)
 
 ---
 
@@ -594,6 +597,8 @@ ThrottleWatch.Client/
 ├── Http/
 │   ├── MetricPayload.cs
 │   └── MetricSender.cs
+├── Metrics/
+│   └── ClientMetrics.cs           # Meter BCL ThrottleWatch.Client (ADR-014)
 └── Queue/
     └── LocalMetricBuffer.cs
 ```
@@ -904,9 +909,11 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 
 ### OpenTelemetry
 
-**Onde:** Configurado em `ThrottleWatch.Infrastructure`. Habilitado em `ThrottleWatch.Api`.  
+**Onde:** SDK OTel configurado em `ThrottleWatch.Infrastructure` e habilitado em `ThrottleWatch.Api`. O **Client** emite apenas `System.Diagnostics.Metrics` (`Meter` `ThrottleWatch.Client`); o host consumidor faz `AddMeter` no *seu* `MeterProvider` (ADR-014).  
 **Não usar em:** Domain e Application  
-**Uso:** Traces de requisições HTTP, métricas de processamento, exportação para Jaeger ou OTLP
+**Não usar no Client:** pacotes `OpenTelemetry.*`  
+**Uso (Api):** traces HTTP, métricas internas da plataforma, exportação OTLP/Prometheus  
+**Uso (Client):** counters de request/429, drops do buffer e flush — sem tag `path` (cardinalidade)
 
 ### FluentValidation
 
@@ -1059,6 +1066,15 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 
 ---
 
+### ADR-014 — Client emite meters BCL; OTel é do host
+
+**Status:** Aceito  
+**Decisão:** `ThrottleWatch.Client` expõe um `Meter` (`ThrottleWatch.Client`) via `System.Diagnostics.Metrics` / `IMeterFactory`. O pacote NuGet `ThrottleWatch` **não** referencia `OpenTelemetry.*`. O consumidor que já tem Grafana/OTLP registra `AddMeter("ThrottleWatch.Client")` no `MeterProvider` do host.  
+**Motivo:** Ver 429s e volume sem obrigar o Dashboard, sem inflar o SDK (ADR-010). Se ninguém escuta o meter, o custo é ~zero. Tag `path` é omitida de propósito (alta cardinalidade). O meter observa **todo** request, mesmo com `CaptureOnlyBlocked` (esse flag só filtra o ingest HTTP).  
+**Consequência:** Ingest para a Api continua REST (`POST /api/metrics`). Sem dashboards Grafana oficiais neste epic. Instrumentos: `throttlewatch.client.requests` (tags `http.method`, `blocked`; `throttlewatch.policy` só se presente), `throttlewatch.client.buffer.dropped`, `throttlewatch.client.flush.metrics`, `throttlewatch.client.flush.errors`.
+
+---
+
 ## 11. Restrições
 
 ### Restrições de Estrutura
@@ -1107,6 +1123,7 @@ ThrottleWatch.Application/Services/MetricsService.cs → namespace ThrottleWatch
 - Não acessar banco de dados
 - Não conter regras de negócio do ThrottleWatch
 - Não adicionar `TenantId` nas options do Client (o tenant vem da API key na Api; ADR-013)
+- Não adicionar pacotes `OpenTelemetry.*` ao Client (meters BCL; o host exporta; ADR-014)
 
 ### Restrições Gerais
 

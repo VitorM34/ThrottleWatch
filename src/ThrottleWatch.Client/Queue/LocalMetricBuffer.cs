@@ -11,7 +11,9 @@ public sealed class LocalMetricBuffer
     {
         var options = new BoundedChannelOptions(capacity)
         {
-            FullMode = BoundedChannelFullMode.DropWrite,
+            // Wait + TryWrite: do not block; return false when full so callers can count drops.
+            // DropWrite reports success even when the item is discarded.
+            FullMode = BoundedChannelFullMode.Wait,
             SingleReader = false,
             SingleWriter = false
         };
